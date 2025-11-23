@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مطعم العربي - نواذيبو</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #007bff;
+      --secondary: #ffc107;
+      --light: #fffdf5;
+      --dark: #333;
+      --white: #fff;
+      --food-color: #e74c3c;
+    }
+    
+    * {
+      box-sizing: border-box;
+      font-family: "Tahoma", "Arial", sans-serif;
+    }
+    
+    body {
+      font-family: "Tahoma", sans-serif;
+      background: var(--light);
+      margin: 0;
+      padding: 0;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+      text-align: center;
+      padding: 30px 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    h3.owner {
+      margin-top: 10px;
+      font-weight: normal;
+      font-size: 20px;
+      color: #f9f9f9;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 25px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border: 1px solid #eee;
+    }
+
+    .info p {
+      margin: 12px 0;
+      line-height: 1.8;
+      font-size: 17px;
+    }
+
+    .map {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    a.map-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f0f8ff;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    a.map-link:hover {
+      text-decoration: none;
+      background: #e1f0ff;
+      transform: translateY(-2px);
+    }
+    
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-weight: bold;
+      margin-top: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    }
+    
+    .whatsapp-btn:hover {
+      background: #128C7E;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(37, 211, 102, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+    
+    .order-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--food-color);
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-weight: bold;
+      margin: 10px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    }
+    
+    .order-btn:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px;
+      margin-top: 30px;
+      font-size: 16px;
+    }
+    
+    .menu-category {
+      margin-bottom: 30px;
+    }
+    
+    .menu-category h2 {
+      color: var(--primary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 10px;
+    }
+    
+    .menu-item-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border-right: 4px solid var(--secondary);
+      transition: all 0.3s;
+    }
+    
+    .menu-item-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    
+    .dish-info h3 {
+      margin: 0 0 8px 0;
+      color: var(--dark);
+    }
+    
+    .dish-description {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .dish-price {
+      font-weight: bold;
+      color: var(--food-color);
+      font-size: 18px;
+    }
+    
+    .services ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    .services li {
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-right: 4px solid var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .services li:before {
+      content: "✓";
+      color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      transition: all 0.3s;
+    }
+    
+    .social-link:hover {
+      background: #e9e9e9;
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #333;
+    }
+    
+    .category-badge {
+      display: inline-block;
+      background: var(--secondary);
+      color: #333;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    
+    .hero-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 26px;
+      }
+      
+      .social-links {
+        flex-direction: column;
+      }
+      
+      .menu-item-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .dish-price {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-utensils"></i> مطعم العربي</h1>
+    <h3 class="owner">المالك: محمد ولد اعلي</h3>
+    <p>
+مطعمنا هو وجهتكم المثالية للاستمتاع بأشهى الوجبات المحضّرة بعناية، وبمذاق أصيل يرضي جميع الأذواق.
+نقدّم للزبناء أطباقًا طازجة يوميًا باستخدام أفضل المكونات، مع خدمة سريعة وبيئة مريحة تجعل الزيارة تجربة لا تُنسى.
+
+يتميّز المطعم بنظافته، وحسن معاملة طاقم العمل، وتنوّع قائمته بين الوجبات المحلية والعصرية، إضافة إلى إمكانية الطلب للحضور أو عبر الهاتف.
+
+مطعمنا… نكهة ترضي الجميع وخدمة تليق بكم.
+</p>
+    <div class="category-badge">مطعم بحري</div>
+    <div class="hero-buttons">
+      <a href="https://wa.me/22223344?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20%D8%A7%D8%B1%D9%8A%D8%AF%20%D8%B7%D9%84%D8%A8%20%D8%B7%D8%B9%D8%A7%D9%85%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B7%D8%B9%D9%85" class="whatsapp-btn" target="_blank">
+        <i class="fab fa-whatsapp"></i> طلب عبر الواتساب
+      </a>
+      <a href="tel:22223344" class="order-btn">
+        <i class="fas fa-phone"></i> اتصل للطلب
+      </a>
+    </div>
+  </header>
+
+  <div class="container info">
+    <h2><i class="fas fa-info-circle"></i> معلومات المطعم</h2>
+    <p><strong><i class="fas fa-map-marker-alt"></i> العنوان:</strong> نواذيبو</p>
+    <p><strong><i class="fas fa-phone"></i> الهاتف:</strong> 22223344</p>
+    <p><strong><i class="fas fa-clock"></i> ساعات العمل:</strong> 7صباحالي 8ليلا</p>
+    <div class="map">
+      <p><strong><i class="fas fa-map"></i> موقعنا على الخريطة:</strong></p>
+      <a class="map-link" href="https://maps.app.goo.gl/Ku5JujGnfvUC3t5s8" target="_blank">
+        <i class="fas fa-external-link-alt"></i> اضغط هنا لفتح الخريطة
+      </a>
+    </div>
+  </div>
+  
+  
+          <div class="container menu-category">
+            <h2><i class="fas fa-apple-alt"></i> المقبلات</h2>
+            <div class="menu-items">
+          
+              <div class="menu-item-card">
+                <div class="dish-info">
+                  <h3>مارو بسمتي</h3>
+                  <p class="dish-description">لحم مارو بسمتي شهي</p>
+                </div>
+                <div class="dish-price">50</div>
+              </div>
+            
+            </div>
+          </div>
+          
+  
+  
+  
+  
+
+  <footer>
+    <p>© 2025 مطعم العربي - نواذيبو | المالك: محمد ولد اعلي</p>
+    <p>تم التصميم والتطوير بواسطة أج آجمار - مطور مواقع ويب</p>
+  </footer>
+</body>
+</html>
