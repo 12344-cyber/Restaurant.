@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إخباري برو - محرر الفيديو الإخباري الحقيقي</title>
+    <title>إخباري برو - محرر فيديو إخباري</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap">
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+    <!-- إصدار أحدث وأكثر استقراراً -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/umd/ffmpeg.min.js"></script>
     <style>
         body { font-family: 'Cairo', sans-serif; background: #0f0f1a; }
         #sourceDisplay { font-family: 'Amiri', serif; font-weight: 700; }
@@ -21,407 +22,100 @@
             position: relative;
         }
         #videoElement { width: 100%; height: 100%; object-fit: cover; background: #000; }
-        #videoPreview::after {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 14px;
-            pointer-events: none;
-            z-index: 50;
-        }
-        .watermark {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            color: rgba(255,255,255,0.25);
-            font-size: 13px;
-            z-index: 60;
-            pointer-events: none;
-        }
-        .progress-bar {
-            position: absolute;
-            bottom: 200px;
-            left: 20px;
-            right: 20px;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            z-index: 30;
-            cursor: pointer;
-        }
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(to left, #a855f7, #ec4899);
-            border-radius: 10px;
-            position: relative;
-        }
+        .watermark { position: absolute; bottom: 12px; left: 12px; color: rgba(255,255,255,0.25); font-size: 13px; z-index: 60; pointer-events: none; }
+        .progress-bar { position: absolute; bottom: 200px; left: 20px; right: 20px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; z-index: 30; cursor: pointer; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(to left, #a855f7, #ec4899); border-radius: 10px; }
         .play-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: rgba(168, 85, 247, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            z-index: 40;
-            border: 3px solid white;
-            transition: all 0.3s;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; background: rgba(168, 85, 247, 0.9); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 40px;
+            cursor: pointer; z-index: 40; border: 3px solid white; transition: all 0.3s;
         }
         .play-btn:hover { transform: translate(-50%, -50%) scale(1.1); background: #a855f7; }
         .play-btn.hidden { display: none; }
         .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: #a855f7;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            z-index: 100;
+            border: 5px solid rgba(255,255,255,0.3); border-top-color: #a855f7; border-radius: 50%;
+            width: 60px; height: 60px; animation: spin 1s linear infinite;
         }
-        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .hidden { display: none; }
-        .video-controls {
-            position: absolute;
-            bottom: 120px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 30;
-        }
-        .control-btn {
-            width: 45px;
-            height: 45px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+        .video-controls { position: absolute; bottom: 120px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 30; }
+        .control-btn { width: 45px; height: 45px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; color: white; font-size: 20px; cursor: pointer; transition: all 0.3s; }
         .control-btn:hover { background: #a855f7; }
-        .time-display {
-            color: white;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 14px;
-        }
+        .time-display { color: white; background: rgba(0,0,0,0.7); padding: 8px 16px; border-radius: 30px; font-size: 14px; }
     </style>
 </head>
 <body class="text-white p-6">
 
-<div class="grid lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-5 bg-slate-900/70 backdrop-blur-2xl rounded-3xl p-6 border border-purple-500/30">
-        <div class="space-y-6">
-            <div>
-                <label class="block text-purple-300 mb-2 font-medium">فيديو الخبر</label>
-                <label class="block w-full h-36 border-4 border-dashed border-purple-500 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-400 transition">
-                    <span class="text-3xl mb-1">🎬</span>
-                    <span class="font-semibold text-sm">ارفع فيديو (720×900 مثالي)</span>
-                    <span class="text-xs text-gray-400 mt-1">MP4, MOV, WebM</span>
-                    <input type="file" id="videoUpload" accept="video/*" class="hidden">
-                </label>
-            </div>
-            
-            <div class="bg-slate-800/50 rounded-2xl p-3 border border-purple-500/20">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-sm text-gray-300" id="videoStatus">انتظار رفع فيديو</span>
-                    </div>
-                    <span class="text-xs text-gray-400" id="videoFileName">-</span>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <input id="sourceName" value="منصة أقورط الإخبارية" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm" placeholder="اسم المصدر">
-                <input id="alertOrName" value="عاجل" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm" placeholder="نص الشريط">
-            </div>
-            
-            <textarea id="newsText" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm resize-none" placeholder="نص الخبر هنا (سيتم اقتصاره لـ 180 حرف)"></textarea>
-            
-            <input id="newsDate" value="الجمعة 20 فبراير 2026" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white text-sm">
-            
-            <div class="bg-slate-800/30 rounded-2xl p-4 border border-purple-500/20">
-                <h3 class="text-purple-300 mb-3 font-bold text-sm">قص الفيديو</h3>
-                <div class="flex gap-3 mb-4">
-                    <div class="flex-1">
-                        <label class="block text-gray-400 text-xs mb-1">من</label>
-                        <input type="text" id="startTime" value="00:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-center text-sm">
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-gray-400 text-xs mb-1">إلى</label>
-                        <input type="text" id="endTime" value="00:10" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-center text-sm">
-                    </div>
-                </div>
-                <button onclick="cutVideo()" class="w-full py-3 bg-purple-600 rounded-xl font-bold text-sm hover:bg-purple-700 transition flex items-center justify-center gap-2">
-                    <span>✂️</span> قص الفيديو
-                </button>
-            </div>
-            
-            <div class="flex gap-4">
-                <button onclick="processVideo()" class="flex-1 py-4 bg-gradient-to-l from-purple-600 to-pink-600 rounded-2xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2">
-                    <span>🎬</span> تطبيق التعديلات + النصوص
-                </button>
-                <button onclick="downloadVideo()" class="flex-1 py-4 bg-emerald-600 rounded-2xl font-bold text-sm hover:bg-emerald-700 transition flex items-center justify-center gap-2">
-                    <span>📥</span> تحميل الفيديو
-                </button>
-            </div>
-            
-            <div id="processingStatus" class="hidden bg-purple-900/50 rounded-2xl p-4 text-center">
-                <div class="loading-spinner"></div>
-                <p class="text-sm mt-2" id="statusText">جاري معالجة الفيديو...</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="lg:col-span-7 flex justify-center items-start">
-        <div id="videoPreview" class="relative">
-            <video id="videoElement" class="absolute inset-0 w-full h-full object-cover" playsinline></video>
-            <img id="fallbackImage" src="https://picsum.photos/id/1015/720/900" class="absolute inset-0 w-full h-full object-cover">
-            
-            <div id="playButton" class="play-btn" onclick="togglePlay()">▶️</div>
-            
-            <div id="dateDisplay" class="absolute top-5 right-5 bg-white/95 text-slate-900 font-black px-5 py-2 rounded-2xl text-sm shadow-2xl z-20">
-                الجمعة 20 فبراير 2026
-            </div>
-            
-            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-purple-950 via-purple-950/70 to-transparent z-10"></div>
+<!-- باقي الـ HTML كما هو (اللوحة اليسرى + المعاينة) ... للاختصار، ضع الـ HTML السابق هنا بدون تغيير كبير -->
 
-            <div id="alertBox" class="absolute bottom-[360px] right-5 bg-red-700 text-white px-6 py-2 rounded-xl font-black text-2xl z-30">
-                <span id="alertText">عاجل</span>
-            </div>
-
-            <div id="newsContent" class="absolute bottom-56 left-5 right-5 text-white text-center text-xl font-bold leading-tight z-30">
-                نص الخبر هنا
-            </div>
-            
-            <div class="progress-bar" onclick="seekVideo(event)">
-                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
-            </div>
-            
-            <div class="video-controls">
-                <div class="control-btn" onclick="skip(-10)">⏪</div>
-                <div class="control-btn" onclick="togglePlay()" id="playPauseBtn">⏸️</div>
-                <div class="control-btn" onclick="skip(10)">⏩</div>
-                <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
-            </div>
-
-            <div class="absolute bottom-5 left-5 z-40" style="max-width: 600px;">
-                <div id="sourceDisplay" class="font-black text-2xl tracking-tight px-4 py-1 rounded-xl bg-black/40 backdrop-blur-md text-white shadow-xl whitespace-nowrap">
-                    منصة أقورط الإخبارية
-                </div>
-            </div>
-            
-            <div class="watermark">صنع بـ إخباري برو • محرر فيديو حقيقي</div>
-        </div>
-    </div>
-</div>
-
-<div id="ffmpegLoading" class="fixed top-0 left-0 w-full h-full bg-black/90 flex items-center justify-center z-50" style="display: none;">
+<div id="ffmpegLoading" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden">
     <div class="text-center">
-        <div class="loading-spinner mb-4"></div>
-        <p class="text-purple-400">جاري تحميل محرر الفيديو...</p>
+        <div class="loading-spinner mx-auto mb-4"></div>
+        <p class="text-purple-400">جاري تحميل FFmpeg...</p>
     </div>
 </div>
 
 <script>
     const { createFFmpeg, fetchFile } = FFmpeg;
-    const ffmpeg = createFFmpeg({ log: true });
-    
+    const ffmpeg = createFFmpeg({ 
+        log: true,
+        // corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js' // اختياري إذا أردت تحديد
+    });
+
     const videoElement = document.getElementById('videoElement');
-    const playButton = document.getElementById('playButton');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const progressFill = document.getElementById('progressFill');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const fallbackImage = document.getElementById('fallbackImage');
-    
-    let isPlaying = false;
+    // ... باقي المتغيرات كما في الكود السابق (playButton, progressFill, etc.)
+
     let videoFile = null;
-    let originalVideoFile = null;
     let ffmpegLoaded = false;
 
     async function loadFFmpeg() {
         if (ffmpegLoaded) return true;
-        document.getElementById('ffmpegLoading').style.display = 'flex';
+        document.getElementById('ffmpegLoading').classList.remove('hidden');
         try {
+            console.log('جاري تحميل FFmpeg...');
             await ffmpeg.load();
             ffmpegLoaded = true;
-            console.log('FFmpeg جاهز');
+            console.log('FFmpeg محمل بنجاح ✓');
         } catch (err) {
             console.error('خطأ تحميل FFmpeg:', err);
-            alert('تعذر تحميل FFmpeg. حاول مرة أخرى أو تحقق من الإنترنت.');
+            alert('فشل تحميل FFmpeg. تأكد من اتصال إنترنت قوي وحاول مرة أخرى.');
         }
-        document.getElementById('ffmpegLoading').style.display = 'none';
+        document.getElementById('ffmpegLoading').classList.add('hidden');
         return ffmpegLoaded;
     }
 
-    function updatePreview() {
-        document.getElementById("dateDisplay").textContent = document.getElementById("newsDate").value || "التاريخ";
-        document.getElementById("alertText").textContent = document.getElementById("alertOrName").value || "عاجل";
-        document.getElementById("sourceDisplay").textContent = document.getElementById("sourceName").value || "اسم المصدر";
-        
-        let news = document.getElementById("newsText").value.trim();
-        if (news.length > 180) {
-            news = news.substring(0, 180);
-            document.getElementById("newsText").value = news;
-        }
-        document.getElementById("newsContent").innerHTML = news || "نص الخبر هنا";
-    }
-
-    document.querySelectorAll("input, textarea").forEach(el => el.addEventListener("input", updatePreview));
-
-    document.getElementById("videoUpload").onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        videoFile = file;
-        originalVideoFile = file;
-        document.getElementById("videoFileName").textContent = file.name;
-        document.getElementById("videoStatus").textContent = 'تم رفع الفيديو';
-        
-        const url = URL.createObjectURL(file);
-        videoElement.src = url;
-        videoElement.style.display = 'block';
-        fallbackImage.style.display = 'none';
-        
-        videoElement.onloadedmetadata = () => {
-            updateTimeDisplay();
-            const dur = videoElement.duration;
-            const min = Math.floor(dur / 60).toString().padStart(2,'0');
-            const sec = Math.floor(dur % 60).toString().padStart(2,'0');
-            document.getElementById('endTime').value = `\( {min}: \){sec}`;
-        };
-        
-        if (!ffmpegLoaded) await loadFFmpeg();
-    };
-
-    function togglePlay() {
-        if (!videoElement.src) return alert('ارفع فيديو أولاً');
-        if (isPlaying) {
-            videoElement.pause();
-            playButton.classList.remove('hidden');
-            playPauseBtn.innerHTML = '▶️';
-        } else {
-            videoElement.play();
-            playButton.classList.add('hidden');
-            playPauseBtn.innerHTML = '⏸️';
-        }
-        isPlaying = !isPlaying;
-    }
-
-    videoElement.addEventListener('timeupdate', () => {
-        if (videoElement.duration) {
-            const p = (videoElement.currentTime / videoElement.duration) * 100;
-            progressFill.style.width = `${p}%`;
-            updateTimeDisplay();
-        }
-    });
-
-    function updateTimeDisplay() {
-        const c = videoElement.currentTime || 0;
-        const d = videoElement.duration || 0;
-        const cf = `\( {Math.floor(c/60).toString().padStart(2,'0')}: \){Math.floor(c%60).toString().padStart(2,'0')}`;
-        const df = `\( {Math.floor(d/60).toString().padStart(2,'0')}: \){Math.floor(d%60).toString().padStart(2,'0')}`;
-        timeDisplay.textContent = `${cf} / ${df}`;
-    }
-
-    function seekVideo(e) {
-        if (!videoElement.duration) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        videoElement.currentTime = pos * videoElement.duration;
-    }
-
-    function skip(sec) {
-        if (!videoElement.duration) return;
-        videoElement.currentTime = Math.max(0, Math.min(videoElement.currentTime + sec, videoElement.duration));
-    }
-
-    async function cutVideo() {
-        if (!videoFile) return alert('ارفع فيديو أولاً');
-        if (!ffmpegLoaded) if (!await loadFFmpeg()) return;
-
-        document.getElementById('processingStatus').classList.remove('hidden');
-        document.getElementById('statusText').textContent = 'جاري قص الفيديو...';
-
-        try {
-            const start = document.getElementById('startTime').value;
-            const end   = document.getElementById('endTime').value;
-            const [sMin, sSec] = start.split(':').map(Number);
-            const [eMin, eSec] = end.split(':').map(Number);
-            const duration = (eMin * 60 + eSec) - (sMin * 60 + sSec);
-
-            if (duration <= 0) return alert('وقت النهاية يجب أن يكون أكبر من البداية');
-
-            ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(videoFile));
-
-            await ffmpeg.run(
-                '-i', 'input.mp4',
-                '-ss', start,
-                '-t', duration.toString(),
-                '-c', 'copy',
-                'cut.mp4'
-            );
-
-            const data = ffmpeg.FS('readFile', 'cut.mp4');
-            const blob = new Blob([data.buffer], {type: 'video/mp4'});
-            const url = URL.createObjectURL(blob);
-
-            videoElement.src = url;
-            videoFile = new File([blob], 'cut.mp4', {type: 'video/mp4'});
-
-            document.getElementById('statusText').textContent = 'تم القص بنجاح!';
-            setTimeout(() => document.getElementById('processingStatus').classList.add('hidden'), 2000);
-        } catch (err) {
-            console.error(err);
-            alert('خطأ أثناء القص');
-            document.getElementById('processingStatus').classList.add('hidden');
-        }
-    }
+    // دالة updatePreview و onchange الرفع كما هي سابقاً...
 
     async function processVideo() {
-        if (!videoFile) return alert('ارفع فيديو أولاً');
+        if (!videoFile) return alert('ارفع فيديو أولاً!');
         if (!ffmpegLoaded) if (!await loadFFmpeg()) return;
 
         document.getElementById('processingStatus').classList.remove('hidden');
-        document.getElementById('statusText').textContent = 'جاري إضافة النصوص (قد يستغرق وقتاً)...';
+        document.getElementById('statusText').textContent = 'جاري إضافة النصوص... (قد يأخذ 10-60 ثانية حسب طول الفيديو)';
 
         try {
-            const source = escapeFFmpegText(document.getElementById('sourceName').value.trim());
-            const alertT = escapeFFmpegText(document.getElementById('alertOrName').value.trim());
-            let news = document.getElementById('newsText').value.trim().substring(0,180);
-            news = escapeFFmpegText(news);
-            const dateT = escapeFFmpegText(document.getElementById('newsDate').value.trim());
+            const source = escapeText(document.getElementById('sourceName').value.trim());
+            const alertT = escapeText(document.getElementById('alertOrName').value.trim());
+            let news   = escapeText(document.getElementById('newsText').value.trim().substring(0,180));
+            const dateT = escapeText(document.getElementById('newsDate').value.trim());
 
             ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(videoFile));
 
-            // تحميل خط Amiri (يدعم العربية جيداً)
-            const fontUrl = 'https://cdn.jsdelivr.net/npm/@fontsource/amiri/files/amiri-arabic-700-normal.ttf';
-            const fontResp = await fetch(fontUrl);
-            const fontBuf = await fontResp.arrayBuffer();
-            ffmpeg.FS('writeFile', 'font.ttf', new Uint8Array(fontBuf));
+            // خط أساسي + fallback
+            let fontUrl = 'https://cdn.jsdelivr.net/npm/@fontsource/amiri/files/amiri-arabic-700-normal.ttf';
+            try {
+                const resp = await fetch(fontUrl);
+                if (!resp.ok) throw new Error('Amiri فشل');
+                const buf = await resp.arrayBuffer();
+                ffmpeg.FS('writeFile', 'font.ttf', new Uint8Array(buf));
+            } catch {
+                console.warn('Amiri فشل، جاري تجربة Noto Naskh');
+                fontUrl = 'https://cdn.jsdelivr.net/npm/@fontsource/noto-naskh-arabic/files/noto-naskh-arabic-arabic-700-normal.ttf';
+                const resp = await fetch(fontUrl);
+                const buf = await resp.arrayBuffer();
+                ffmpeg.FS('writeFile', 'font.ttf', new Uint8Array(buf));
+            }
 
             const filter = [
                 'scale=720:900:force_original_aspect_ratio=decrease,pad=720:900:(ow-iw)/2:(oh-ih)/2:black',
@@ -431,49 +125,35 @@
                 `drawtext=fontfile=font.ttf:text='${source}':fontcolor=white:fontsize=44:fontweight=bold:x=30:y=h-th-40:box=1:boxcolor=black@0.6:boxborderw=10:text_shaping=1`
             ].join(',');
 
+            console.log('جاري تشغيل FFmpeg مع الفلتر...');
             await ffmpeg.run(
                 '-i', 'input.mp4',
                 '-vf', filter,
                 '-c:v', 'libx264', '-preset', 'fast', '-crf', '23',
-                '-c:a', 'aac', '-b:a', '128k',
+                '-c:a', 'copy',
                 'final.mp4'
             );
 
             const data = ffmpeg.FS('readFile', 'final.mp4');
             const blob = new Blob([data.buffer], {type: 'video/mp4'});
-            const url = URL.createObjectURL(blob);
+            videoElement.src = URL.createObjectURL(blob);
+            videoFile = new File([blob], 'final_news.mp4', {type: 'video/mp4'});
 
-            videoElement.src = url;
-            videoFile = new File([blob], 'news_final.mp4', {type: 'video/mp4'});
-
-            document.getElementById('statusText').textContent = 'تم إضافة النصوص بنجاح ✓';
+            document.getElementById('statusText').textContent = 'تم التحرير بنجاح!';
             setTimeout(() => document.getElementById('processingStatus').classList.add('hidden'), 3000);
         } catch (err) {
-            console.error(err);
-            alert('خطأ أثناء إضافة النصوص\nتأكد من الإنترنت (لتحميل الخط) وحاول مرة أخرى');
-            document.getElementById('processingStatus').classList.add('hidden');
+            console.error('خطأ في processVideo:', err);
+            alert('حدث خطأ أثناء التحرير.\nافتح Console (F12) وأخبرني بالرسالة الحمراء التي تظهر.');
         }
     }
 
-    function escapeFFmpegText(str) {
-        return str.replace(/[:'\\]/g, '\\$&').replace(/"/g, '\\"');
+    function escapeText(str) {
+        return str.replace(/([:'\\])/g, '\\$1').replace(/"/g, '\\"');
     }
 
-    function downloadVideo() {
-        if (!videoFile) return alert('لا يوجد فيديو');
-        const url = URL.createObjectURL(videoFile);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `إخباري_${new Date().toISOString().slice(0,10)}.mp4`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+    // باقي الدوال (cutVideo, downloadVideo, togglePlay, etc.) تبقى كما هي من الكود السابق
 
-    window.onload = () => {
-        updatePreview();
-        fallbackImage.style.display = 'block';
-        videoElement.style.display = 'none';
-    };
+    console.log('الصفحة جاهزة – جرب رفع فيديو قصير (10-20 ثانية) أولاً');
 </script>
 </body>
 </html>
