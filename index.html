@@ -1,174 +1,24 @@
+
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>عرض نص فوق فيديو - بسيط</title>
+  <meta charset="UTF-8">
+  <title>قوالب فيديو - Yemen Cut</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #111;
-      color: white;
-      margin: 20px;
-      text-align: center;
-    }
-    .container {
-      position: relative;
-      display: inline-block;
-      margin: 20px auto;
-    }
-    canvas, video {
-      width: 480px;
-      height: 640px;   /* نسبة شائعة لفيديوهات الموبايل/تيك توك */
-      object-fit: cover;
-      border-radius: 12px;
-      background: black;
-    }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      pointer-events: none;  /* حتى يمكن النقر على الفيديو تحته */
-    }
-    .controls {
-      margin: 20px 0;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background: #222;
-      color: white;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #0066cc;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0055aa;
-    }
+    body { font-family: Arial; background: #111; color: white; text-align: center; padding: 20px; }
+    a { display: block; color: #00ffd5; margin: 15px 0; font-size: 18px; text-decoration: none; }
+    h1 { color: #ffcc00; }
+    p { margin-top: 40px; color: #ccc; }
   </style>
 </head>
 <body>
+  <h1>قوالب فيديو جاهزة - Yemen Cut</h1>
 
-  <h2>رفع فيديو وعرض نصوص فوقه</h2>
+  <a href="https://www.capcut.com/template-detail/7140282030231903489" target="_blank">قالب CapCut احترافي #1</a>
+  <a href="https://mixkit.co/free-after-effects-templates/" target="_blank">قوالب After Effects مجانية</a>
+  <a href="https://www.velosofy.com/" target="_blank">قوالب احترافية - Velosofy</a>
 
-  <div class="container">
-    <video id="video" controls autoplay muted loop>
-      <source src="" type="video/mp4">
-      المتصفح لا يدعم الفيديو
-    </video>
-    <canvas id="canvas"></canvas>
-  </div>
-
-  <div class="controls">
-    <input type="file" id="videoFile" accept="video/*" />
-
-    <input type="text" id="topText" placeholder="نص أعلى (مثال: عاجل)" value="عاجل جدًا" />
-    <textarea id="mainText" rows="3" placeholder="النص الرئيسي هنا..."></textarea>
-    <input type="text" id="bottomText" placeholder="نص أسفل (مثال: المصدر)" value="قناة الأخبار" />
-
-    <button onclick="updateTexts()">تحديث النصوص</button>
-  </div>
-
-  <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    let topText = "عاجل";
-    let mainText = "هذا نص تجريبي يظهر فوق الفيديو مباشرة";
-    let bottomText = "المصدر: إخباري";
-
-    // تعديل حجم الـ canvas ليطابق الفيديو
-    function resizeCanvas() {
-      canvas.width = video.videoWidth || 480;
-      canvas.height = video.videoHeight || 640;
-    }
-
-    video.addEventListener('loadedmetadata', resizeCanvas);
-    window.addEventListener('resize', resizeCanvas);
-
-    // رسم النصوص كل إطار
-    function drawOverlay() {
-      // امسح الـ canvas السابق
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // خطوط عربية + حجم مناسب
-      ctx.font = 'bold 38px "Segoe UI", Tahoma, Arial';
-      ctx.fillStyle = 'white';
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 4;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.direction = 'rtl';   // مهم للعربية
-
-      // نص أعلى
-      if (topText) {
-        ctx.strokeText(topText, canvas.width / 2, 60);
-        ctx.fillText(topText, canvas.width / 2, 60);
-      }
-
-      // نص رئيسي (وسط)
-      if (mainText) {
-        const lines = mainText.split('\n');
-        let y = canvas.height / 2 - (lines.length - 1) * 25;
-        lines.forEach(line => {
-          ctx.strokeText(line.trim(), canvas.width / 2, y);
-          ctx.fillText(line.trim(), canvas.width / 2, y);
-          y += 50;
-        });
-      }
-
-      // نص أسفل
-      if (bottomText) {
-        ctx.strokeText(bottomText, canvas.width / 2, canvas.height - 60);
-        ctx.fillText(bottomText, canvas.width / 2, canvas.height - 60);
-      }
-
-      requestAnimationFrame(drawOverlay);
-    }
-
-    // بدء الرسم عند التشغيل
-    video.addEventListener('play', () => {
-      resizeCanvas();
-      drawOverlay();
-    });
-
-    // تحديث النصوص من الحقول
-    function updateTexts() {
-      topText    = document.getElementById('topText').value.trim();
-      mainText   = document.getElementById('mainText').value.trim();
-      bottomText = document.getElementById('bottomText').value.trim();
-    }
-
-    // رفع الفيديو
-    document.getElementById('videoFile').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const url = URL.createObjectURL(file);
-      video.src = url;
-      video.load();
-      video.play().catch(() => {});
-    });
-
-    // تحديث فوري عند الكتابة (اختياري)
-    document.querySelectorAll('input, textarea').forEach(el => {
-      el.addEventListener('input', updateTexts);
-    });
-  </script>
-
+  <p>تابعنا على إنستقرام: <a href="https://instagram.com/mi47_q" target="_blank">@mi47_q</a></p>
+  <p>للتواصل عبر واتساب: <a href="https://wa.me/967774730574" target="_blank">اضغط هنا</a></p>
 </body>
 </html>
