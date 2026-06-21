@@ -3,28 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آيات بينات | استماع وتحميل مباشر</title>
+    <title>آيات بينات | استماع وتحميل موثوق</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a1f1a;
+            --card: #0b2b24;
+            --panel: #0d3329;
+            --border: #1f5c45;
+            --gold: #fbbf24;
+            --green: #4ade80;
+            --text: #e2e8f0;
+            --muted: #a7c5b8;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: #0a1f1a;
+            background: var(--bg);
             font-family: 'Cairo', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #e2e8f0;
+            color: var(--text);
             padding: 15px;
         }
         .container {
-            max-width: 900px;
+            max-width: 950px;
             width: 100%;
-            background: #0b2b24;
+            background: var(--card);
             border-radius: 32px;
             padding: 25px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,255,128,0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 128, 0.3);
         }
         .header {
             text-align: center;
@@ -33,7 +47,7 @@
         .header h1 {
             font-size: 2.2rem;
             font-weight: 900;
-            color: #fbbf24;
+            color: var(--gold);
             text-shadow: 0 0 15px #f59e0b;
             display: flex;
             align-items: center;
@@ -42,10 +56,10 @@
             font-family: 'Amiri', 'Cairo', serif;
         }
         .search-panel {
-            background: #0d3329;
+            background: var(--panel);
             border-radius: 24px;
             padding: 20px;
-            border: 1px solid #1f5c45;
+            border: 1px solid var(--border);
             margin-bottom: 20px;
         }
         .row {
@@ -63,7 +77,7 @@
             display: block;
             font-weight: 600;
             font-size: 0.85rem;
-            color: #a7c5b8;
+            color: var(--muted);
             margin-bottom: 6px;
         }
         .input-group input,
@@ -77,11 +91,12 @@
             font-size: 0.95rem;
             font-family: 'Cairo', sans-serif;
             outline: none;
+            transition: 0.2s;
         }
         .input-group input:focus,
         .input-group select:focus {
-            border-color: #4ade80;
-            box-shadow: 0 0 0 2px rgba(74,222,128,0.3);
+            border-color: var(--green);
+            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3);
         }
         .btn {
             background: #22c55e;
@@ -99,13 +114,22 @@
             font-family: 'Cairo', sans-serif;
             white-space: nowrap;
         }
-        .btn:hover { background: #16a34a; box-shadow: 0 0 20px #22c55e; }
-        .btn-gold { background: #f59e0b; color: #0a1f1a; }
-        .btn-gold:hover { background: #d97706; box-shadow: 0 0 20px #f59e0b; }
+        .btn:hover {
+            background: #16a34a;
+            box-shadow: 0 0 20px #22c55e;
+        }
+        .btn-gold {
+            background: #f59e0b;
+            color: #0a1f1a;
+        }
+        .btn-gold:hover {
+            background: #d97706;
+            box-shadow: 0 0 20px #f59e0b;
+        }
         .btn-outline {
             background: transparent;
-            border: 2px solid #fbbf24;
-            color: #fbbf24;
+            border: 2px solid var(--gold);
+            color: var(--gold);
             text-decoration: none;
             font-weight: 700;
             padding: 8px 18px;
@@ -113,8 +137,12 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            cursor: pointer;
         }
-        .btn-outline:hover { background: #fbbf24; color: #0a1f1a; }
+        .btn-outline:hover {
+            background: var(--gold);
+            color: #0a1f1a;
+        }
         .ayah-list {
             display: flex;
             flex-direction: column;
@@ -125,14 +153,20 @@
             border-radius: 16px;
             padding: 16px;
             border: 1px solid #255a40;
+            transition: 0.3s;
+        }
+        .ayah-item.unavailable {
+            opacity: 0.7;
+            border-color: #ef4444;
         }
         .ayah-text {
             font-family: 'Amiri', 'Traditional Arabic', serif;
             font-size: 1.6rem;
             line-height: 2.2;
-            color: #f1f5f9;
+            color: var(--text);
             text-align: center;
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         .ayah-audio {
             width: 100%;
@@ -154,11 +188,45 @@
             font-weight: 600;
             min-height: 25px;
         }
+        .error-msg {
+            color: #fca5a5;
+            font-size: 0.85rem;
+            text-align: center;
+        }
         .note {
             font-size: 0.8rem;
             color: #9cb4a5;
             margin-top: 10px;
             text-align: center;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .debug-panel {
+            margin-top: 20px;
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            display: none;
+        }
+        .debug-panel.active {
+            display: block;
         }
     </style>
 </head>
@@ -166,7 +234,7 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-quran"></i> آيات بينات</h1>
-            <p style="color:#a7c5b8;">استمع للآيات أو حمّلها مباشرة بضغطة زر</p>
+            <p style="color:var(--muted);">تشغيل وتحميل مباشر للتلاوات القرآنية</p>
         </div>
 
         <div class="search-panel">
@@ -182,49 +250,84 @@
                 <div class="input-group">
                     <label><i class="fas fa-microphone"></i> القارئ</label>
                     <select id="reciter">
-                        <option value="mohamed_laqzaf" selected>محمد لقظف (موريتانيا)</option>
-                        <option value="ar.alafasy">مشاري العفاسي</option>
-                        <option value="ar.abdulbasit">عبد الباسط عبد الصمد</option>
-                        <option value="ar.sudais">عبد الرحمن السديس</option>
-                        <option value="ar.ahmedajmi">أحمد العجمي</option>
-                        <option value="ar.hudhaify">علي الحذيفي</option>
-                        <option value="ar.maher">ماهر المعيقلي</option>
-                        <option value="ar.muhammadjibril">محمد جبريل</option>
-                        <option value="ar.yasser">ياسر الدوسري</option>
+                        <option value="Alafasy_128kbps" selected>مشاري العفاسي</option>
+                        <option value="AbdulBaset_Mujawwad_128kbps">عبد الباسط عبد الصمد</option>
+                        <option value="Abdurrahmaan_As-Sudais_128kbps">عبد الرحمن السديس</option>
+                        <option value="Ahmed_Al-Ajamy_128kbps">أحمد العجمي</option>
+                        <option value="Hudhaify_128kbps">علي الحذيفي</option>
+                        <option value="Maher_AlMuaiqly_128kbps">ماهر المعيقلي</option>
+                        <option value="Muhammad_Jibreel_128kbps">محمد جبريل</option>
+                        <option value="Yasser_Ad-Dussary_128kbps">ياسر الدوسري</option>
                     </select>
                 </div>
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-check-circle"></i> اضغط على زر "تحميل" لأي آية ليفتح الملف الصوتي في نافذة جديدة جاهز للحفظ.
+                <i class="fas fa-info-circle"></i> يتم التحقق من وجود كل مقطع صوتي قبل عرضه.
             </div>
         </div>
 
         <div id="globalStatus" class="status-msg"></div>
         <div id="ayahContainer" class="ayah-list"></div>
+
+        <div style="text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-gold" id="playAllBtn" style="display:none;">
+                <i class="fas fa-play-circle"></i> تشغيل الكل بالتسلسل
+            </button>
+            <button class="btn btn-gold" id="downloadAllBtn" style="display:none;">
+                <i class="fas fa-download"></i> تحميل الكل (كل آية منفردة)
+            </button>
+        </div>
+
+        <div style="text-align:center; margin-top:10px;">
+            <button class="btn-outline" id="toggleDebug" style="font-size:0.7rem; padding:4px 12px;">
+                <i class="fas fa-bug"></i> سجل الأخطاء
+            </button>
+        </div>
+        <div id="debugPanel" class="debug-panel"></div>
     </div>
 
     <script>
         (() => {
+            // عناصر DOM
             const surahNum = document.getElementById('surahNum');
             const ayahNumbers = document.getElementById('ayahNumbers');
             const reciterSelect = document.getElementById('reciter');
             const fetchBtn = document.getElementById('fetchBtn');
             const container = document.getElementById('ayahContainer');
             const globalStatus = document.getElementById('globalStatus');
+            const playAllBtn = document.getElementById('playAllBtn');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const debugPanel = document.getElementById('debugPanel');
+            const toggleDebug = document.getElementById('toggleDebug');
 
-            const reciterPaths = {
-                'mohamed_laqzaf': 'Mohamed_Laqzaf_128kbps',
-                'ar.alafasy': 'Alafasy_128kbps',
-                'ar.abdulbasit': 'AbdulBaset_Mujawwad_128kbps',
-                'ar.sudais': 'Abdurrahmaan_As-Sudais_128kbps',
-                'ar.ahmedajmi': 'Ahmed_Al-Ajamy_128kbps',
-                'ar.hudhaify': 'Hudhaify_128kbps',
-                'ar.maher': 'Maher_AlMuaiqly_128kbps',
-                'ar.muhammadjibril': 'Muhammad_Jibreel_128kbps',
-                'ar.yasser': 'Yasser_Ad-Dussary_128kbps'
-            };
+            let currentAyahs = [];
+            let isPlayingAll = false;
+            let currentPlayIndex = 0;
+            let audioElement = null;
 
+            // سجل الأخطاء
+            const debugLog = [];
+            function log(msg, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = `[${timestamp}] ${type.toUpperCase()}: ${msg}`;
+                debugLog.push(entry);
+                if (debugPanel.classList.contains('active')) {
+                    debugPanel.textContent = debugLog.join('\n');
+                    debugPanel.scrollTop = debugPanel.scrollHeight;
+                }
+                console.log(entry);
+            }
+
+            toggleDebug.addEventListener('click', () => {
+                debugPanel.classList.toggle('active');
+                if (debugPanel.classList.contains('active')) {
+                    debugPanel.textContent = debugLog.join('\n');
+                    debugPanel.scrollTop = debugPanel.scrollHeight;
+                }
+            });
+
+            // تحليل الأرقام المدخلة
             function parseNumbers(str) {
                 const nums = new Set();
                 const parts = str.split(/[,،]+/);
@@ -242,54 +345,241 @@
                         if (!isNaN(n)) nums.add(n);
                     }
                 }
-                return Array.from(nums).sort((a,b) => a-b);
+                return Array.from(nums).sort((a, b) => a - b);
             }
 
+            // جلب نص السورة من API
             async function fetchSurahText(surah) {
                 const url = `https://api.alquran.cloud/v1/surah/${surah}`;
+                log(`جلب نص السورة من: ${url}`);
                 const res = await fetch(url);
-                if (!res.ok) throw new Error('تعذر جلب نص السورة. تأكد من اتصالك بالإنترنت.');
+                if (!res.ok) throw new Error(`فشل جلب السورة (${res.status})`);
                 const data = await res.json();
-                if (data.code !== 200) throw new Error('بيانات غير صالحة من الخادم.');
+                if (data.code !== 200) throw new Error('بيانات غير صالحة من الخادم');
+                log(`تم جلب ${data.data.ayahs.length} آية`);
                 return data.data.ayahs;
             }
 
-            function getAudioUrl(surah, ayah, reciterKey) {
+            // بناء رابط الصوت
+            function getAudioUrl(surah, ayah, reciterPath) {
                 const paddedSurah = String(surah).padStart(3, '0');
                 const paddedAyah = String(ayah).padStart(3, '0');
-                const baseUrl = 'https://www.everyayah.com/data';
-                const path = reciterPaths[reciterKey] || reciterPaths['ar.alafasy'];
-                return `${baseUrl}/${path}/${paddedSurah}${paddedAyah}.mp3`;
+                return `https://www.everyayah.com/data/${reciterPath}/${paddedSurah}${paddedAyah}.mp3`;
             }
 
+            // التحقق من وجود الملف الصوتي مع إعادة المحاولة
+            async function checkAudioExists(url, retries = 2) {
+                for (let i = 0; i <= retries; i++) {
+                    try {
+                        log(`التحقق من وجود الملف: ${url} (محاولة ${i + 1})`);
+                        const controller = new AbortController();
+                        const timeout = setTimeout(() => controller.abort(), 5000);
+                        const response = await fetch(url, {
+                            method: 'HEAD',
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeout);
+                        if (response.ok) {
+                            log(`الملف موجود: ${url}`);
+                            return true;
+                        }
+                        log(`الملف غير موجود (${response.status}): ${url}`, 'warn');
+                        return false;
+                    } catch (err) {
+                        log(`فشل التحقق (محاولة ${i + 1}): ${err.message}`, 'error');
+                        if (i < retries) {
+                            await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // عرض الآيات
             function renderAyahs(ayahs) {
                 container.innerHTML = '';
+                currentAyahs = ayahs;
+                playAllBtn.style.display = 'none';
+                downloadAllBtn.style.display = 'none';
+
                 if (ayahs.length === 0) {
-                    container.innerHTML = '<p style="text-align:center;color:#fbbf24;">لا توجد آيات لعرضها.</p>';
+                    container.innerHTML = '<p style="text-align:center;color:var(--gold);">لا توجد آيات متاحة للعرض.</p>';
                     return;
                 }
+
+                const availableAyahs = ayahs.filter(a => a.audioExists);
+                if (availableAyahs.length > 0) {
+                    playAllBtn.style.display = 'inline-flex';
+                    downloadAllBtn.style.display = 'inline-flex';
+                }
+
                 ayahs.forEach((ayah) => {
                     const div = document.createElement('div');
                     div.className = 'ayah-item';
+                    if (!ayah.audioExists) {
+                        div.classList.add('unavailable');
+                    }
+
+                    let audioHtml = '';
+                    if (ayah.audioExists) {
+                        audioHtml = `<audio class="ayah-audio" src="${ayah.audio}" controls preload="none"></audio>`;
+                    } else {
+                        audioHtml = `
+                            <div class="error-msg">
+                                <i class="fas fa-exclamation-triangle"></i> المقطع الصوتي غير متوفر حالياً
+                            </div>
+                        `;
+                    }
+
                     div.innerHTML = `
-                        <div class="ayah-text">﴿${ayah.text}﴾ <span style="font-size:0.8rem;color:#fbbf24;">[${ayah.number}]</span></div>
-                        <audio class="ayah-audio" src="${ayah.audio}" controls preload="none"></audio>
+                        <div class="ayah-text">
+                            ﴿${ayah.text}﴾ 
+                            <span style="font-size:0.8rem;color:var(--gold);">[${ayah.number}]</span>
+                        </div>
+                        ${audioHtml}
                         <div class="ayah-actions">
-                            <a class="btn btn-outline" href="${ayah.audio}" target="_blank" rel="noopener">
-                                <i class="fas fa-download"></i> تحميل
-                            </a>
-                            <span style="font-size:0.7rem;color:#9cb4a5;">(يفتح في نافذة جديدة)</span>
+                            ${ayah.audioExists ? `
+                                <button class="btn btn-outline download-single" data-url="${ayah.audio}" data-filename="آية_${ayah.number}.mp3">
+                                    <i class="fas fa-download"></i> تحميل
+                                </button>
+                            ` : `
+                                <span class="error-msg">تحميل غير متاح</span>
+                            `}
                         </div>
                     `;
                     container.appendChild(div);
                 });
+
+                // ربط أزرار التحميل المنفرد
+                document.querySelectorAll('.download-single').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const url = btn.dataset.url;
+                        const filename = btn.dataset.filename;
+                        await downloadFile(url, filename, btn);
+                    });
+                });
             }
 
+            // تحميل ملف واحد باستخدام Fetch + Blob
+            async function downloadFile(url, filename, btnElement) {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = '<span class="spinner"></span> جاري التحميل...';
+                btnElement.disabled = true;
+                try {
+                    log(`بدء تحميل: ${filename} من ${url}`);
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`فشل التحميل (${response.status})`);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                    log(`تم تحميل ${filename} بنجاح`);
+                    globalStatus.textContent = `✅ تم تحميل ${filename}`;
+                } catch (err) {
+                    log(`فشل تحميل ${filename}: ${err.message}`, 'error');
+                    // فتح الرابط في نافذة جديدة كحل بديل
+                    window.open(url, '_blank');
+                    globalStatus.textContent = `⚠️ تعذر التحميل المباشر، تم فتح الرابط في نافذة جديدة`;
+                } finally {
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.disabled = false;
+                }
+            }
+
+            // تحميل جميع الآيات المتاحة
+            async function downloadAllAyahs() {
+                const available = currentAyahs.filter(a => a.audioExists);
+                if (available.length === 0) {
+                    globalStatus.textContent = 'لا توجد آيات متاحة للتحميل.';
+                    return;
+                }
+                downloadAllBtn.disabled = true;
+                globalStatus.textContent = `جاري تحميل ${available.length} آيات...`;
+                log(`بدء تحميل ${available.length} آيات`);
+                for (let i = 0; i < available.length; i++) {
+                    const ayah = available[i];
+                    globalStatus.textContent = `تحميل الآية ${ayah.number} من ${available.length}...`;
+                    await downloadFile(ayah.audio, `آية_${ayah.number}.mp3`, downloadAllBtn);
+                    // تأخير بين التحميلات
+                    await new Promise(r => setTimeout(r, 500));
+                }
+                globalStatus.textContent = '✅ تم تحميل جميع الآيات المتاحة.';
+                downloadAllBtn.disabled = false;
+            }
+
+            // تشغيل الآيات بالتسلسل
+            function playAllSequentially() {
+                const available = currentAyahs.filter(a => a.audioExists);
+                if (available.length === 0) return;
+
+                if (isPlayingAll) {
+                    // إيقاف التشغيل
+                    stopPlayAll();
+                    return;
+                }
+
+                isPlayingAll = true;
+                currentPlayIndex = 0;
+                playAllBtn.innerHTML = '<i class="fas fa-stop-circle"></i> إيقاف التشغيل';
+                globalStatus.textContent = `تشغيل الآية 1 من ${available.length}`;
+                playAyahAtIndex(available);
+            }
+
+            function playAyahAtIndex(available) {
+                if (currentPlayIndex >= available.length) {
+                    stopPlayAll();
+                    globalStatus.textContent = '✅ انتهى تشغيل جميع الآيات.';
+                    return;
+                }
+
+                const ayah = available[currentPlayIndex];
+                if (audioElement) {
+                    audioElement.pause();
+                    audioElement.src = '';
+                }
+                audioElement = new Audio(ayah.audio);
+                audioElement.preload = 'auto';
+                audioElement.onloadeddata = () => {
+                    audioElement.play().catch(err => {
+                        log(`فشل تشغيل الآية ${ayah.number}: ${err.message}`, 'error');
+                        currentPlayIndex++;
+                        playAyahAtIndex(available);
+                    });
+                };
+                audioElement.onended = () => {
+                    currentPlayIndex++;
+                    if (isPlayingAll) {
+                        globalStatus.textContent = `تشغيل الآية ${currentPlayIndex + 1} من ${available.length}`;
+                        playAyahAtIndex(available);
+                    }
+                };
+                audioElement.onerror = () => {
+                    log(`خطأ في تشغيل الآية ${ayah.number}`, 'error');
+                    currentPlayIndex++;
+                    playAyahAtIndex(available);
+                };
+            }
+
+            function stopPlayAll() {
+                isPlayingAll = false;
+                if (audioElement) {
+                    audioElement.pause();
+                    audioElement.src = '';
+                }
+                playAllBtn.innerHTML = '<i class="fas fa-play-circle"></i> تشغيل الكل بالتسلسل';
+            }
+
+            // زر جلب الآيات
             fetchBtn.addEventListener('click', async () => {
                 const surah = parseInt(surahNum.value);
-                const reciterKey = reciterSelect.value;
+                const reciterPath = reciterSelect.value;
                 const numbers = parseNumbers(ayahNumbers.value);
-                
+
                 if (!surah || surah < 1 || surah > 114) {
                     alert('الرجاء إدخال رقم سورة صحيح بين 1 و 114.');
                     return;
@@ -299,8 +589,11 @@
                     return;
                 }
 
-                globalStatus.textContent = 'جاري جلب الآيات...';
+                stopPlayAll();
                 container.innerHTML = '';
+                playAllBtn.style.display = 'none';
+                downloadAllBtn.style.display = 'none';
+                globalStatus.innerHTML = '<span class="spinner"></span> جاري جلب الآيات والتحقق من الصوتيات...';
 
                 try {
                     const allAyahs = await fetchSurahText(surah);
@@ -309,19 +602,36 @@
                         globalStatus.textContent = 'لم يتم العثور على الآيات المطلوبة في هذه السورة.';
                         return;
                     }
-                    const formatted = selected.map(a => ({
-                        number: a.numberInSurah,
-                        text: a.text,
-                        audio: getAudioUrl(surah, a.numberInSurah, reciterKey)
-                    }));
+
+                    // بناء البيانات والتحقق من وجود الصوتيات
+                    const formatted = [];
+                    for (const a of selected) {
+                        const audioUrl = getAudioUrl(surah, a.numberInSurah, reciterPath);
+                        const exists = await checkAudioExists(audioUrl);
+                        formatted.push({
+                            number: a.numberInSurah,
+                            text: a.text,
+                            audio: audioUrl,
+                            audioExists: exists
+                        });
+                    }
+
                     renderAyahs(formatted);
-                    globalStatus.textContent = `✅ تم جلب ${formatted.length} آيات. استمع أو حمّلها.`;
+                    const availableCount = formatted.filter(a => a.audioExists).length;
+                    globalStatus.textContent =
+                        `✅ تم جلب ${formatted.length} آيات (${availableCount} متاحة صوتياً).`;
                 } catch (err) {
+                    log(`خطأ: ${err.message}`, 'error');
                     globalStatus.textContent = '❌ خطأ: ' + err.message;
                 }
             });
 
+            playAllBtn.addEventListener('click', playAllSequentially);
+            downloadAllBtn.addEventListener('click', downloadAllAyahs);
+
+            // تشغيل افتراضي
             window.addEventListener('load', () => {
+                log('تم تحميل الصفحة');
                 fetchBtn.click();
             });
         })();
