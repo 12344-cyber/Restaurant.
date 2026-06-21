@@ -17,11 +17,7 @@
             --text: #e2e8f0;
             --muted: #a7c5b8;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg);
             font-family: 'Cairo', sans-serif;
@@ -38,7 +34,7 @@
             background: var(--card);
             border-radius: 32px;
             padding: 25px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 128, 0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,255,128,0.3);
         }
         .header {
             text-align: center;
@@ -96,7 +92,7 @@
         .input-group input:focus,
         .input-group select:focus {
             border-color: var(--green);
-            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3);
+            box-shadow: 0 0 0 2px rgba(74,222,128,0.3);
         }
         .btn {
             background: #22c55e;
@@ -114,18 +110,9 @@
             font-family: 'Cairo', sans-serif;
             white-space: nowrap;
         }
-        .btn:hover {
-            background: #16a34a;
-            box-shadow: 0 0 20px #22c55e;
-        }
-        .btn-gold {
-            background: #f59e0b;
-            color: #0a1f1a;
-        }
-        .btn-gold:hover {
-            background: #d97706;
-            box-shadow: 0 0 20px #f59e0b;
-        }
+        .btn:hover { background: #16a34a; box-shadow: 0 0 20px #22c55e; }
+        .btn-gold { background: #f59e0b; color: #0a1f1a; }
+        .btn-gold:hover { background: #d97706; box-shadow: 0 0 20px #f59e0b; }
         .btn-outline {
             background: transparent;
             border: 2px solid var(--gold);
@@ -139,10 +126,7 @@
             gap: 6px;
             cursor: pointer;
         }
-        .btn-outline:hover {
-            background: var(--gold);
-            color: #0a1f1a;
-        }
+        .btn-outline:hover { background: var(--gold); color: #0a1f1a; }
         .ayah-list {
             display: flex;
             flex-direction: column;
@@ -166,7 +150,6 @@
             color: var(--text);
             text-align: center;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         .ayah-audio {
             width: 100%;
@@ -203,16 +186,12 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .debug-panel {
             margin-top: 20px;
             background: #000;
@@ -220,14 +199,14 @@
             padding: 10px;
             border-radius: 12px;
             font-size: 0.75rem;
-            max-height: 150px;
+            max-height: 200px;
             overflow-y: auto;
             font-family: monospace;
             display: none;
+            direction: ltr;
+            text-align: left;
         }
-        .debug-panel.active {
-            display: block;
-        }
+        .debug-panel.active { display: block; }
     </style>
 </head>
 <body>
@@ -241,11 +220,11 @@
             <div class="row">
                 <div class="input-group">
                     <label><i class="fas fa-book"></i> رقم السورة</label>
-                    <input type="number" id="surahNum" value="1" min="1" max="114">
+                    <input type="number" id="surahNum" value="51" min="1" max="114">
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-list-ol"></i> أرقام الآيات</label>
-                    <input type="text" id="ayahNumbers" value="1-3" placeholder="مثال: 1,3,5-7">
+                    <input type="text" id="ayahNumbers" value="49-51" placeholder="مثال: 1,3,5-7">
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-microphone"></i> القارئ</label>
@@ -263,7 +242,7 @@
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-info-circle"></i> يتم التحقق من وجود كل مقطع صوتي قبل عرضه.
+                <i class="fas fa-info-circle"></i> يتم التحقق من وجود كل مقطع صوتي عبر تشغيل تجريبي آمن.
             </div>
         </div>
 
@@ -281,7 +260,7 @@
 
         <div style="text-align:center; margin-top:10px;">
             <button class="btn-outline" id="toggleDebug" style="font-size:0.7rem; padding:4px 12px;">
-                <i class="fas fa-bug"></i> سجل الأخطاء
+                <i class="fas fa-bug"></i> سجل الأخطاء والفحص
             </button>
         </div>
         <div id="debugPanel" class="debug-panel"></div>
@@ -289,7 +268,7 @@
 
     <script>
         (() => {
-            // عناصر DOM
+            // DOM elements
             const surahNum = document.getElementById('surahNum');
             const ayahNumbers = document.getElementById('ayahNumbers');
             const reciterSelect = document.getElementById('reciter');
@@ -348,14 +327,14 @@
                 return Array.from(nums).sort((a, b) => a - b);
             }
 
-            // جلب نص السورة من API
+            // جلب نص السورة
             async function fetchSurahText(surah) {
                 const url = `https://api.alquran.cloud/v1/surah/${surah}`;
                 log(`جلب نص السورة من: ${url}`);
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`فشل جلب السورة (${res.status})`);
                 const data = await res.json();
-                if (data.code !== 200) throw new Error('بيانات غير صالحة من الخادم');
+                if (data.code !== 200) throw new Error('بيانات غير صالحة');
                 log(`تم جلب ${data.data.ayahs.length} آية`);
                 return data.data.ayahs;
             }
@@ -367,32 +346,45 @@
                 return `https://www.everyayah.com/data/${reciterPath}/${paddedSurah}${paddedAyah}.mp3`;
             }
 
-            // التحقق من وجود الملف الصوتي مع إعادة المحاولة
-            async function checkAudioExists(url, retries = 2) {
-                for (let i = 0; i <= retries; i++) {
-                    try {
-                        log(`التحقق من وجود الملف: ${url} (محاولة ${i + 1})`);
-                        const controller = new AbortController();
-                        const timeout = setTimeout(() => controller.abort(), 5000);
-                        const response = await fetch(url, {
-                            method: 'HEAD',
-                            signal: controller.signal
-                        });
-                        clearTimeout(timeout);
-                        if (response.ok) {
-                            log(`الملف موجود: ${url}`);
-                            return true;
+            // التحقق من وجود الصوت باستخدام Audio (يتجاوز CORS)
+            function verifyAudio(url, timeoutMs = 8000) {
+                return new Promise((resolve) => {
+                    const audio = new Audio();
+                    let resolved = false;
+
+                    const cleanup = () => {
+                        if (!resolved) {
+                            resolved = true;
+                            audio.removeEventListener('canplay', onCanPlay);
+                            audio.removeEventListener('error', onError);
+                            audio.src = '';
+                            audio.load();
                         }
-                        log(`الملف غير موجود (${response.status}): ${url}`, 'warn');
-                        return false;
-                    } catch (err) {
-                        log(`فشل التحقق (محاولة ${i + 1}): ${err.message}`, 'error');
-                        if (i < retries) {
-                            await new Promise(r => setTimeout(r, 1000 * (i + 1)));
-                        }
-                    }
-                }
-                return false;
+                    };
+
+                    const onCanPlay = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const onError = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+
+                    audio.addEventListener('canplay', onCanPlay, { once: true });
+                    audio.addEventListener('error', onError, { once: true });
+
+                    // timeout احتياطي
+                    const timer = setTimeout(() => {
+                        cleanup();
+                        resolve(false);
+                    }, timeoutMs);
+
+                    audio.preload = 'none';
+                    audio.src = url;
+                    audio.load();
+                });
             }
 
             // عرض الآيات
@@ -424,11 +416,7 @@
                     if (ayah.audioExists) {
                         audioHtml = `<audio class="ayah-audio" src="${ayah.audio}" controls preload="none"></audio>`;
                     } else {
-                        audioHtml = `
-                            <div class="error-msg">
-                                <i class="fas fa-exclamation-triangle"></i> المقطع الصوتي غير متوفر حالياً
-                            </div>
-                        `;
+                        audioHtml = `<div class="error-msg"><i class="fas fa-exclamation-triangle"></i> المقطع الصوتي غير متوفر حالياً</div>`;
                     }
 
                     div.innerHTML = `
@@ -445,6 +433,9 @@
                             ` : `
                                 <span class="error-msg">تحميل غير متاح</span>
                             `}
+                            <button class="btn-outline test-link" data-url="${ayah.audio}" style="font-size:0.7rem; padding:4px 10px;">
+                                <i class="fas fa-link"></i> اختبار الرابط
+                            </button>
                         </div>
                     `;
                     container.appendChild(div);
@@ -452,15 +443,24 @@
 
                 // ربط أزرار التحميل المنفرد
                 document.querySelectorAll('.download-single').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
+                    btn.addEventListener('click', (e) => {
                         const url = btn.dataset.url;
                         const filename = btn.dataset.filename;
-                        await downloadFile(url, filename, btn);
+                        downloadFile(url, filename, btn);
+                    });
+                });
+
+                // ربط أزرار اختبار الرابط
+                document.querySelectorAll('.test-link').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const url = btn.dataset.url;
+                        log(`اختبار الرابط: ${url}`);
+                        window.open(url, '_blank');
                     });
                 });
             }
 
-            // تحميل ملف واحد باستخدام Fetch + Blob
+            // تحميل ملف واحد
             async function downloadFile(url, filename, btnElement) {
                 const originalHtml = btnElement.innerHTML;
                 btnElement.innerHTML = '<span class="spinner"></span> جاري التحميل...';
@@ -481,8 +481,7 @@
                     log(`تم تحميل ${filename} بنجاح`);
                     globalStatus.textContent = `✅ تم تحميل ${filename}`;
                 } catch (err) {
-                    log(`فشل تحميل ${filename}: ${err.message}`, 'error');
-                    // فتح الرابط في نافذة جديدة كحل بديل
+                    log(`فشل التحميل ${filename}: ${err.message}. سيتم فتح الرابط في نافذة جديدة.`, 'error');
                     window.open(url, '_blank');
                     globalStatus.textContent = `⚠️ تعذر التحميل المباشر، تم فتح الرابط في نافذة جديدة`;
                 } finally {
@@ -505,7 +504,6 @@
                     const ayah = available[i];
                     globalStatus.textContent = `تحميل الآية ${ayah.number} من ${available.length}...`;
                     await downloadFile(ayah.audio, `آية_${ayah.number}.mp3`, downloadAllBtn);
-                    // تأخير بين التحميلات
                     await new Promise(r => setTimeout(r, 500));
                 }
                 globalStatus.textContent = '✅ تم تحميل جميع الآيات المتاحة.';
@@ -518,7 +516,6 @@
                 if (available.length === 0) return;
 
                 if (isPlayingAll) {
-                    // إيقاف التشغيل
                     stopPlayAll();
                     return;
                 }
@@ -603,11 +600,12 @@
                         return;
                     }
 
-                    // بناء البيانات والتحقق من وجود الصوتيات
                     const formatted = [];
                     for (const a of selected) {
                         const audioUrl = getAudioUrl(surah, a.numberInSurah, reciterPath);
-                        const exists = await checkAudioExists(audioUrl);
+                        log(`التحقق من: ${audioUrl}`);
+                        const exists = await verifyAudio(audioUrl);
+                        log(`النتيجة: ${exists ? 'موجود' : 'غير موجود'}`);
                         formatted.push({
                             number: a.numberInSurah,
                             text: a.text,
@@ -618,8 +616,7 @@
 
                     renderAyahs(formatted);
                     const availableCount = formatted.filter(a => a.audioExists).length;
-                    globalStatus.textContent =
-                        `✅ تم جلب ${formatted.length} آيات (${availableCount} متاحة صوتياً).`;
+                    globalStatus.textContent = `✅ تم جلب ${formatted.length} آيات (${availableCount} متاحة صوتياً).`;
                 } catch (err) {
                     log(`خطأ: ${err.message}`, 'error');
                     globalStatus.textContent = '❌ خطأ: ' + err.message;
@@ -629,9 +626,9 @@
             playAllBtn.addEventListener('click', playAllSequentially);
             downloadAllBtn.addEventListener('click', downloadAllAyahs);
 
-            // تشغيل افتراضي
+            // تشغيل افتراضي عند التحميل
             window.addEventListener('load', () => {
-                log('تم تحميل الصفحة');
+                log('تم تحميل الصفحة. مثال لرابط آية 49 من الذاريات: ' + getAudioUrl(51, 49, 'Alafasy_128kbps'));
                 fetchBtn.click();
             });
         })();
