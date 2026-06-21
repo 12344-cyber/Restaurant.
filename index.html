@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة الآيات | تحميل مباشر مضمون</title>
+    <title>آيات بينات | استماع وتحميل مباشر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -107,6 +107,12 @@
             border: 2px solid #fbbf24;
             color: #fbbf24;
             text-decoration: none;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .btn-outline:hover { background: #fbbf24; color: #0a1f1a; }
         .ayah-list {
@@ -160,7 +166,7 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-quran"></i> آيات بينات</h1>
-            <p style="color:#a7c5b8;">اختر الآيات والقارئ ثم حمّلها مباشرة</p>
+            <p style="color:#a7c5b8;">استمع للآيات أو حمّلها مباشرة بضغطة زر</p>
         </div>
 
         <div class="search-panel">
@@ -177,32 +183,25 @@
                     <label><i class="fas fa-microphone"></i> القارئ</label>
                     <select id="reciter">
                         <option value="mohamed_laqzaf" selected>محمد لقظف (موريتانيا)</option>
-                        <option value="alafasy">مشاري العفاسي</option>
-                        <option value="abdulbasit">عبد الباسط عبد الصمد</option>
-                        <option value="sudais">عبد الرحمن السديس</option>
-                        <option value="ahmedajmi">أحمد العجمي</option>
-                        <option value="hudhaify">علي الحذيفي</option>
-                        <option value="maher">ماهر المعيقلي</option>
-                        <option value="muhammadjibril">محمد جبريل</option>
-                        <option value="yasser">ياسر الدوسري</option>
+                        <option value="ar.alafasy">مشاري العفاسي</option>
+                        <option value="ar.abdulbasit">عبد الباسط عبد الصمد</option>
+                        <option value="ar.sudais">عبد الرحمن السديس</option>
+                        <option value="ar.ahmedajmi">أحمد العجمي</option>
+                        <option value="ar.hudhaify">علي الحذيفي</option>
+                        <option value="ar.maher">ماهر المعيقلي</option>
+                        <option value="ar.muhammadjibril">محمد جبريل</option>
+                        <option value="ar.yasser">ياسر الدوسري</option>
                     </select>
                 </div>
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-check-circle"></i> التحميل المنفرد مضمون. "تحميل الجميع" ينزل كل آية كمفردة تلقائياً.
+                <i class="fas fa-check-circle"></i> اضغط على زر "تحميل" لأي آية ليفتح الملف الصوتي في نافذة جديدة جاهز للحفظ.
             </div>
         </div>
 
         <div id="globalStatus" class="status-msg"></div>
-
         <div id="ayahContainer" class="ayah-list"></div>
-
-        <div style="text-align:center; margin-top:20px;">
-            <button class="btn btn-gold" id="downloadAllBtn" style="display:none;">
-                <i class="fas fa-download"></i> تحميل جميع الآيات (كل ملف منفرد)
-            </button>
-        </div>
     </div>
 
     <script>
@@ -213,20 +212,17 @@
             const fetchBtn = document.getElementById('fetchBtn');
             const container = document.getElementById('ayahContainer');
             const globalStatus = document.getElementById('globalStatus');
-            const downloadAllBtn = document.getElementById('downloadAllBtn');
-
-            let currentAyahs = [];
 
             const reciterPaths = {
                 'mohamed_laqzaf': 'Mohamed_Laqzaf_128kbps',
-                'alafasy': 'Alafasy_128kbps',
-                'abdulbasit': 'AbdulBaset_Mujawwad_128kbps',
-                'sudais': 'Abdurrahmaan_As-Sudais_128kbps',
-                'ahmedajmi': 'Ahmed_Al-Ajamy_128kbps',
-                'hudhaify': 'Hudhaify_128kbps',
-                'maher': 'Maher_AlMuaiqly_128kbps',
-                'muhammadjibril': 'Muhammad_Jibreel_128kbps',
-                'yasser': 'Yasser_Ad-Dussary_128kbps'
+                'ar.alafasy': 'Alafasy_128kbps',
+                'ar.abdulbasit': 'AbdulBaset_Mujawwad_128kbps',
+                'ar.sudais': 'Abdurrahmaan_As-Sudais_128kbps',
+                'ar.ahmedajmi': 'Ahmed_Al-Ajamy_128kbps',
+                'ar.hudhaify': 'Hudhaify_128kbps',
+                'ar.maher': 'Maher_AlMuaiqly_128kbps',
+                'ar.muhammadjibril': 'Muhammad_Jibreel_128kbps',
+                'ar.yasser': 'Yasser_Ad-Dussary_128kbps'
             };
 
             function parseNumbers(str) {
@@ -252,24 +248,24 @@
             async function fetchSurahText(surah) {
                 const url = `https://api.alquran.cloud/v1/surah/${surah}`;
                 const res = await fetch(url);
-                if (!res.ok) throw new Error('تعذر جلب نص السورة');
+                if (!res.ok) throw new Error('تعذر جلب نص السورة. تأكد من اتصالك بالإنترنت.');
                 const data = await res.json();
-                if (data.code !== 200) throw new Error('بيانات غير صالحة');
+                if (data.code !== 200) throw new Error('بيانات غير صالحة من الخادم.');
                 return data.data.ayahs;
             }
 
             function getAudioUrl(surah, ayah, reciterKey) {
                 const paddedSurah = String(surah).padStart(3, '0');
                 const paddedAyah = String(ayah).padStart(3, '0');
-                return `https://www.everyayah.com/data/${reciterPaths[reciterKey]}/${paddedSurah}${paddedAyah}.mp3`;
+                const baseUrl = 'https://www.everyayah.com/data';
+                const path = reciterPaths[reciterKey] || reciterPaths['ar.alafasy'];
+                return `${baseUrl}/${path}/${paddedSurah}${paddedAyah}.mp3`;
             }
 
             function renderAyahs(ayahs) {
                 container.innerHTML = '';
-                currentAyahs = ayahs;
                 if (ayahs.length === 0) {
                     container.innerHTML = '<p style="text-align:center;color:#fbbf24;">لا توجد آيات لعرضها.</p>';
-                    downloadAllBtn.style.display = 'none';
                     return;
                 }
                 ayahs.forEach((ayah) => {
@@ -279,42 +275,14 @@
                         <div class="ayah-text">﴿${ayah.text}﴾ <span style="font-size:0.8rem;color:#fbbf24;">[${ayah.number}]</span></div>
                         <audio class="ayah-audio" src="${ayah.audio}" controls preload="none"></audio>
                         <div class="ayah-actions">
-                            <a class="btn btn-outline" href="${ayah.audio}" download="آية_${ayah.number}.mp3">
-                                <i class="fas fa-download"></i> تحميل هذه الآية
+                            <a class="btn btn-outline" href="${ayah.audio}" target="_blank" rel="noopener">
+                                <i class="fas fa-download"></i> تحميل
                             </a>
+                            <span style="font-size:0.7rem;color:#9cb4a5;">(يفتح في نافذة جديدة)</span>
                         </div>
                     `;
                     container.appendChild(div);
                 });
-                downloadAllBtn.style.display = 'inline-flex';
-            }
-
-            async function downloadAllAyahs() {
-                if (currentAyahs.length === 0) return;
-                globalStatus.textContent = 'جاري تجهيز التحميلات...';
-                downloadAllBtn.disabled = true;
-                for (let i = 0; i < currentAyahs.length; i++) {
-                    const ayah = currentAyahs[i];
-                    globalStatus.textContent = `تحميل الآية ${ayah.number} من ${currentAyahs.length}...`;
-                    try {
-                        const response = await fetch(ayah.audio);
-                        const blob = await response.blob();
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `آية_${ayah.number}.mp3`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        // تأخير بسيط بين التحميلات
-                        await new Promise(resolve => setTimeout(resolve, 300));
-                    } catch (err) {
-                        globalStatus.textContent = `فشل تحميل الآية ${ayah.number}: ${err.message}`;
-                    }
-                }
-                globalStatus.textContent = '✅ تم تحميل جميع الآيات بنجاح.';
-                downloadAllBtn.disabled = false;
             }
 
             fetchBtn.addEventListener('click', async () => {
@@ -333,13 +301,12 @@
 
                 globalStatus.textContent = 'جاري جلب الآيات...';
                 container.innerHTML = '';
-                downloadAllBtn.style.display = 'none';
 
                 try {
                     const allAyahs = await fetchSurahText(surah);
                     const selected = allAyahs.filter(a => numbers.includes(a.numberInSurah));
                     if (selected.length === 0) {
-                        globalStatus.textContent = 'لم يتم العثور على الآيات المطلوبة.';
+                        globalStatus.textContent = 'لم يتم العثور على الآيات المطلوبة في هذه السورة.';
                         return;
                     }
                     const formatted = selected.map(a => ({
@@ -348,13 +315,11 @@
                         audio: getAudioUrl(surah, a.numberInSurah, reciterKey)
                     }));
                     renderAyahs(formatted);
-                    globalStatus.textContent = `تم جلب ${formatted.length} آيات.`;
+                    globalStatus.textContent = `✅ تم جلب ${formatted.length} آيات. استمع أو حمّلها.`;
                 } catch (err) {
-                    globalStatus.textContent = 'خطأ: ' + err.message;
+                    globalStatus.textContent = '❌ خطأ: ' + err.message;
                 }
             });
-
-            downloadAllBtn.addEventListener('click', downloadAllAyahs);
 
             window.addEventListener('load', () => {
                 fetchBtn.click();
