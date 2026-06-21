@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أغورط استوديو الصوت – التقاط صوت التبويب</title>
+    <title>أغورط استوديو الصوت – حل موثوق</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
     <style>
-        /* نفس التنسيق السابق مع تعديلات بسيطة */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#021533; font-family:'Cairo',sans-serif; padding:20px; display:flex; justify-content:center; align-items:center; min-height:100vh; color:#e0e9f5; }
         .studio-wrapper { max-width:1100px; width:100%; background:#0f1f33; border-radius:40px; padding:30px; box-shadow:0 30px 60px rgba(0,0,0,0.7); border:1px solid #2a4060; display:flex; flex-direction:column; gap:30px; }
@@ -44,13 +43,14 @@
         .char-count { font-size:0.8rem; color:#7a9bbf; }
         .analysis-result { background:#0a1a2a; border-radius:16px; padding:15px; display:flex; flex-wrap:wrap; gap:15px; font-size:0.85rem; }
         .analysis-result span { background:#0f2a1f; padding:6px 14px; border-radius:20px; border:1px solid #00FF0030; }
+        .warning-box { background:#332211; border:1px solid #ffaa00; padding:15px; border-radius:20px; color:#ffaa00; margin:10px 0; }
     </style>
 </head>
 <body>
     <div class="studio-wrapper">
         <div class="header">
             <h1><i class="fas fa-waveform-lines"></i> استوديو أغورط الصوتي</h1>
-            <p>ارفع فيديو لتحليل النبرة ثم اكتب نصاً ليتم نطقه بصوت عربي طبيعي مع تعديل الخصائص</p>
+            <p>حل مزدوج: التقاط التبويب (مضمون) أو الميكروفون (احتياطي) – ارفع فيديو لتحليل النبرة</p>
         </div>
 
         <div class="main-grid">
@@ -93,10 +93,15 @@
 
                 <div class="btn-row">
                     <button class="btn btn-primary" id="btnGenerate">
-                        <i class="fas fa-microphone"></i> توليد الصوت وتسجيله
+                        <i class="fas fa-microphone"></i> توليد وتسجيل (التبويب أولاً)
                     </button>
                     <button class="btn btn-stop" id="btnStop" disabled>
                         <i class="fas fa-stop-circle"></i> إيقاف
+                    </button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" id="btnPreview">
+                        <i class="fas fa-play"></i> معاينة فقط (بدون تسجيل)
                     </button>
                 </div>
                 <div class="btn-row">
@@ -106,6 +111,9 @@
                 </div>
                 <audio id="audioPreview" controls style="width:100%; margin-top:10px; display:none;"></audio>
                 <div id="genStatus" class="status-text">⚡ جاهز للتوليد</div>
+                <div id="fallbackMessage" class="warning-box" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i> تعذر التقاط صوت التبويب. يمكنك استخدام <b>الميكروفون</b> كبديل. تأكد من تفعيل خيار "Stereo Mix" في إعدادات الصوت بجهازك ليتم تسجيل ما تسمعه.
+                </div>
             </div>
         </div>
     </div>
@@ -131,8 +139,10 @@
             const btnGenerate = document.getElementById('btnGenerate');
             const btnStop = document.getElementById('btnStop');
             const btnDownload = document.getElementById('btnDownload');
+            const btnPreview = document.getElementById('btnPreview');
             const audioPreview = document.getElementById('audioPreview');
             const genStatus = document.getElementById('genStatus');
+            const fallbackMessage = document.getElementById('fallbackMessage');
 
             let referenceFile = null;
             let referenceAudioBuffer = null;
@@ -230,53 +240,96 @@
             pitchSlider.addEventListener('input', () => pitchLabel.textContent = parseFloat(pitchSlider.value).toFixed(2));
             rateSlider.addEventListener('input', () => rateLabel.textContent = parseFloat(rateSlider.value).toFixed(2));
 
+            // وظيفة مساعدة لإيقاف كل شيء
+            function fullStop() {
+                if(speechSynthesis.speaking) speechSynthesis.cancel();
+                if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+                if(captureStream) {
+                    captureStream.getTracks().forEach(t => t.stop());
+                    captureStream = null;
+                }
+                if(window._micStream) {
+                    window._micStream.getTracks().forEach(t => t.stop());
+                    window._micStream = null;
+                }
+                isRecording = false;
+            }
+
+            // زر المعاينة فقط
+            btnPreview.addEventListener('click', () => {
+                const text = textArea.value.trim();
+                if(!text) return;
+                fullStop();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                utterance.pitch = parseFloat(pitchSlider.value);
+                utterance.rate = parseFloat(rateSlider.value);
+                utterance.volume = 1;
+                const voices = speechSynthesis.getVoices();
+                const arabicVoice = voices.find(v => v.lang.startsWith('ar') && v.localService) ||
+                                    voices.find(v => v.lang.startsWith('ar')) ||
+                                    voices[0];
+                if(arabicVoice) utterance.voice = arabicVoice;
+                speechSynthesis.speak(utterance);
+                genStatus.innerHTML = '🔊 جاري التشغيل للمعاينة...';
+            });
+
+            // زر التوليد الرئيسي
             btnGenerate.addEventListener('click', async () => {
                 const text = textArea.value.trim();
                 if(!text) { alert('اكتب نصاً أولاً'); return; }
-                if(!('speechSynthesis' in window)) { alert('متصفحك لا يدعم النطق'); return; }
-
-                stopRecording(); // إيقاف أي عملية سابقة
+                fullStop();
                 btnGenerate.disabled = true;
                 btnStop.disabled = false;
                 btnDownload.disabled = true;
                 audioPreview.style.display = 'none';
-                genStatus.innerHTML = '🎤 جاري تجهيز تسجيل صوت التبويب...';
+                fallbackMessage.style.display = 'none';
+                genStatus.innerHTML = '🎤 محاولة التقاط صوت التبويب...';
                 genStatus.className = 'status-text processing';
 
-                // الخطوة 1: طلب التقاط صوت التبويب (يعمل على Chrome/Edge)
+                // المحاولة الأولى: التقاط التبويب
                 try {
                     captureStream = await navigator.mediaDevices.getDisplayMedia({
                         video: true,
                         audio: true
                     });
-                } catch(e) {
-                    alert('يجب السماح بمشاركة التبويب كاملاً مع الصوت. العملية تتطلب متصفح Chrome أو Edge.');
-                    btnGenerate.disabled = false;
-                    btnStop.disabled = true;
-                    genStatus.innerHTML = '⚠️ فشل التقاط الصوت.';
-                    genStatus.className = 'status-text';
-                    return;
+                    const audioTrack = captureStream.getAudioTracks()[0];
+                    if(!audioTrack) throw new Error('لا يوجد مسار صوتي');
+                    const audioOnlyStream = new MediaStream([audioTrack]);
+                    startRecordingWithStream(audioOnlyStream, text);
+                    genStatus.innerHTML = '🔴 التسجيل من التبويب نشط. لا تغلق النافذة.';
+                } catch (e) {
+                    console.warn('فشل التقاط التبويب:', e);
+                    // إخفاء رسالة الخطأ الافتراضية، وإظهار خيار الميكروفون
+                    if(captureStream) captureStream.getTracks().forEach(t => t.stop());
+                    captureStream = null;
+                    fallbackMessage.style.display = 'block';
+                    genStatus.innerHTML = '⚠️ تعذر التقاط التبويب. جارٍ استخدام الميكروفون...';
+                    genStatus.className = 'status-text processing';
+                    // الانتقال إلى وضع الميكروفون تلقائياً
+                    try {
+                        const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        window._micStream = micStream;
+                        startRecordingWithStream(micStream, text);
+                        genStatus.innerHTML = '🎙️ التسجيل عبر الميكروفون نشط. تأكد من سماع الصوت.';
+                    } catch (micError) {
+                        console.error(micError);
+                        genStatus.innerHTML = '❌ فشل حتى في استخدام الميكروفون. تأكد من الأذونات.';
+                        genStatus.className = 'status-text';
+                        btnGenerate.disabled = false;
+                        btnStop.disabled = true;
+                    }
                 }
+            });
 
-                // نحتاج فقط إلى المسار الصوتي من الـ captureStream
-                const audioTrack = captureStream.getAudioTracks()[0];
-                if(!audioTrack) {
-                    captureStream.getTracks().forEach(t => t.stop());
-                    alert('لم يتم العثور على مسار صوتي في التبويب المختار.');
-                    btnGenerate.disabled = false;
-                    btnStop.disabled = true;
-                    return;
-                }
-                const audioOnlyStream = new MediaStream([audioTrack]);
-
+            function startRecordingWithStream(stream, text) {
                 recordedChunks = [];
-                mediaRecorder = new MediaRecorder(audioOnlyStream, { mimeType: 'audio/webm' });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                 mediaRecorder.ondataavailable = (e) => {
                     if(e.data.size > 0) recordedChunks.push(e.data);
                 };
                 mediaRecorder.onstop = async () => {
                     const webmBlob = new Blob(recordedChunks, { type: 'audio/webm' });
-                    // تحويل إلى MP3
                     genStatus.innerHTML = '🔄 جاري تحويل التسجيل إلى MP3...';
                     try {
                         const mp3Blob = await convertToMP3(webmBlob);
@@ -299,22 +352,20 @@
                     btnGenerate.disabled = false;
                     btnStop.disabled = true;
                     isRecording = false;
-                    // إيقاف مسارات الـ capture بعد الانتهاء
-                    captureStream.getTracks().forEach(t => t.stop());
-                    captureStream = null;
+                    // إغلاق المسارات
+                    stream.getTracks().forEach(t => t.stop());
+                    if(stream === captureStream) captureStream = null;
+                    if(stream === window._micStream) window._micStream = null;
                 };
 
                 mediaRecorder.start();
                 isRecording = true;
 
-                // تشغيل النطق
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ar-SA';
                 utterance.pitch = parseFloat(pitchSlider.value);
                 utterance.rate = parseFloat(rateSlider.value);
                 utterance.volume = 1;
-
-                // اختيار أفضل صوت عربي
                 const voices = speechSynthesis.getVoices();
                 const arabicVoice = voices.find(v => v.lang.startsWith('ar') && v.localService) ||
                                     voices.find(v => v.lang.startsWith('ar')) ||
@@ -332,29 +383,17 @@
                     }
                 };
 
-                // بدء التسجيل ثم النطق
                 speechSynthesis.speak(utterance);
-                genStatus.innerHTML = '🔴 جاري تسجيل الصوت من التبويب... لا تغلق النافذة.';
-                genStatus.className = 'status-text processing';
-            });
+            }
 
             btnStop.addEventListener('click', () => {
-                stopRecording();
+                fullStop();
                 btnGenerate.disabled = false;
                 btnStop.disabled = true;
                 genStatus.innerHTML = '⏹️ تم الإيقاف.';
                 genStatus.className = 'status-text';
+                fallbackMessage.style.display = 'none';
             });
-
-            function stopRecording() {
-                if(speechSynthesis.speaking) speechSynthesis.cancel();
-                if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-                if(captureStream) {
-                    captureStream.getTracks().forEach(t => t.stop());
-                    captureStream = null;
-                }
-                isRecording = false;
-            }
 
             btnDownload.addEventListener('click', () => {
                 if(!generatedBlob) return;
@@ -376,7 +415,6 @@
                 return new Blob([outputData], { type: 'audio/mp3' });
             }
 
-            // تحميل الأصوات مسبقاً
             if(speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
             }
