@@ -3,319 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أغورط استوديو الصوت – استنساخ النبرة وتحويل النص إلى كلام</title>
+    <title>أغورط استوديو الصوت – التقاط صوت التبويب</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #021533;
-            font-family: 'Cairo', sans-serif;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #e0e9f5;
-        }
-        .studio-wrapper {
-            max-width: 1100px;
-            width: 100%;
-            background: #0f1f33;
-            border-radius: 40px;
-            padding: 30px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
-            border: 1px solid #2a4060;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-        .header {
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #00FF00;
-            text-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        .header p {
-            color: #7a9bbf;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-        @media (max-width: 800px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .card {
-            background: #0b1a2e;
-            border-radius: 30px;
-            padding: 25px;
-            border: 1px solid #2e4a6a;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .card h2 {
-            color: #00FF00;
-            font-size: 1.4rem;
-            border-bottom: 2px solid #00FF0030;
-            padding-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .upload-area {
-            border: 2px dashed #2a4060;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            background: #0a1a2a;
-        }
-        .upload-area:hover {
-            border-color: #00FF00;
-            background: #0a1f2f;
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.1);
-        }
-        .upload-area i {
-            font-size: 3rem;
-            color: #00FF0060;
-            margin-bottom: 10px;
-        }
-        .upload-area p {
-            color: #7a9bbf;
-            margin: 5px 0;
-        }
-        .voice-badge {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #0a2a1a;
-            border: 1px solid #00FF0040;
-            border-radius: 20px;
-            padding: 12px 16px;
-            font-size: 0.9rem;
-            color: #b8d0e8;
-        }
-        .voice-badge .dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #00FF00;
-            box-shadow: 0 0 10px #00FF00;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-        }
-        textarea {
-            width: 100%;
-            padding: 16px;
-            border-radius: 16px;
-            border: 1px solid #2e4a6a;
-            background: #0b1a2a;
-            color: #fff;
-            font-size: 1rem;
-            font-family: 'Cairo', sans-serif;
-            resize: vertical;
-            min-height: 120px;
-            transition: 0.2s;
-            outline: none;
-        }
-        textarea:focus {
-            border-color: #00FF00;
-            box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.15);
-        }
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .slider-group label {
-            font-weight: 600;
-            color: #b8d0e8;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-        }
-        .slider-group input[type="range"] {
-            width: 100%;
-            accent-color: #00FF00;
-        }
-        .btn-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.25s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-family: 'Cairo', sans-serif;
-        }
-        .btn-primary {
-            background: #00FF00;
-            color: #021533;
-            box-shadow: 0 8px 25px rgba(0, 255, 0, 0.3);
-        }
-        .btn-primary:hover {
-            background: #00cc00;
-            transform: scale(1.02);
-            box-shadow: 0 12px 35px rgba(0, 255, 0, 0.45);
-        }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #00FF00;
-            color: #00FF00;
-        }
-        .btn-outline:hover {
-            background: #00FF0010;
-        }
-        .btn-download {
-            background: #2e7d32;
-            color: white;
-        }
-        .btn-download:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn-stop {
-            background: #ff4757;
-            color: white;
-        }
-        .audio-preview {
-            width: 100%;
-            margin-top: 10px;
-            accent-color: #00FF00;
-        }
-        .status-text {
-            text-align: center;
-            padding: 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            background: rgba(0, 255, 0, 0.05);
-            border: 1px solid #00FF0030;
-            color: #00FF00;
-        }
-        .status-text.processing {
-            border-color: #ffa502;
-            color: #ffa502;
-            background: rgba(255, 165, 0, 0.05);
-        }
-        .hidden-input {
-            display: none;
-        }
-        .char-count {
-            font-size: 0.8rem;
-            color: #7a9bbf;
-            text-align: left;
-        }
-        .analysis-result {
-            background: #0a1a2a;
-            border-radius: 16px;
-            padding: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            font-size: 0.85rem;
-            color: #b8d0e8;
-        }
-        .analysis-result span {
-            background: #0f2a1f;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #00FF0030;
-        }
+        /* نفس التنسيق السابق مع تعديلات بسيطة */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#021533; font-family:'Cairo',sans-serif; padding:20px; display:flex; justify-content:center; align-items:center; min-height:100vh; color:#e0e9f5; }
+        .studio-wrapper { max-width:1100px; width:100%; background:#0f1f33; border-radius:40px; padding:30px; box-shadow:0 30px 60px rgba(0,0,0,0.7); border:1px solid #2a4060; display:flex; flex-direction:column; gap:30px; }
+        .header { text-align:center; }
+        .header h1 { font-size:2.5rem; font-weight:900; color:#00FF00; text-shadow:0 0 20px rgba(0,255,0,0.4); }
+        .header p { color:#7a9bbf; margin-top:5px; }
+        .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:25px; }
+        @media (max-width:800px){ .main-grid{grid-template-columns:1fr;} }
+        .card { background:#0b1a2e; border-radius:30px; padding:25px; border:1px solid #2e4a6a; display:flex; flex-direction:column; gap:20px; }
+        .card h2 { color:#00FF00; border-bottom:2px solid #00FF0030; padding-bottom:12px; }
+        .upload-area { border:2px dashed #2a4060; border-radius:20px; padding:25px; text-align:center; cursor:pointer; background:#0a1a2a; }
+        .upload-area:hover { border-color:#00FF00; background:#0a1f2f; }
+        .upload-area i { font-size:3rem; color:#00FF0060; }
+        .voice-badge { display:flex; align-items:center; gap:12px; background:#0a2a1a; border:1px solid #00FF0040; border-radius:20px; padding:12px; font-size:0.9rem; }
+        .dot { width:14px; height:14px; border-radius:50%; background:#00FF00; animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        textarea { width:100%; padding:16px; border-radius:16px; border:1px solid #2e4a6a; background:#0b1a2a; color:#fff; font-family:'Cairo'; resize:vertical; min-height:120px; outline:none; }
+        textarea:focus { border-color:#00FF00; box-shadow:0 0 0 3px rgba(0,255,0,0.15); }
+        .slider-group label { font-weight:600; color:#b8d0e8; display:flex; justify-content:space-between; }
+        input[type="range"] { accent-color:#00FF00; }
+        .btn-row { display:flex; gap:12px; flex-wrap:wrap; }
+        .btn { flex:1; min-width:120px; padding:14px 20px; border:none; border-radius:40px; font-weight:700; cursor:pointer; transition:0.25s; display:flex; align-items:center; justify-content:center; gap:8px; font-family:'Cairo'; }
+        .btn-primary { background:#00FF00; color:#021533; }
+        .btn-primary:hover { background:#00cc00; }
+        .btn-outline { background:transparent; border:2px solid #00FF00; color:#00FF00; }
+        .btn-outline:hover { background:#00FF0010; }
+        .btn-download { background:#2e7d32; color:white; }
+        .btn-download:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn-stop { background:#ff4757; color:white; }
+        .status-text { text-align:center; padding:10px; border-radius:20px; background:rgba(0,255,0,0.05); border:1px solid #00FF0030; color:#00FF00; }
+        .status-text.processing { border-color:#ffa502; color:#ffa502; }
+        .hidden-input { display:none; }
+        .char-count { font-size:0.8rem; color:#7a9bbf; }
+        .analysis-result { background:#0a1a2a; border-radius:16px; padding:15px; display:flex; flex-wrap:wrap; gap:15px; font-size:0.85rem; }
+        .analysis-result span { background:#0f2a1f; padding:6px 14px; border-radius:20px; border:1px solid #00FF0030; }
     </style>
 </head>
 <body>
     <div class="studio-wrapper">
         <div class="header">
-            <h1>
-                <i class="fas fa-microphone-alt"></i>
-                أغورط استوديو الصوت
-                <i class="fas fa-waveform-lines"></i>
-            </h1>
-            <p>ارفع فيديو ليتم تحليل نبرة الصوت واستنساخها، ثم اكتب نصاً ليُقرأ بنفس النبرة</p>
+            <h1><i class="fas fa-waveform-lines"></i> استوديو أغورط الصوتي</h1>
+            <p>ارفع فيديو لتحليل النبرة ثم اكتب نصاً ليتم نطقه بصوت عربي طبيعي مع تعديل الخصائص</p>
         </div>
 
         <div class="main-grid">
-            <!-- بطاقة المصدر الصوتي -->
+            <!-- المرجع -->
             <div class="card">
-                <h2><i class="fas fa-video"></i> مصدر النبرة المرجعي</h2>
+                <h2><i class="fas fa-video"></i> تحليل المرجع</h2>
                 <div class="upload-area" id="uploadVideoArea">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p>ارفع فيديو أو مقطع صوتي لتحليل النبرة</p>
-                    <small style="color:#7a9bbf;">MP4, WebM, MP3, WAV</small>
+                    <p>ارفع ملف فيديو أو صوتي (MP4, MP3, WAV)</p>
                 </div>
-                <input type="file" id="referenceFileInput" accept="video/*,audio/*" class="hidden-input">
-                <div id="referenceInfo" class="voice-badge" style="display:none;">
+                <input type="file" id="refFileInput" accept="video/*,audio/*" class="hidden-input">
+                <div id="refInfo" class="voice-badge" style="display:none;">
                     <div class="dot"></div>
-                    <span id="refFileName">تم تحميل المرجع</span>
-                    <i class="fas fa-check-circle" style="color:#00FF00; margin-right:auto;"></i>
+                    <span id="refFileName">المرجع جاهز</span>
                 </div>
                 <div id="analysisResult" class="analysis-result" style="display:none;">
-                    <span>🎵 متوسط النبرة: <b id="pitchValue">--</b> هرتز</span>
-                    <span>⏱️ السرعة: <b id="rateValue">--</b> كلمة/دقيقة</span>
+                    <span>🎵 النبرة (Hz): <b id="pitchValue">--</b></span>
+                    <span>⏱️ السرعة التقريبية: <b id="rateValue">--</b> مقطع/ث</span>
                 </div>
-                <button class="btn btn-outline" id="btnAnalyzeVoice" disabled>
-                    <i class="fas fa-search"></i> تحليل النبرة واستخراج البصمة
+                <button class="btn btn-outline" id="btnAnalyze" disabled>
+                    <i class="fas fa-search"></i> تحليل وضبط النبرة
                 </button>
-                <div id="refStatus" class="status-text">في انتظار رفع ملف مرجعي...</div>
+                <div id="refStatus" class="status-text">⏳ في انتظار ملف مرجعي</div>
             </div>
 
-            <!-- بطاقة النص والتوليد -->
+            <!-- التوليد -->
             <div class="card">
-                <h2><i class="fas fa-pen-fancy"></i> النص المُراد نطقه</h2>
-                <textarea id="textToSpeech" placeholder="اكتب النص الذي تريد تحويله إلى صوت بنبرة المتحدث المرجعي... مثال: مرحباً، هذه منصة أغورط الإخبارية تقدم لكم آخر المستجدات." maxlength="500"></textarea>
+                <h2><i class="fas fa-pen-alt"></i> النص للتوليد</h2>
+                <textarea id="textToSpeech" placeholder="أدخل الخبر أو النص ليتم تحويله إلى كلام..." maxlength="500"></textarea>
                 <div class="char-count" id="charCount">0 / 500</div>
 
                 <div class="slider-group">
-                    <label>ضبط النبرة (استناداً إلى المرجع) <span id="pitchLabel">1.0</span></label>
+                    <label>نسبة النبرة (مستوحاة من المرجع) <span id="pitchLabel">1.0</span></label>
                     <input type="range" id="pitchSlider" value="1.0" min="0.5" max="2.0" step="0.05">
                 </div>
                 <div class="slider-group">
-                    <label>سرعة القراءة <span id="rateLabel">1.0</span></label>
+                    <label>سرعة الإلقاء <span id="rateLabel">1.0</span></label>
                     <input type="range" id="rateSlider" value="1.0" min="0.5" max="2.0" step="0.05">
                 </div>
 
                 <div class="btn-row">
                     <button class="btn btn-primary" id="btnGenerate">
-                        <i class="fas fa-microphone"></i> توليد الصوت
+                        <i class="fas fa-microphone"></i> توليد الصوت وتسجيله
                     </button>
                     <button class="btn btn-stop" id="btnStop" disabled>
                         <i class="fas fa-stop-circle"></i> إيقاف
@@ -326,8 +104,8 @@
                         <i class="fas fa-download"></i> تحميل MP3
                     </button>
                 </div>
-                <audio id="audioPreview" class="audio-preview" controls style="display:none;"></audio>
-                <div id="genStatus" class="status-text">جاهز للتوليد</div>
+                <audio id="audioPreview" controls style="width:100%; margin-top:10px; display:none;"></audio>
+                <div id="genStatus" class="status-text">⚡ جاهز للتوليد</div>
             </div>
         </div>
     </div>
@@ -336,13 +114,13 @@
         (() => {
             // العناصر
             const uploadArea = document.getElementById('uploadVideoArea');
-            const refFileInput = document.getElementById('referenceFileInput');
-            const refInfo = document.getElementById('referenceInfo');
+            const refFileInput = document.getElementById('refFileInput');
+            const refInfo = document.getElementById('refInfo');
             const refFileName = document.getElementById('refFileName');
             const analysisResult = document.getElementById('analysisResult');
             const pitchValue = document.getElementById('pitchValue');
             const rateValue = document.getElementById('rateValue');
-            const btnAnalyze = document.getElementById('btnAnalyzeVoice');
+            const btnAnalyze = document.getElementById('btnAnalyze');
             const refStatus = document.getElementById('refStatus');
             const textArea = document.getElementById('textToSpeech');
             const charCount = document.getElementById('charCount');
@@ -358,174 +136,148 @@
 
             let referenceFile = null;
             let referenceAudioBuffer = null;
-            let analyzedPitch = 1.0; // متوسط النبرة المحللة
-            let analyzedRate = 1.0; // متوسط السرعة المحللة
+            let analyzedPitch = 1.0;
+            let analyzedRate = 1.0;
             let audioContext = null;
             let mediaRecorder = null;
             let recordedChunks = [];
             let isRecording = false;
             let generatedBlob = null;
+            let captureStream = null;
 
-            // فتح نافذة رفع الملف
             uploadArea.addEventListener('click', () => refFileInput.click());
-            refFileInput.addEventListener('change', handleReferenceFile);
-
-            function handleReferenceFile(e) {
+            refFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (!file) return;
+                if(!file) return;
                 referenceFile = file;
                 refFileName.textContent = file.name;
                 refInfo.style.display = 'flex';
                 analysisResult.style.display = 'none';
                 btnAnalyze.disabled = false;
-                refStatus.innerHTML = '<i class="fas fa-check-circle"></i> تم رفع الملف المرجعي. اضغط "تحليل النبرة".';
+                refStatus.innerHTML = '✅ تم رفع المرجع. اضغط تحليل.';
                 refStatus.className = 'status-text';
-            }
+            });
 
-            // تحليل النبرة من الملف المرجعي
             btnAnalyze.addEventListener('click', async () => {
-                if (!referenceFile) return;
+                if(!referenceFile) return;
                 btnAnalyze.disabled = true;
-                refStatus.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحليل النبرة والصوت...';
+                refStatus.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحليل الصوت...';
                 refStatus.className = 'status-text processing';
-
                 try {
-                    // استخراج الصوت من الفيديو إذا لزم الأمر باستخدام AudioContext
+                    if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const arrayBuffer = await referenceFile.arrayBuffer();
-                    if (!audioContext) {
-                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
-                    }
                     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
                     referenceAudioBuffer = audioBuffer;
 
-                    // تحليل بسيط: حساب متوسط التردد الأساسي باستخدام Autocorrelation على جزء من المقطع
                     const rawData = audioBuffer.getChannelData(0);
                     const sampleRate = audioBuffer.sampleRate;
                     const duration = audioBuffer.duration;
 
-                    // حساب متوسط النبرة (pitch) بطريقة مبسطة
                     const pitchHz = estimatePitch(rawData, sampleRate);
-                    // تقدير سرعة الكلام (عدد المقاطع الصوتية لكل ثانية)
                     const speechRate = estimateSpeechRate(rawData, sampleRate, duration);
 
-                    // تحويل إلى قيم نسبية (النبرة الطبيعية حوالي 100-200 هرتز للرجال، 200-300 للنساء)
-                    // نطبيع القيم لتكون حول 1.0
                     const normalizedPitch = Math.max(0.7, Math.min(1.6, pitchHz / 150));
                     const normalizedRate = Math.max(0.7, Math.min(1.5, speechRate / 3.5));
 
                     analyzedPitch = normalizedPitch;
                     analyzedRate = normalizedRate;
 
-                    // تحديث واجهة التحليل
                     pitchValue.textContent = Math.round(pitchHz);
-                    rateValue.textContent = Math.round(speechRate * 60); // كلمات تقريباً بالدقيقة
+                    rateValue.textContent = (speechRate * 60).toFixed(0);
                     analysisResult.style.display = 'flex';
 
-                    // ضبط المنزلقات تلقائياً بناءً على التحليل
                     pitchSlider.value = normalizedPitch.toFixed(2);
                     pitchLabel.textContent = normalizedPitch.toFixed(2);
                     rateSlider.value = normalizedRate.toFixed(2);
                     rateLabel.textContent = normalizedRate.toFixed(2);
 
-                    refStatus.innerHTML = '<i class="fas fa-check-circle"></i> تم تحليل النبرة بنجاح. تم ضبط الإعدادات.';
+                    refStatus.innerHTML = '🎯 تم تحليل النبرة والسرعة وضبط المنزلقات.';
                     refStatus.className = 'status-text';
-                } catch (error) {
-                    console.error(error);
-                    refStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل التحليل. تأكد من صحة الملف.';
+                } catch(e) {
+                    console.error(e);
+                    refStatus.innerHTML = '❌ فشل التحليل. تأكد من الملف.';
                     refStatus.className = 'status-text';
                 }
                 btnAnalyze.disabled = false;
             });
 
-            // تقدير النبرة باستخدام Autocorrelation
             function estimatePitch(buffer, sampleRate) {
-                const size = Math.min(buffer.length, sampleRate * 2); // تحليل أول ثانيتين
+                const size = Math.min(buffer.length, sampleRate * 2);
                 const data = buffer.slice(0, size);
-                // حساب autocorrelation
-                const maxLag = Math.floor(sampleRate / 80); // أدنى تردد 80 هرتز
-                const minLag = Math.floor(sampleRate / 400); // أعلى تردد 400 هرتز
-                let bestCorrelation = 0;
-                let bestLag = minLag;
-
-                for (let lag = minLag; lag <= maxLag; lag++) {
-                    let correlation = 0;
-                    for (let i = 0; i < size - lag; i++) {
-                        correlation += data[i] * data[i + lag];
-                    }
-                    if (correlation > bestCorrelation) {
-                        bestCorrelation = correlation;
-                        bestLag = lag;
-                    }
+                const maxLag = Math.floor(sampleRate / 80);
+                const minLag = Math.floor(sampleRate / 400);
+                let bestCorr = 0, bestLag = minLag;
+                for(let lag = minLag; lag <= maxLag; lag++) {
+                    let corr = 0;
+                    for(let i = 0; i < size - lag; i++) corr += data[i] * data[i+lag];
+                    if(corr > bestCorr) { bestCorr = corr; bestLag = lag; }
                 }
-                if (bestCorrelation === 0) return 150; // افتراضي
-                return sampleRate / bestLag;
+                return bestCorr ? sampleRate / bestLag : 150;
             }
 
-            // تقدير سرعة الكلام بناءً على عدد التجاوزات الصفرية
             function estimateSpeechRate(buffer, sampleRate, duration) {
-                const size = buffer.length;
-                let zeroCrossings = 0;
-                for (let i = 1; i < size; i++) {
-                    if ((buffer[i] >= 0 && buffer[i - 1] < 0) || (buffer[i] < 0 && buffer[i - 1] >= 0)) {
-                        zeroCrossings++;
-                    }
+                let crossings = 0;
+                for(let i=1; i<buffer.length; i++) {
+                    if((buffer[i] >= 0 && buffer[i-1] < 0) || (buffer[i] < 0 && buffer[i-1] >= 0)) crossings++;
                 }
-                const crossingsPerSecond = zeroCrossings / duration;
-                // تحويل تقريبي إلى "مقاطع" في الثانية
-                return crossingsPerSecond / 1000; // عامل تحويل تقريبي
+                return (crossings / duration) / 1000;
             }
 
-            // تحديث عداد الحروف
             textArea.addEventListener('input', () => {
                 charCount.textContent = `${textArea.value.length} / 500`;
             });
 
-            // تحديث المنزلقات
-            pitchSlider.addEventListener('input', () => {
-                pitchLabel.textContent = parseFloat(pitchSlider.value).toFixed(2);
-            });
-            rateSlider.addEventListener('input', () => {
-                rateLabel.textContent = parseFloat(rateSlider.value).toFixed(2);
-            });
+            pitchSlider.addEventListener('input', () => pitchLabel.textContent = parseFloat(pitchSlider.value).toFixed(2));
+            rateSlider.addEventListener('input', () => rateLabel.textContent = parseFloat(rateSlider.value).toFixed(2));
 
-            // توليد الصوت باستخدام Web Speech API مع تطبيق النبرة والسرعة
             btnGenerate.addEventListener('click', async () => {
                 const text = textArea.value.trim();
-                if (!text) {
-                    alert('يرجى كتابة النص المراد تحويله إلى صوت.');
-                    return;
-                }
-                if (!('speechSynthesis' in window)) {
-                    alert('المتصفح لا يدعم تحويل النص إلى كلام. يرجى استخدام Chrome أو Edge.');
-                    return;
-                }
+                if(!text) { alert('اكتب نصاً أولاً'); return; }
+                if(!('speechSynthesis' in window)) { alert('متصفحك لا يدعم النطق'); return; }
 
-                // إيقاف أي توليد سابق
-                stopGeneration();
-
+                stopRecording(); // إيقاف أي عملية سابقة
                 btnGenerate.disabled = true;
                 btnStop.disabled = false;
                 btnDownload.disabled = true;
-                genStatus.innerHTML = '<i class="fas fa-circle"></i> جاري توليد الصوت بنبرة مخصصة...';
-                genStatus.className = 'status-text processing';
                 audioPreview.style.display = 'none';
+                genStatus.innerHTML = '🎤 جاري تجهيز تسجيل صوت التبويب...';
+                genStatus.className = 'status-text processing';
 
-                // إعداد التسجيل
-                if (!audioContext) {
-                    audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                // الخطوة 1: طلب التقاط صوت التبويب (يعمل على Chrome/Edge)
+                try {
+                    captureStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: true,
+                        audio: true
+                    });
+                } catch(e) {
+                    alert('يجب السماح بمشاركة التبويب كاملاً مع الصوت. العملية تتطلب متصفح Chrome أو Edge.');
+                    btnGenerate.disabled = false;
+                    btnStop.disabled = true;
+                    genStatus.innerHTML = '⚠️ فشل التقاط الصوت.';
+                    genStatus.className = 'status-text';
+                    return;
                 }
-                const dest = audioContext.createMediaStreamDestination();
-                const mediaStream = dest.stream;
+
+                // نحتاج فقط إلى المسار الصوتي من الـ captureStream
+                const audioTrack = captureStream.getAudioTracks()[0];
+                if(!audioTrack) {
+                    captureStream.getTracks().forEach(t => t.stop());
+                    alert('لم يتم العثور على مسار صوتي في التبويب المختار.');
+                    btnGenerate.disabled = false;
+                    btnStop.disabled = true;
+                    return;
+                }
+                const audioOnlyStream = new MediaStream([audioTrack]);
+
                 recordedChunks = [];
-                const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ?
-                    'audio/webm;codecs=opus' : 'audio/webm';
-                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: mimeType });
+                mediaRecorder = new MediaRecorder(audioOnlyStream, { mimeType: 'audio/webm' });
                 mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) recordedChunks.push(e.data);
+                    if(e.data.size > 0) recordedChunks.push(e.data);
                 };
                 mediaRecorder.onstop = async () => {
-                    const webmBlob = new Blob(recordedChunks, { type: mimeType });
-                    // تحويل إلى MP3 باستخدام ffmpeg.wasm
+                    const webmBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    // تحويل إلى MP3
+                    genStatus.innerHTML = '🔄 جاري تحويل التسجيل إلى MP3...';
                     try {
                         const mp3Blob = await convertToMP3(webmBlob);
                         generatedBlob = mp3Blob;
@@ -533,145 +285,83 @@
                         audioPreview.src = url;
                         audioPreview.style.display = 'block';
                         btnDownload.disabled = false;
-                        genStatus.innerHTML = '<i class="fas fa-check-circle"></i> تم إنشاء الصوت بنجاح!';
+                        genStatus.innerHTML = '✅ تم إنشاء الملف الصوتي بنجاح!';
                         genStatus.className = 'status-text';
-                    } catch (e) {
-                        console.error(e);
+                    } catch(e) {
                         generatedBlob = webmBlob;
                         const url = URL.createObjectURL(webmBlob);
                         audioPreview.src = url;
                         audioPreview.style.display = 'block';
                         btnDownload.disabled = false;
-                        genStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تم الإنشاء بصيغة WebM (تعذر تحويل MP3).';
+                        genStatus.innerHTML = '✅ تم التسجيل (WebM). اضغط تحميل.';
                         genStatus.className = 'status-text';
                     }
                     btnGenerate.disabled = false;
                     btnStop.disabled = true;
                     isRecording = false;
+                    // إيقاف مسارات الـ capture بعد الانتهاء
+                    captureStream.getTracks().forEach(t => t.stop());
+                    captureStream = null;
                 };
 
                 mediaRecorder.start();
                 isRecording = true;
 
-                // استخدام SpeechSynthesis مع إعدادات مخصصة
+                // تشغيل النطق
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ar-SA'; // العربية
+                utterance.lang = 'ar-SA';
                 utterance.pitch = parseFloat(pitchSlider.value);
                 utterance.rate = parseFloat(rateSlider.value);
                 utterance.volume = 1;
 
-                // محاولة اختيار صوت عربي طبيعي
+                // اختيار أفضل صوت عربي
                 const voices = speechSynthesis.getVoices();
                 const arabicVoice = voices.find(v => v.lang.startsWith('ar') && v.localService) ||
-                    voices.find(v => v.lang.startsWith('ar')) ||
-                    voices[0];
-                if (arabicVoice) utterance.voice = arabicVoice;
+                                    voices.find(v => v.lang.startsWith('ar')) ||
+                                    voices[0];
+                if(arabicVoice) utterance.voice = arabicVoice;
 
-                // ربط الصوت بوجهة التسجيل
-                const sourceNode = audioContext.createMediaStreamSource(mediaStream);
-                // للأسف لا يمكن ربط SpeechSynthesis مباشرة بـ AudioContext،
-                // لذا نستخدم حيلة: تشغيل الصوت عبر مكبر الصوت والتسجيل عبر الميكروفون الافتراضي
-                // بديل: استخدام OscillatorNode لتوليد موجة صامتة ثم دمجها... لكن هذا معقد.
-                // سنستخدم طريقة بديلة: تسجيل الصوت مباشرة من خلال التقاط الصوت الصادر من المتصفح
-                // باستخدام audioContext.createMediaElementSource غير ممكن لـ SpeechSynthesis.
-                // لذلك نلجأ إلى استخدام AudioWorklet أو تسجيل النظام. لكن لتبسيط،
-                // سنستخدم ميزة المتصفح `navigator.mediaDevices.getDisplayMedia` أو نطلب من المستخدم
-                // السماح بالتقاط الصوت النظامي. لكن هذا قد لا يعمل في كل المتصفحات.
+                utterance.onend = () => {
+                    if(mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                };
+                utterance.onerror = () => {
+                    if(mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                };
 
-                // بدلاً من ذلك: نستخدم طريقة مختلفة: ننشئ AudioBuffer من النص عبر TTS خارجي
-                // أو نستخدم خدمة تجريبية. للأسف لا يوجد طريقة مباشرة لالتقاط خرج SpeechSynthesis.
-                // لذا نعتمد على مكتبة خارجية أو نحول النص إلى كلام باستخدام Google TTS API مجاناً؟
-                // لكن يمكننا استخدام `SpeechSynthesis` وعرض التسجيل اليدوي عبر زر.
-
-                // بسبب قيود المتصفح، سنستخدم نهجاً مختلفاً: نطلب من المستخدم الضغط على زر التسجيل
-                // ونقوم بتشغيل الصوت عبر مكبرات الصوت، ثم نسجل عبر الميكروفون.
-                // لكن هذا غير عملي. الحل الأمثل هو استخدام واجهة TTS مدفوعة أو مجانية.
-
-                // هنا سأقوم بتطبيق حل عملي: استخدام `MediaStream` من خلال `AudioContext`
-                // وخلق مصدر من ملف صوتي مركب باستخدام `OfflineAudioContext`.
-                // لكن SpeechSynthesis لا يعطينا بيانات خام. لذا سنعتمد على مكتبة `meSpeak.js`
-                // أو ننشئ الصوت باستخدام `SpeechSynthesis` ثم نحوله.
-
-                // لتجاوز هذه المشكلة، سأقوم بتسجيل الصوت عبر `AudioContext` و `createMediaStreamDestination`
-                // ولكن نحتاج لمصدر حقيقي. سأستخدم `OscillatorNode` لإضافة صمت فقط،
-                // ثم أستخدم `SpeechSynthesis` بالتوازي وأطلب من المستخدم السماح بالميكروفون.
-                // لكن هذا قد يسبب ارتباك. لذا سأقوم بتبسيط: سنستخدم `SpeechSynthesis` بشكل طبيعي
-                // مع إمكانية تحميل الصوت كملف عبر واجهة خارجية (مثل Google TTS) إذا توفر مفتاح.
-
-                // أفضل حل مؤقت: استخدام `ResponsiveVoice` أو `Google TTS` عبر `fetch`.
-                // لكن للبقاء مجانيين، سنستخدم `SpeechSynthesis` مع زر تسجيل منفصل.
-                // سأقوم بتعديل المنطق: عند الضغط على "توليد"، نقوم بتشغيل الصوت عبر السماعات،
-                // وفي نفس الوقت نبدأ التسجيل من الميكروفون الافتراضي.
-
-                // التنفيذ:
-                try {
-                    const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    const micRecorder = new MediaRecorder(micStream);
-                    const chunks = [];
-                    micRecorder.ondataavailable = e => chunks.push(e.data);
-                    micRecorder.onstop = async () => {
-                        const blob = new Blob(chunks, { type: 'audio/webm' });
-                        generatedBlob = blob;
-                        const url = URL.createObjectURL(blob);
-                        audioPreview.src = url;
-                        audioPreview.style.display = 'block';
-                        btnDownload.disabled = false;
-                        genStatus.innerHTML = '<i class="fas fa-check-circle"></i> تم التسجيل عبر الميكروفون. اضغط تحميل.';
-                        genStatus.className = 'status-text';
-                        btnGenerate.disabled = false;
-                        btnStop.disabled = true;
-                        isRecording = false;
-                        micStream.getTracks().forEach(t => t.stop());
-                    };
-                    micRecorder.start();
-                    // تشغيل الصوت عبر السماعات
-                    speechSynthesis.speak(utterance);
-                    utterance.onend = () => {
-                        micRecorder.stop();
-                    };
-                    // إيقاف إذا ضغط المستخدم إيقاف
-                    window._micRecorder = micRecorder;
-                    window._micStream = micStream;
-                } catch (micError) {
-                    alert('يجب السماح باستخدام الميكروفون لتسجيل الصوت. سيتم تشغيل الصوت فقط.');
-                    speechSynthesis.speak(utterance);
-                    btnGenerate.disabled = false;
-                    btnStop.disabled = true;
-                    genStatus.innerHTML = '<i class="fas fa-volume-up"></i> تم تشغيل الصوت. استخدم مسجل خارجي.';
-                    genStatus.className = 'status-text';
-                }
+                // بدء التسجيل ثم النطق
+                speechSynthesis.speak(utterance);
+                genStatus.innerHTML = '🔴 جاري تسجيل الصوت من التبويب... لا تغلق النافذة.';
+                genStatus.className = 'status-text processing';
             });
 
-            function stopGeneration() {
-                if (window._micRecorder && window._micRecorder.state === 'recording') {
-                    window._micRecorder.stop();
-                }
-                if (window._micStream) {
-                    window._micStream.getTracks().forEach(t => t.stop());
-                }
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-                }
-                if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
+            btnStop.addEventListener('click', () => {
+                stopRecording();
+                btnGenerate.disabled = false;
+                btnStop.disabled = true;
+                genStatus.innerHTML = '⏹️ تم الإيقاف.';
+                genStatus.className = 'status-text';
+            });
+
+            function stopRecording() {
+                if(speechSynthesis.speaking) speechSynthesis.cancel();
+                if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+                if(captureStream) {
+                    captureStream.getTracks().forEach(t => t.stop());
+                    captureStream = null;
                 }
                 isRecording = false;
             }
 
-            btnStop.addEventListener('click', () => {
-                stopGeneration();
-                btnGenerate.disabled = false;
-                btnStop.disabled = true;
-                genStatus.innerHTML = '<i class="fas fa-stop-circle"></i> تم الإيقاف.';
-                genStatus.className = 'status-text';
-            });
-
             btnDownload.addEventListener('click', () => {
-                if (!generatedBlob) return;
+                if(!generatedBlob) return;
                 const a = document.createElement('a');
                 const ext = generatedBlob.type.includes('mp3') ? 'mp3' : 'webm';
                 a.href = URL.createObjectURL(generatedBlob);
-                a.download = `صوت_أغورط_${Date.now()}.${ext}`;
+                a.download = `أغورط_صوت_${Date.now()}.${ext}`;
                 a.click();
             });
 
@@ -687,8 +377,10 @@
             }
 
             // تحميل الأصوات مسبقاً
+            if(speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+            }
             speechSynthesis.getVoices();
-            speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); };
         })();
     </script>
 </body>
