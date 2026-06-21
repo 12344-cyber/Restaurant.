@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة الآيات القرآنية | استماع وتحميل</title>
+    <title>مكتبة الآيات القرآنية | استماع وتحميل ودمج</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -94,17 +93,14 @@
             font-size: 1rem;
             cursor: pointer;
             transition: 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             font-family: 'Cairo', sans-serif;
             white-space: nowrap;
         }
         .btn:hover { background: #16a34a; box-shadow: 0 0 20px #22c55e; }
-        .btn-gold {
-            background: #f59e0b;
-            color: #0a1f1a;
-        }
+        .btn-gold { background: #f59e0b; color: #0a1f1a; }
         .btn-gold:hover { background: #d97706; box-shadow: 0 0 20px #f59e0b; }
         .btn-outline {
             background: transparent;
@@ -122,9 +118,7 @@
             border-radius: 16px;
             padding: 16px;
             border: 1px solid #255a40;
-            transition: 0.3s;
         }
-        .ayah-item:hover { border-color: #4ade80; }
         .ayah-text {
             font-family: 'Amiri', 'Traditional Arabic', serif;
             font-size: 1.6rem;
@@ -132,7 +126,6 @@
             color: #f1f5f9;
             text-align: center;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .ayah-audio {
             width: 100%;
@@ -150,6 +143,7 @@
             text-align: center;
             margin: 12px 0;
             color: #86efac;
+            font-weight: 600;
         }
         .note {
             font-size: 0.8rem;
@@ -157,13 +151,28 @@
             margin-top: 10px;
             text-align: center;
         }
+        .progress-container {
+            width: 100%;
+            background: #1a3d30;
+            border-radius: 10px;
+            margin: 10px 0;
+            height: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #4ade80;
+            transition: width 0.3s;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-quran"></i> آيات بينات</h1>
-            <p style="color:#a7c5b8;">اختر السورة والآيات والقارئ ثم استمع أو حملها</p>
+            <p style="color:#a7c5b8;">اختر السورة والآيات والقارئ ، ثم استمع أو حملها كلها في مقطع واحد</p>
         </div>
 
         <div class="search-panel">
@@ -192,14 +201,21 @@
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-info-circle"></i> القارئ الموريتاني محمد لقظف غير متوفر في المصدر الحالي. يمكنك اختيار أي قارئ آخر.
+                <i class="fas fa-info-circle"></i> القارئ الموريتاني محمد لقظف غير متوفر حالياً في المصدر، يمكنك اختيار قارئ آخر.
             </div>
         </div>
 
-        <div id="ayahContainer" class="ayah-list"></div>
+        <div id="progressContainer" class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
         <div id="globalStatus" class="status-msg"></div>
-        <div style="text-align:center; margin-top:15px;">
-            <button class="btn btn-gold" id="downloadZipBtn" style="display:none;"><i class="fas fa-file-archive"></i> تحميل الكل كـ ZIP</button>
+
+        <div id="ayahContainer" class="ayah-list"></div>
+
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-gold" id="mergeDownloadBtn" style="display:none;">
+                <i class="fas fa-file-audio"></i> دمج وتحميل الكل كمقطع واحد
+            </button>
         </div>
     </div>
 
@@ -211,7 +227,9 @@
             const fetchBtn = document.getElementById('fetchBtn');
             const container = document.getElementById('ayahContainer');
             const globalStatus = document.getElementById('globalStatus');
-            const downloadZipBtn = document.getElementById('downloadZipBtn');
+            const mergeDownloadBtn = document.getElementById('mergeDownloadBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
 
             let currentAyahs = []; // { number, text, audio }
 
@@ -249,7 +267,7 @@
                 currentAyahs = ayahs;
                 if (ayahs.length === 0) {
                     container.innerHTML = '<p style="text-align:center;color:#fbbf24;">لا توجد آيات لعرضها</p>';
-                    downloadZipBtn.style.display = 'none';
+                    mergeDownloadBtn.style.display = 'none';
                     return;
                 }
                 ayahs.forEach((ayah, idx) => {
@@ -266,7 +284,7 @@
                     `;
                     container.appendChild(div);
                 });
-                downloadZipBtn.style.display = 'inline-flex';
+                mergeDownloadBtn.style.display = 'inline-flex';
                 attachDownloadListeners();
             }
 
@@ -299,32 +317,117 @@
                 URL.revokeObjectURL(blobUrl);
             }
 
-            async function downloadAllAsZip() {
+            async function mergeAndDownload() {
                 if (currentAyahs.length === 0) return;
-                globalStatus.textContent = 'جاري تجهيز ملف ZIP...';
-                downloadZipBtn.disabled = true;
+                globalStatus.textContent = 'جاري تحميل الصوتيات...';
+                mergeDownloadBtn.disabled = true;
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+
                 try {
-                    const zip = new JSZip();
-                    const promises = currentAyahs.map(async (ayah) => {
-                        const res = await fetch(ayah.audio);
-                        const blob = await res.blob();
-                        zip.file(`آية_${ayah.number}.mp3`, blob);
+                    // 1. تحميل كل المقاطع الصوتية
+                    const audioBuffers = [];
+                    for (let i = 0; i < currentAyahs.length; i++) {
+                        const ayah = currentAyahs[i];
+                        const response = await fetch(ayah.audio);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const audioCtx = new AudioContext();
+                        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                        audioBuffers.push(audioBuffer);
+                        audioCtx.close();
+                        // تحديث التقدم
+                        progressBar.style.width = `${((i+1) / currentAyahs.length) * 50}%`;
+                    }
+
+                    // 2. دمج المقاطع باستخدام OfflineAudioContext
+                    globalStatus.textContent = 'جاري دمج الصوتيات...';
+                    const sampleRate = audioBuffers[0].sampleRate;
+                    const totalLength = audioBuffers.reduce((sum, buf) => sum + buf.length, 0);
+                    const offlineCtx = new OfflineAudioContext(2, totalLength, sampleRate);
+
+                    let offset = 0;
+                    audioBuffers.forEach(buffer => {
+                        const source = offlineCtx.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(offlineCtx.destination);
+                        source.start(offset / sampleRate);
+                        offset += buffer.length;
                     });
-                    await Promise.all(promises);
-                    const content = await zip.generateAsync({ type: 'blob' });
-                    const url = URL.createObjectURL(content);
+
+                    progressBar.style.width = '70%';
+                    const renderedBuffer = await offlineCtx.startRendering();
+                    progressBar.style.width = '90%';
+
+                    // 3. تحويل إلى WAV وتحميل
+                    const wavBlob = bufferToWav(renderedBuffer);
+                    const url = URL.createObjectURL(wavBlob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `آيات_سورة_${surahNum.value}.zip`;
+                    a.download = `آيات_سورة_${surahNum.value}_مدمجة.wav`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    globalStatus.textContent = 'تم تحميل ملف ZIP بنجاح';
+
+                    progressBar.style.width = '100%';
+                    globalStatus.textContent = 'تم دمج وتحميل المقطع بنجاح';
                 } catch (err) {
-                    globalStatus.textContent = 'فشل إنشاء ZIP: ' + err.message;
+                    globalStatus.textContent = 'فشل الدمج: ' + err.message;
                 } finally {
-                    downloadZipBtn.disabled = false;
+                    mergeDownloadBtn.disabled = false;
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 2000);
+                }
+            }
+
+            // دالة تحويل AudioBuffer إلى WAV
+            function bufferToWav(buffer) {
+                const numChannels = buffer.numberOfChannels;
+                const sampleRate = buffer.sampleRate;
+                const format = 1; // PCM
+                const bitsPerSample = 16;
+                const data = buffer.getChannelData(0);
+                const byteRate = sampleRate * numChannels * bitsPerSample / 8;
+                const blockAlign = numChannels * bitsPerSample / 8;
+                const dataSize = data.length * numChannels * bitsPerSample / 8;
+                const headerSize = 44;
+                const totalSize = headerSize + dataSize;
+
+                const arrayBuffer = new ArrayBuffer(totalSize);
+                const view = new DataView(arrayBuffer);
+
+                // كتابة رأس WAV
+                writeString(view, 0, 'RIFF');
+                view.setUint32(4, totalSize - 8, true);
+                writeString(view, 8, 'WAVE');
+                writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, format, true);
+                view.setUint16(22, numChannels, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, byteRate, true);
+                view.setUint16(32, blockAlign, true);
+                view.setUint16(34, bitsPerSample, true);
+                writeString(view, 36, 'data');
+                view.setUint32(40, dataSize, true);
+
+                // كتابة البيانات الصوتية
+                let offset = 44;
+                for (let i = 0; i < data.length; i++) {
+                    const sample = Math.max(-1, Math.min(1, data[i]));
+                    const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset, intSample, true);
+                    offset += 2;
+                }
+
+                return new Blob([arrayBuffer], { type: 'audio/wav' });
+            }
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
                 }
             }
 
@@ -342,7 +445,7 @@
                 }
                 globalStatus.textContent = 'جاري تحميل السورة...';
                 container.innerHTML = '';
-                downloadZipBtn.style.display = 'none';
+                mergeDownloadBtn.style.display = 'none';
                 try {
                     const allAyahs = await fetchSurah(surah, reciter);
                     const selected = allAyahs.filter(a => numbers.includes(a.numberInSurah));
@@ -362,7 +465,7 @@
                 }
             });
 
-            downloadZipBtn.addEventListener('click', downloadAllAsZip);
+            mergeDownloadBtn.addEventListener('click', mergeAndDownload);
 
             // تحميل افتراضي
             window.addEventListener('load', () => {
