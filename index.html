@@ -171,6 +171,11 @@
             opacity: 0.6;
             pointer-events: none;
         }
+        .cancel-btn {
+            background: #ef4444;
+            color: white;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -206,7 +211,7 @@
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-info-circle"></i> بعد جلب الآيات، اضغط على الزر الذهبي لتحميلها كلها في مقطع صوتي واحد.
+                <i class="fas fa-info-circle"></i> بعد جلب الآيات، اضغط على الزر الذهبي لدمجها وتحميلها كمقطع واحد.
             </div>
         </div>
 
@@ -217,9 +222,12 @@
 
         <div id="ayahContainer" class="ayah-list"></div>
 
-        <div style="text-align:center; margin-top:20px;">
+        <div style="text-align:center; margin-top:20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn btn-gold" id="mergeDownloadBtn" style="display:none;">
                 <i class="fas fa-file-audio"></i> دمج وتحميل الكل كمقطع واحد
+            </button>
+            <button class="btn cancel-btn" id="cancelBtn" style="display:none;">
+                <i class="fas fa-times"></i> إلغاء
             </button>
         </div>
     </div>
@@ -234,10 +242,16 @@
             const container = document.getElementById('ayahContainer');
             const globalStatus = document.getElementById('globalStatus');
             const mergeDownloadBtn = document.getElementById('mergeDownloadBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
 
             let currentAyahs = [];
+            let audioContext = null;
+            let mediaRecorder = null;
+            let recordedChunks = [];
+            let isCancelled = false;
+            let activeSources = [];
 
             // تحليل الأرقام المدخلة
             function parseNumbers(str) {
@@ -264,7 +278,7 @@
             async function fetchSurah(surah, reciter) {
                 const url = `https://api.alquran.cloud/v1/surah/${surah}/${reciter}`;
                 const res = await fetch(url);
-                if (!res.ok) throw new Error('تعذر جلب السورة. تأكد من رقم السورة.');
+                if (!res.ok) throw new Error('تعذر جلب السورة. تأكد من رقم السورة واتصالك بالإنترنت.');
                 const data = await res.json();
                 if (data.code !== 200) throw new Error('بيانات غير صالحة من الخادم.');
                 return data.data.ayahs;
@@ -328,6 +342,29 @@
                 URL.revokeObjectURL(blobUrl);
             }
 
+            // إلغاء الدمج
+            function cancelMerge() {
+                isCancelled = true;
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+                // إيقاف جميع المصادر النشطة
+                activeSources.forEach(source => {
+                    try { source.stop(); } catch(e) {}
+                });
+                activeSources = [];
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+                globalStatus.textContent = 'تم إلغاء العملية.';
+                mergeDownloadBtn.classList.remove('disabled');
+                cancelBtn.style.display = 'none';
+                progressContainer.style.display = 'none';
+            }
+
+            cancelBtn.addEventListener('click', cancelMerge);
+
             // دمج وتحميل الكل كمقطع واحد
             async function mergeAndDownload() {
                 if (currentAyahs.length === 0) {
@@ -335,134 +372,124 @@
                     return;
                 }
 
+                isCancelled = false;
                 mergeDownloadBtn.classList.add('disabled');
+                cancelBtn.style.display = 'inline-flex';
                 progressContainer.style.display = 'block';
                 progressBar.style.width = '0%';
                 globalStatus.textContent = 'جاري تحميل المقاطع الصوتية...';
+                recordedChunks = [];
+                activeSources = [];
 
                 try {
-                    // تحميل جميع المقاطع الصوتية كـ ArrayBuffer
+                    // إنشاء AudioContext
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    // إعداد MediaRecorder
+                    const stream = destination.stream;
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        if (isCancelled) return;
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `آيات_سورة_${surahNum.value}_مدمجة.webm`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        globalStatus.textContent = '✅ تم دمج وتحميل المقطع بنجاح.';
+                        mergeDownloadBtn.classList.remove('disabled');
+                        cancelBtn.style.display = 'none';
+                        progressContainer.style.display = 'none';
+                        audioContext.close();
+                        audioContext = null;
+                    };
+
+                    // تحميل وفك تشفير كل المقاطع
                     const audioBuffers = [];
                     for (let i = 0; i < currentAyahs.length; i++) {
+                        if (isCancelled) return;
                         const ayah = currentAyahs[i];
                         const response = await fetch(ayah.audio);
                         if (!response.ok) throw new Error(`تعذر تحميل الآية ${ayah.number}`);
                         const arrayBuffer = await response.arrayBuffer();
-                        
-                        // فك تشفير المقطع الصوتي
-                        const audioCtx = new AudioContext();
-                        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
                         audioBuffers.push(audioBuffer);
-                        audioCtx.close();
-                        
-                        // تحديث شريط التقدم
-                        progressBar.style.width = `${((i + 1) / currentAyahs.length) * 40}%`;
+                        progressBar.style.width = `${((i + 1) / currentAyahs.length) * 50}%`;
                     }
 
-                    globalStatus.textContent = 'جاري دمج المقاطع...';
-                    progressBar.style.width = '50%';
+                    if (isCancelled) return;
 
-                    // حساب الطول الإجمالي
-                    const sampleRate = audioBuffers[0].sampleRate;
-                    const numberOfChannels = audioBuffers[0].numberOfChannels;
-                    let totalLength = 0;
-                    audioBuffers.forEach(buffer => totalLength += buffer.length);
+                    globalStatus.textContent = 'جاري دمج وتشغيل المقاطع...';
+                    progressBar.style.width = '60%';
 
-                    // إنشاء OfflineAudioContext للدمج
-                    const offlineCtx = new OfflineAudioContext(numberOfChannels, totalLength, sampleRate);
-                    
-                    let offset = 0;
-                    audioBuffers.forEach(buffer => {
-                        const source = offlineCtx.createBufferSource();
+                    // بدء التسجيل
+                    mediaRecorder.start();
+
+                    // جدولة تشغيل المقاطع بالتسلسل
+                    let startTime = audioContext.currentTime + 0.1; // تأخير بسيط
+                    audioBuffers.forEach((buffer, index) => {
+                        const source = audioContext.createBufferSource();
                         source.buffer = buffer;
-                        source.connect(offlineCtx.destination);
-                        source.start(offset / sampleRate);
-                        offset += buffer.length;
+                        source.connect(destination);
+                        source.connect(audioContext.destination); // للسماع أثناء الدمج (اختياري)
+                        source.start(startTime);
+                        activeSources.push(source);
+                        
+                        source.onended = () => {
+                            // إزالة المصدر من القائمة
+                            const idx = activeSources.indexOf(source);
+                            if (idx > -1) activeSources.splice(idx, 1);
+                        };
+
+                        startTime += buffer.duration;
                     });
 
-                    globalStatus.textContent = 'جاري معالجة الصوت...';
-                    progressBar.style.width = '70%';
-
-                    // بدء التصيير
-                    const renderedBuffer = await offlineCtx.startRendering();
+                    // حساب المدة الإجمالية
+                    const totalDuration = audioBuffers.reduce((sum, buf) => sum + buf.duration, 0);
                     
-                    progressBar.style.width = '90%';
-                    globalStatus.textContent = 'جاري تجهيز الملف للتحميل...';
+                    // إيقاف التسجيل بعد انتهاء جميع المقاطع
+                    const checkInterval = setInterval(() => {
+                        if (isCancelled) {
+                            clearInterval(checkInterval);
+                            return;
+                        }
+                        const elapsed = audioContext.currentTime - (startTime - totalDuration);
+                        if (elapsed >= totalDuration || activeSources.length === 0) {
+                            clearInterval(checkInterval);
+                            if (mediaRecorder.state === 'recording') {
+                                mediaRecorder.stop();
+                            }
+                            progressBar.style.width = '100%';
+                        } else {
+                            const progress = 60 + (elapsed / totalDuration) * 40;
+                            progressBar.style.width = `${Math.min(progress, 100)}%`;
+                        }
+                    }, 100);
 
-                    // تحويل إلى WAV
-                    const wavBlob = audioBufferToWav(renderedBuffer);
-                    
-                    // تحميل الملف
-                    const url = URL.createObjectURL(wavBlob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `آيات_سورة_${surahNum.value}_مدمجة.wav`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    progressBar.style.width = '100%';
-                    globalStatus.textContent = '✅ تم دمج وتحميل المقطع بنجاح.';
                 } catch (err) {
                     console.error(err);
                     globalStatus.textContent = '❌ فشل الدمج: ' + err.message;
-                } finally {
                     mergeDownloadBtn.classList.remove('disabled');
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                        progressBar.style.width = '0%';
-                    }, 2000);
-                }
-            }
-
-            // دالة تحويل AudioBuffer إلى WAV
-            function audioBufferToWav(buffer) {
-                const numChannels = buffer.numberOfChannels;
-                const sampleRate = buffer.sampleRate;
-                const format = 1; // PCM
-                const bitsPerSample = 16;
-                
-                // الحصول على بيانات القناة الأولى (يمكن دمج القنوات)
-                const channelData = buffer.getChannelData(0);
-                const dataLength = channelData.length * (bitsPerSample / 8);
-                const headerLength = 44;
-                const totalLength = headerLength + dataLength;
-                
-                const arrayBuffer = new ArrayBuffer(totalLength);
-                const view = new DataView(arrayBuffer);
-                
-                // كتابة رأس الملف
-                function writeString(offset, string) {
-                    for (let i = 0; i < string.length; i++) {
-                        view.setUint8(offset + i, string.charCodeAt(i));
+                    cancelBtn.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    if (audioContext) {
+                        audioContext.close();
+                        audioContext = null;
+                    }
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
                     }
                 }
-                
-                writeString(0, 'RIFF');
-                view.setUint32(4, totalLength - 8, true);
-                writeString(8, 'WAVE');
-                writeString(12, 'fmt ');
-                view.setUint32(16, 16, true); // Subchunk1Size
-                view.setUint16(20, format, true); // AudioFormat
-                view.setUint16(22, numChannels, true);
-                view.setUint32(24, sampleRate, true);
-                view.setUint32(28, sampleRate * numChannels * bitsPerSample / 8, true); // ByteRate
-                view.setUint16(32, numChannels * bitsPerSample / 8, true); // BlockAlign
-                view.setUint16(34, bitsPerSample, true);
-                writeString(36, 'data');
-                view.setUint32(40, dataLength, true);
-                
-                // كتابة البيانات الصوتية
-                let offset = 44;
-                for (let i = 0; i < channelData.length; i++) {
-                    let sample = Math.max(-1, Math.min(1, channelData[i]));
-                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-                    view.setInt16(offset, sample, true);
-                    offset += 2;
-                }
-                
-                return new Blob([arrayBuffer], { type: 'audio/wav' });
             }
 
             // زر جلب الآيات
@@ -483,6 +510,7 @@
                 globalStatus.textContent = 'جاري تحميل السورة...';
                 container.innerHTML = '';
                 mergeDownloadBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
 
                 try {
                     const allAyahs = await fetchSurah(surah, reciter);
@@ -500,12 +528,15 @@
                     globalStatus.textContent = `تم جلب ${formatted.length} آيات بنجاح.`;
                 } catch (err) {
                     globalStatus.textContent = 'خطأ: ' + err.message;
+                    if (err.message.includes('fetch')) {
+                        globalStatus.textContent += ' (قد تحتاج لفتح الصفحة عبر خادم محلي لتجنب قيود CORS)';
+                    }
                 }
             });
 
             mergeDownloadBtn.addEventListener('click', mergeAndDownload);
 
-            // تشغيل افتراضي عند فتح الصفحة
+            // تحميل افتراضي
             window.addEventListener('load', () => {
                 fetchBtn.click();
             });
