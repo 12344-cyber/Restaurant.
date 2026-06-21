@@ -6,7 +6,6 @@
     <title>مكتبة الآيات القرآنية | دمج وتحميل صوتي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/crunker/dist/crunker.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -189,7 +188,7 @@
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-list-ol"></i> أرقام الآيات</label>
-                    <input type="text" id="ayahNumbers" value="1" placeholder="مثال: 1,3,5-7">
+                    <input type="text" id="ayahNumbers" value="1-3" placeholder="مثال: 1,3,5-7">
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-microphone"></i> القارئ</label>
@@ -207,7 +206,7 @@
             </div>
             <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
             <div class="note">
-                <i class="fas fa-info-circle"></i> لتحميل مقطع واحد يضم جميع الآيات، اضغط على الزر الذهبي بعد الجلب.
+                <i class="fas fa-info-circle"></i> بعد جلب الآيات، اضغط على الزر الذهبي لتحميلها كلها في مقطع صوتي واحد.
             </div>
         </div>
 
@@ -239,9 +238,8 @@
             const progressBar = document.getElementById('progressBar');
 
             let currentAyahs = [];
-            let audioBuffersCache = [];
 
-            // دالة لتحليل الأرقام المدخلة
+            // تحليل الأرقام المدخلة
             function parseNumbers(str) {
                 const nums = new Set();
                 const parts = str.split(/[,،]+/);
@@ -276,7 +274,6 @@
             function renderAyahs(ayahs) {
                 container.innerHTML = '';
                 currentAyahs = ayahs;
-                audioBuffersCache = [];
                 if (ayahs.length === 0) {
                     container.innerHTML = '<p style="text-align:center;color:#fbbf24;">لا توجد آيات لعرضها.</p>';
                     mergeDownloadBtn.style.display = 'none';
@@ -341,29 +338,62 @@
                 mergeDownloadBtn.classList.add('disabled');
                 progressContainer.style.display = 'block';
                 progressBar.style.width = '0%';
-                globalStatus.textContent = 'جاري تحميل الصوتيات...';
+                globalStatus.textContent = 'جاري تحميل المقاطع الصوتية...';
 
                 try {
-                    const crunker = new Crunker();
-                    // تحميل جميع المقاطع
-                    const audioUrls = currentAyahs.map(a => a.audio);
-                    const buffers = await crunker.fetchAudio(...audioUrls);
-                    
+                    // تحميل جميع المقاطع الصوتية كـ ArrayBuffer
+                    const audioBuffers = [];
+                    for (let i = 0; i < currentAyahs.length; i++) {
+                        const ayah = currentAyahs[i];
+                        const response = await fetch(ayah.audio);
+                        if (!response.ok) throw new Error(`تعذر تحميل الآية ${ayah.number}`);
+                        const arrayBuffer = await response.arrayBuffer();
+                        
+                        // فك تشفير المقطع الصوتي
+                        const audioCtx = new AudioContext();
+                        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                        audioBuffers.push(audioBuffer);
+                        audioCtx.close();
+                        
+                        // تحديث شريط التقدم
+                        progressBar.style.width = `${((i + 1) / currentAyahs.length) * 40}%`;
+                    }
+
+                    globalStatus.textContent = 'جاري دمج المقاطع...';
                     progressBar.style.width = '50%';
-                    globalStatus.textContent = 'جاري دمج الصوتيات...';
 
-                    // دمج المقاطع
-                    const merged = crunker.concatAudio(buffers);
-                    
-                    progressBar.style.width = '80%';
-                    globalStatus.textContent = 'جاري تصدير المقطع...';
+                    // حساب الطول الإجمالي
+                    const sampleRate = audioBuffers[0].sampleRate;
+                    const numberOfChannels = audioBuffers[0].numberOfChannels;
+                    let totalLength = 0;
+                    audioBuffers.forEach(buffer => totalLength += buffer.length);
 
-                    // تصدير كـ WAV
-                    const output = await crunker.export(merged, 'audio/wav');
+                    // إنشاء OfflineAudioContext للدمج
+                    const offlineCtx = new OfflineAudioContext(numberOfChannels, totalLength, sampleRate);
                     
-                    progressBar.style.width = '100%';
+                    let offset = 0;
+                    audioBuffers.forEach(buffer => {
+                        const source = offlineCtx.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(offlineCtx.destination);
+                        source.start(offset / sampleRate);
+                        offset += buffer.length;
+                    });
+
+                    globalStatus.textContent = 'جاري معالجة الصوت...';
+                    progressBar.style.width = '70%';
+
+                    // بدء التصيير
+                    const renderedBuffer = await offlineCtx.startRendering();
+                    
+                    progressBar.style.width = '90%';
+                    globalStatus.textContent = 'جاري تجهيز الملف للتحميل...';
+
+                    // تحويل إلى WAV
+                    const wavBlob = audioBufferToWav(renderedBuffer);
+                    
                     // تحميل الملف
-                    const url = URL.createObjectURL(output.blob);
+                    const url = URL.createObjectURL(wavBlob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `آيات_سورة_${surahNum.value}_مدمجة.wav`;
@@ -372,6 +402,7 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
 
+                    progressBar.style.width = '100%';
                     globalStatus.textContent = '✅ تم دمج وتحميل المقطع بنجاح.';
                 } catch (err) {
                     console.error(err);
@@ -381,8 +412,57 @@
                     setTimeout(() => {
                         progressContainer.style.display = 'none';
                         progressBar.style.width = '0%';
-                    }, 1500);
+                    }, 2000);
                 }
+            }
+
+            // دالة تحويل AudioBuffer إلى WAV
+            function audioBufferToWav(buffer) {
+                const numChannels = buffer.numberOfChannels;
+                const sampleRate = buffer.sampleRate;
+                const format = 1; // PCM
+                const bitsPerSample = 16;
+                
+                // الحصول على بيانات القناة الأولى (يمكن دمج القنوات)
+                const channelData = buffer.getChannelData(0);
+                const dataLength = channelData.length * (bitsPerSample / 8);
+                const headerLength = 44;
+                const totalLength = headerLength + dataLength;
+                
+                const arrayBuffer = new ArrayBuffer(totalLength);
+                const view = new DataView(arrayBuffer);
+                
+                // كتابة رأس الملف
+                function writeString(offset, string) {
+                    for (let i = 0; i < string.length; i++) {
+                        view.setUint8(offset + i, string.charCodeAt(i));
+                    }
+                }
+                
+                writeString(0, 'RIFF');
+                view.setUint32(4, totalLength - 8, true);
+                writeString(8, 'WAVE');
+                writeString(12, 'fmt ');
+                view.setUint32(16, 16, true); // Subchunk1Size
+                view.setUint16(20, format, true); // AudioFormat
+                view.setUint16(22, numChannels, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * numChannels * bitsPerSample / 8, true); // ByteRate
+                view.setUint16(32, numChannels * bitsPerSample / 8, true); // BlockAlign
+                view.setUint16(34, bitsPerSample, true);
+                writeString(36, 'data');
+                view.setUint32(40, dataLength, true);
+                
+                // كتابة البيانات الصوتية
+                let offset = 44;
+                for (let i = 0; i < channelData.length; i++) {
+                    let sample = Math.max(-1, Math.min(1, channelData[i]));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+                
+                return new Blob([arrayBuffer], { type: 'audio/wav' });
             }
 
             // زر جلب الآيات
