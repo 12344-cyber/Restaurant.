@@ -3,275 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أغورط استوديو الصوت – توليد MP3 مباشر</title>
+    <title>محرر الصور المتحركة – منصة أغورط</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js">
+    </script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#021533; font-family:'Cairo',sans-serif; padding:20px; display:flex; justify-content:center; align-items:center; min-height:100vh; color:#e0e9f5; }
-        .studio-wrapper { max-width:1100px; width:100%; background:#0f1f33; border-radius:40px; padding:30px; box-shadow:0 30px 60px rgba(0,0,0,0.7); border:1px solid #2a4060; display:flex; flex-direction:column; gap:30px; }
-        .header { text-align:center; }
-        .header h1 { font-size:2.5rem; font-weight:900; color:#00FF00; text-shadow:0 0 20px rgba(0,255,0,0.4); }
-        .header p { color:#7a9bbf; margin-top:5px; }
-        .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:25px; }
-        @media (max-width:800px){ .main-grid{grid-template-columns:1fr;} }
-        .card { background:#0b1a2e; border-radius:30px; padding:25px; border:1px solid #2e4a6a; display:flex; flex-direction:column; gap:20px; }
-        .card h2 { color:#00FF00; border-bottom:2px solid #00FF0030; padding-bottom:12px; }
-        .upload-area { border:2px dashed #2a4060; border-radius:20px; padding:25px; text-align:center; cursor:pointer; background:#0a1a2a; }
-        .upload-area:hover { border-color:#00FF00; background:#0a1f2f; }
-        .upload-area i { font-size:3rem; color:#00FF0060; }
-        .voice-badge { display:flex; align-items:center; gap:12px; background:#0a2a1a; border:1px solid #00FF0040; border-radius:20px; padding:12px; font-size:0.9rem; }
-        .dot { width:14px; height:14px; border-radius:50%; background:#00FF00; animation:pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        textarea { width:100%; padding:16px; border-radius:16px; border:1px solid #2e4a6a; background:#0b1a2a; color:#fff; font-family:'Cairo'; resize:vertical; min-height:120px; outline:none; }
-        textarea:focus { border-color:#00FF00; box-shadow:0 0 0 3px rgba(0,255,0,0.15); }
-        .slider-group label { font-weight:600; color:#b8d0e8; display:flex; justify-content:space-between; }
-        input[type="range"] { accent-color:#00FF00; }
-        .btn-row { display:flex; gap:12px; flex-wrap:wrap; }
-        .btn { flex:1; min-width:120px; padding:14px 20px; border:none; border-radius:40px; font-weight:700; cursor:pointer; transition:0.25s; display:flex; align-items:center; justify-content:center; gap:8px; font-family:'Cairo'; }
-        .btn-primary { background:#00FF00; color:#021533; }
-        .btn-primary:hover { background:#00cc00; }
-        .btn-outline { background:transparent; border:2px solid #00FF00; color:#00FF00; }
-        .btn-outline:hover { background:#00FF0010; }
-        .btn-download { background:#2e7d32; color:white; }
-        .btn-download:disabled { opacity:0.5; cursor:not-allowed; }
-        .status-text { text-align:center; padding:10px; border-radius:20px; background:rgba(0,255,0,0.05); border:1px solid #00FF0030; color:#00FF00; }
-        .status-text.processing { border-color:#ffa502; color:#ffa502; }
-        .hidden-input { display:none; }
-        .char-count { font-size:0.8rem; color:#7a9bbf; }
-        .analysis-result { background:#0a1a2a; border-radius:16px; padding:15px; display:flex; flex-wrap:wrap; gap:15px; font-size:0.85rem; }
-        .analysis-result span { background:#0f2a1f; padding:6px 14px; border-radius:20px; border:1px solid #00FF0030; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #021533;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e0e9f5;
+            padding: 15px;
+        }
+        .app-container {
+            max-width: 1350px;
+            width: 100%;
+            background: #0f1f33;
+            border-radius: 32px;
+            padding: 20px;
+            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6);
+            border: 1px solid #2a4060;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .canvas-panel {
+            flex: 2;
+            min-width: 400px;
+            background: #0b1a2a;
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid #2e4a6a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .canvas-panel h2 {
+            color: #00FF00;
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #mainCanvas {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid #2a4060;
+            background: black;
+            cursor: pointer;
+        }
+        .record-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-record {
+            background: #00FF00;
+            color: #021533;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-record:hover {
+            background: #00cc00;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.3);
+        }
+        .btn-stop {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-stop:hover {
+            background: #e84118;
+        }
+        .btn-download {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-download:hover {
+            background: #1b5e20;
+        }
+        .btn-download:disabled,
+        .btn-stop:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status-badge {
+            background: rgba(0, 255, 0, 0.08);
+            border: 1px solid #00FF0050;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #00FF00;
+            margin-top: 8px;
+        }
+        .status-badge.recording {
+            background: rgba(255, 71, 87, 0.1);
+            border-color: #ff475780;
+            color: #ff4757;
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: #0b1a2e;
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid #2e4a6a;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .control-panel h2 {
+            color: #00FF00;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #00FF0040;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ctrl-group {
+            margin-bottom: 14px;
+        }
+        .ctrl-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #b8d0e8;
+            margin-bottom: 5px;
+        }
+        .ctrl-group input,
+        .ctrl-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #2e4a6a;
+            background: #0b1a2a;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Cairo', sans-serif;
+            transition: 0.2s;
+            outline: none;
+        }
+        .ctrl-group input:focus,
+        .ctrl-group select:focus {
+            border-color: #00FF00;
+            box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.15);
+        }
+        .ctrl-group input[type="color"] {
+            height: 42px;
+            padding: 4px;
+        }
+        .ctrl-group input[type="file"] {
+            padding: 6px;
+            background: #0b1a2a;
+        }
+        .row2 {
+            display: flex;
+            gap: 10px;
+        }
+        .row2 .ctrl-group {
+            flex: 1;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00FF00;
+        }
+        .hint {
+            color: #7a9bbf;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        @media (max-width: 850px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .canvas-panel {
+                min-width: auto;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="studio-wrapper">
-        <div class="header">
-            <h1><i class="fas fa-waveform-lines"></i> استوديو أغورط الصوتي</h1>
-            <p>ارفع فيديو لتحليل النبرة – توليد MP3 مباشر من النص دون أي تقاط</p>
+    <div class="app-container">
+        <!-- لوحة الرسم والمعاينة -->
+        <div class="canvas-panel">
+            <h2><i class="fas fa-magic"></i> الصورة المتحركة</h2>
+            <canvas id="mainCanvas" width="600" height="600"></canvas>
+            <div class="record-controls">
+                <button class="btn-record" id="btnStartRecord"><i class="fas fa-record-vinyl"></i> بدء التسجيل</button>
+                <button class="btn-stop" id="btnStopRecord" disabled><i class="fas fa-stop-circle"></i> إيقاف</button>
+            </div>
+            <button class="btn-download" id="btnDownloadGIF" disabled><i class="fas fa-download"></i> تحميل GIF متحرك</button>
+            <button class="btn-download" id="btnDownloadWebM" disabled style="margin-top:6px;"><i class="fas fa-download"></i> تحميل WebM</button>
+            <div id="statusBadge" class="status-badge"><i class="fas fa-check-circle"></i> جاهز</div>
+            <div class="hint"><i class="fas fa-info-circle"></i> اضغط بدء التسجيل لإنشاء صورة متحركة بتأثيرات ضوئية</div>
         </div>
 
-        <div class="main-grid">
-            <!-- المرجع -->
-            <div class="card">
-                <h2><i class="fas fa-video"></i> تحليل المرجع</h2>
-                <div class="upload-area" id="uploadVideoArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>ارفع ملف فيديو أو صوتي (MP4, MP3, WAV)</p>
+        <!-- لوحة التحكم -->
+        <div class="control-panel">
+            <h2><i class="fas fa-sliders-h"></i> إعدادات التصميم</h2>
+
+            <div class="ctrl-group">
+                <label>✏️ النص</label>
+                <input type="text" id="animText" value="الله" maxlength="25">
+            </div>
+            <div class="ctrl-group">
+                <label>🔤 نوع الخط</label>
+                <select id="fontFamily">
+                    <option value="Cairo" selected>Cairo</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Traditional Arabic">Traditional Arabic</option>
+                    <option value="Amiri">Amiri</option>
+                </select>
+            </div>
+            <div class="row2">
+                <div class="ctrl-group">
+                    <label>📏 حجم الخط</label>
+                    <input type="range" id="fontSize" value="80" min="30" max="150" step="1">
+                    <span style="font-size:0.8rem;color:#7a9bbf;" id="fontSizeVal">80</span>
                 </div>
-                <input type="file" id="refFileInput" accept="video/*,audio/*" class="hidden-input">
-                <div id="refInfo" class="voice-badge" style="display:none;">
-                    <div class="dot"></div>
-                    <span id="refFileName">المرجع جاهز</span>
+                <div class="ctrl-group">
+                    <label>🎨 لون النص</label>
+                    <input type="color" id="textColor" value="#ffffff">
                 </div>
-                <div id="analysisResult" class="analysis-result" style="display:none;">
-                    <span>🎵 النبرة (Hz): <b id="pitchValue">--</b></span>
-                    <span>⏱️ السرعة التقريبية: <b id="rateValue">--</b> مقطع/ث</span>
+            </div>
+            <div class="row2">
+                <div class="ctrl-group">
+                    <label>✨ حجم التوهج</label>
+                    <input type="range" id="glowSize" value="20" min="0" max="50" step="1">
                 </div>
-                <button class="btn btn-outline" id="btnAnalyze" disabled>
-                    <i class="fas fa-search"></i> تحليل وضبط النبرة
-                </button>
-                <div id="refStatus" class="status-text">⏳ في انتظار ملف مرجعي</div>
+                <div class="ctrl-group">
+                    <label>🌟 لون التوهج</label>
+                    <input type="color" id="glowColor" value="#00FF00">
+                </div>
             </div>
 
-            <!-- التوليد -->
-            <div class="card">
-                <h2><i class="fas fa-pen-alt"></i> النص للتوليد</h2>
-                <textarea id="textToSpeech" placeholder="أدخل الخبر أو النص ليتم تحويله إلى كلام..." maxlength="500"></textarea>
-                <div class="char-count" id="charCount">0 / 500</div>
+            <div class="ctrl-group">
+                <label>🌀 نوع الحركة</label>
+                <select id="motionType">
+                    <option value="pulse" selected>نبض (تكبير/تصغير)</option>
+                    <option value="wave">تموج أفقي</option>
+                    <option value="rotate">دوران</option>
+                    <option value="slide">انزلاق جانبي</option>
+                    <option value="float">طيران رأسي</option>
+                </select>
+            </div>
+            <div class="ctrl-group">
+                <label>⚡ سرعة الحركة</label>
+                <input type="range" id="motionSpeed" value="1.5" min="0.3" max="4" step="0.1">
+                <span style="font-size:0.8rem;color:#7a9bbf;" id="speedVal">1.5</span>
+            </div>
 
-                <div class="slider-group">
-                    <label>نسبة النبرة (مستوحاة من المرجع) <span id="pitchLabel">1.0</span></label>
-                    <input type="range" id="pitchSlider" value="1.0" min="0.5" max="2.0" step="0.05">
+            <div class="checkbox-group">
+                <input type="checkbox" id="enableFireworks" checked>
+                <label for="enableFireworks">🎆 تفعيل الألعاب النارية</label>
+            </div>
+            <div class="row2">
+                <div class="ctrl-group">
+                    <label>💥 كثافة الشرر</label>
+                    <input type="range" id="sparkDensity" value="30" min="10" max="100" step="1">
                 </div>
-                <div class="slider-group">
-                    <label>سرعة الإلقاء <span id="rateLabel">1.0</span></label>
-                    <input type="range" id="rateSlider" value="1.0" min="0.5" max="2.0" step="0.05">
+                <div class="ctrl-group">
+                    <label>🎨 لون الشرر</label>
+                    <input type="color" id="sparkColor" value="#FF4500">
                 </div>
+            </div>
 
-                <div class="btn-row">
-                    <button class="btn btn-primary" id="btnGenerate">
-                        <i class="fas fa-microphone"></i> توليد MP3 مباشر
-                    </button>
+            <div class="ctrl-group">
+                <label>🖼️ نوع الخلفية</label>
+                <select id="bgType">
+                    <option value="gradient" selected>لون متدرج</option>
+                    <option value="image">صورة</option>
+                </select>
+            </div>
+            <div id="gradientColors" class="row2">
+                <div class="ctrl-group">
+                    <label>لون علوي</label>
+                    <input type="color" id="bgColor1" value="#00261A">
                 </div>
-                <div class="btn-row">
-                    <button class="btn btn-download" id="btnDownload" disabled>
-                        <i class="fas fa-download"></i> تحميل الملف الصوتي
-                    </button>
+                <div class="ctrl-group">
+                    <label>لون سفلي</label>
+                    <input type="color" id="bgColor2" value="#0A3D2A">
                 </div>
-                <audio id="audioPreview" controls style="width:100%; margin-top:10px; display:none;"></audio>
-                <div id="genStatus" class="status-text">⚡ جاهز – اضغط توليد لاستلام ملف MP3</div>
+            </div>
+            <div id="bgImageUpload" class="ctrl-group" style="display:none;">
+                <label>رفع صورة الخلفية</label>
+                <input type="file" id="bgImageFile" accept="image/*">
             </div>
         </div>
     </div>
 
     <script>
         (() => {
-            const uploadArea = document.getElementById('uploadVideoArea');
-            const refFileInput = document.getElementById('refFileInput');
-            const refInfo = document.getElementById('refInfo');
-            const refFileName = document.getElementById('refFileName');
-            const analysisResult = document.getElementById('analysisResult');
-            const pitchValue = document.getElementById('pitchValue');
-            const rateValue = document.getElementById('rateValue');
-            const btnAnalyze = document.getElementById('btnAnalyze');
-            const refStatus = document.getElementById('refStatus');
-            const textArea = document.getElementById('textToSpeech');
-            const charCount = document.getElementById('charCount');
-            const pitchSlider = document.getElementById('pitchSlider');
-            const pitchLabel = document.getElementById('pitchLabel');
-            const rateSlider = document.getElementById('rateSlider');
-            const rateLabel = document.getElementById('rateLabel');
-            const btnGenerate = document.getElementById('btnGenerate');
-            const btnDownload = document.getElementById('btnDownload');
-            const audioPreview = document.getElementById('audioPreview');
-            const genStatus = document.getElementById('genStatus');
+            // العناصر
+            const canvas = document.getElementById('mainCanvas');
+            const ctx = canvas.getContext('2d');
 
-            let referenceFile = null;
-            let audioContext = null;
+            // مدخلات التحكم
+            const animTextInput = document.getElementById('animText');
+            const fontFamilySelect = document.getElementById('fontFamily');
+            const fontSizeSlider = document.getElementById('fontSize');
+            const fontSizeVal = document.getElementById('fontSizeVal');
+            const textColorInput = document.getElementById('textColor');
+            const glowSizeSlider = document.getElementById('glowSize');
+            const glowColorInput = document.getElementById('glowColor');
+            const motionTypeSelect = document.getElementById('motionType');
+            const motionSpeedSlider = document.getElementById('motionSpeed');
+            const speedVal = document.getElementById('speedVal');
+            const enableFireworksCheck = document.getElementById('enableFireworks');
+            const sparkDensitySlider = document.getElementById('sparkDensity');
+            const sparkColorInput = document.getElementById('sparkColor');
+            const bgTypeSelect = document.getElementById('bgType');
+            const gradientColorsDiv = document.getElementById('gradientColors');
+            const bgImageUploadDiv = document.getElementById('bgImageUpload');
+            const bgColor1Input = document.getElementById('bgColor1');
+            const bgColor2Input = document.getElementById('bgColor2');
+            const bgImageFileInput = document.getElementById('bgImageFile');
 
-            uploadArea.addEventListener('click', () => refFileInput.click());
-            refFileInput.addEventListener('change', (e) => {
+            // أزرار التسجيل والتحميل
+            const btnStartRecord = document.getElementById('btnStartRecord');
+            const btnStopRecord = document.getElementById('btnStopRecord');
+            const btnDownloadGIF = document.getElementById('btnDownloadGIF');
+            const btnDownloadWebM = document.getElementById('btnDownloadWebM');
+            const statusBadge = document.getElementById('statusBadge');
+
+            // متغيرات الحالة
+            let bgImage = null;
+            let isRecording = false;
+            let mediaRecorder = null;
+            let recordedChunks = [];
+            let animationFrameId = null;
+            let startTime = performance.now();
+            let particles = [];
+            const MAX_PARTICLES = 300;
+
+            // تحديث عرض القيم
+            fontSizeSlider.addEventListener('input', () => fontSizeVal.textContent = fontSizeSlider.value);
+            motionSpeedSlider.addEventListener('input', () => speedVal.textContent = motionSpeedSlider.value);
+
+            // تبديل نوع الخلفية
+            bgTypeSelect.addEventListener('change', () => {
+                if (bgTypeSelect.value === 'gradient') {
+                    gradientColorsDiv.style.display = 'flex';
+                    bgImageUploadDiv.style.display = 'none';
+                } else {
+                    gradientColorsDiv.style.display = 'none';
+                    bgImageUploadDiv.style.display = 'block';
+                }
+            });
+
+            // رفع صورة الخلفية
+            bgImageFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if(!file) return;
-                referenceFile = file;
-                refFileName.textContent = file.name;
-                refInfo.style.display = 'flex';
-                analysisResult.style.display = 'none';
-                btnAnalyze.disabled = false;
-                refStatus.innerHTML = '✅ تم رفع المرجع. اضغط تحليل.';
-                refStatus.className = 'status-text';
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        bgImage = img;
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
             });
 
-            btnAnalyze.addEventListener('click', async () => {
-                if(!referenceFile) return;
-                btnAnalyze.disabled = true;
-                refStatus.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحليل الصوت...';
-                refStatus.className = 'status-text processing';
-                try {
-                    if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const arrayBuffer = await referenceFile.arrayBuffer();
-                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                    const rawData = audioBuffer.getChannelData(0);
-                    const sampleRate = audioBuffer.sampleRate;
-                    const duration = audioBuffer.duration;
+            // دالة رسم إطار واحد
+            function drawFrame(timestamp) {
+                const W = canvas.width;
+                const H = canvas.height;
+                ctx.clearRect(0, 0, W, H);
 
-                    const pitchHz = estimatePitch(rawData, sampleRate);
-                    const speechRate = estimateSpeechRate(rawData, sampleRate, duration);
-
-                    const normalizedPitch = Math.max(0.7, Math.min(1.6, pitchHz / 150));
-                    const normalizedRate = Math.max(0.7, Math.min(1.5, speechRate / 3.5));
-
-                    pitchValue.textContent = Math.round(pitchHz);
-                    rateValue.textContent = (speechRate * 60).toFixed(0);
-                    analysisResult.style.display = 'flex';
-
-                    pitchSlider.value = normalizedPitch.toFixed(2);
-                    pitchLabel.textContent = normalizedPitch.toFixed(2);
-                    rateSlider.value = normalizedRate.toFixed(2);
-                    rateLabel.textContent = normalizedRate.toFixed(2);
-
-                    refStatus.innerHTML = '🎯 تم تحليل النبرة والسرعة وضبط المنزلقات.';
-                    refStatus.className = 'status-text';
-                } catch(e) {
-                    console.error(e);
-                    refStatus.innerHTML = '❌ فشل التحليل. تأكد من الملف.';
-                    refStatus.className = 'status-text';
-                }
-                btnAnalyze.disabled = false;
-            });
-
-            function estimatePitch(buffer, sampleRate) {
-                const size = Math.min(buffer.length, sampleRate * 2);
-                const data = buffer.slice(0, size);
-                const maxLag = Math.floor(sampleRate / 80);
-                const minLag = Math.floor(sampleRate / 400);
-                let bestCorr = 0, bestLag = minLag;
-                for(let lag = minLag; lag <= maxLag; lag++) {
-                    let corr = 0;
-                    for(let i = 0; i < size - lag; i++) corr += data[i] * data[i+lag];
-                    if(corr > bestCorr) { bestCorr = corr; bestLag = lag; }
-                }
-                return bestCorr ? sampleRate / bestLag : 150;
-            }
-
-            function estimateSpeechRate(buffer, sampleRate, duration) {
-                let crossings = 0;
-                for(let i=1; i<buffer.length; i++) {
-                    if((buffer[i] >= 0 && buffer[i-1] < 0) || (buffer[i] < 0 && buffer[i-1] >= 0)) crossings++;
-                }
-                return (crossings / duration) / 1000;
-            }
-
-            textArea.addEventListener('input', () => {
-                charCount.textContent = `${textArea.value.length} / 500`;
-            });
-
-            pitchSlider.addEventListener('input', () => pitchLabel.textContent = parseFloat(pitchSlider.value).toFixed(2));
-            rateSlider.addEventListener('input', () => rateLabel.textContent = parseFloat(rateSlider.value).toFixed(2));
-
-            btnGenerate.addEventListener('click', async () => {
-                const text = textArea.value.trim();
-                if(!text) {
-                    alert('اكتب النص أولاً');
-                    return;
+                // الخلفية
+                if (bgTypeSelect.value === 'gradient') {
+                    const grad = ctx.createLinearGradient(0, 0, 0, H);
+                    grad.addColorStop(0, bgColor1Input.value);
+                    grad.addColorStop(1, bgColor2Input.value);
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, W, H);
+                } else if (bgImage) {
+                    // رسم الصورة مع تغطية كاملة
+                    const imgAspect = bgImage.width / bgImage.height;
+                    const canvasAspect = W / H;
+                    let dw, dh, dx, dy;
+                    if (imgAspect > canvasAspect) {
+                        dh = H;
+                        dw = H * imgAspect;
+                        dx = (W - dw) / 2;
+                        dy = 0;
+                    } else {
+                        dw = W;
+                        dh = W / imgAspect;
+                        dx = 0;
+                        dy = (H - dh) / 2;
+                    }
+                    ctx.drawImage(bgImage, dx, dy, dw, dh);
+                } else {
+                    // خلفية افتراضية
+                    const grad = ctx.createLinearGradient(0, 0, 0, H);
+                    grad.addColorStop(0, '#00261A');
+                    grad.addColorStop(1, '#0A3D2A');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, W, H);
                 }
 
-                btnGenerate.disabled = true;
-                btnDownload.disabled = true;
-                audioPreview.style.display = 'none';
-                genStatus.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري توليد الصوت من Google TTS...';
-                genStatus.className = 'status-text processing';
+                // إعدادات النص
+                const text = animTextInput.value.trim() || 'الله';
+                const fontFamily = fontFamilySelect.value;
+                const fontSize = parseInt(fontSizeSlider.value);
+                const textColor = textColorInput.value;
+                const glowSize = parseInt(glowSizeSlider.value);
+                const glowColor = glowColorInput.value;
+                const motionType = motionTypeSelect.value;
+                const motionSpeed = parseFloat(motionSpeedSlider.value);
+                const fireworksEnabled = enableFireworksCheck.checked;
+                const sparkDensity = parseInt(sparkDensitySlider.value);
+                const sparkColor = sparkColorInput.value;
 
-                try {
-                    // استخدام Google Translate TTS (واجهة غير رسمية لكنها تعمل)
-                    const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=${encodeURIComponent(text)}`;
-                    
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0'
+                const elapsed = (timestamp - startTime) / 1000; // بالثواني
+
+                // حساب تأثير الحركة
+                let offsetX = 0,
+                    offsetY = 0,
+                    rotation = 0,
+                    scale = 1.0;
+                const speedFactor = motionSpeed;
+
+                switch (motionType) {
+                    case 'pulse':
+                        scale = 1.0 + 0.15 * Math.sin(elapsed * 2 * Math.PI * speedFactor);
+                        break;
+                    case 'wave':
+                        offsetX = 30 * Math.sin(elapsed * 3 * speedFactor);
+                        break;
+                    case 'rotate':
+                        rotation = (elapsed * 20 * speedFactor) % 360;
+                        break;
+                    case 'slide':
+                        offsetX = 80 * Math.sin(elapsed * 2 * speedFactor);
+                        break;
+                    case 'float':
+                        offsetY = 25 * Math.sin(elapsed * 1.5 * speedFactor);
+                        break;
+                    default:
+                        break;
+                }
+
+                // رسم النص
+                ctx.save();
+                ctx.translate(W / 2 + offsetX, H / 2 + offsetY);
+                if (motionType === 'rotate') {
+                    ctx.rotate(rotation * Math.PI / 180);
+                }
+                ctx.scale(scale, scale);
+                ctx.font = `bold ${fontSize}px "${fontFamily}", "Cairo", sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // رسم التوهج (عدة طبقات)
+                if (glowSize > 0) {
+                    ctx.shadowBlur = glowSize;
+                    ctx.shadowColor = glowColor;
+                    ctx.fillStyle = glowColor;
+                    ctx.fillText(text, 0, 0);
+                    // طبقات إضافية لتوهج أقوى
+                    ctx.shadowBlur = glowSize * 1.8;
+                    ctx.fillText(text, 0, 0);
+                }
+                // النص الأساسي
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = textColor;
+                ctx.fillText(text, 0, 0);
+                ctx.restore();
+
+                // جزيئات الألعاب النارية
+                if (fireworksEnabled) {
+                    // إضافة جزيئات جديدة بشكل عشوائي حول النص
+                    const centerX = W / 2 + offsetX;
+                    const centerY = H / 2 + offsetY;
+                    const spawnRate = sparkDensity / 10; // عدد الجزيئات لكل إطار
+                    for (let i = 0; i < spawnRate; i++) {
+                        if (particles.length < MAX_PARTICLES) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const speed = 0.5 + Math.random() * 4;
+                            const life = 0.6 + Math.random() * 1.5; // ثواني
+                            particles.push({
+                                x: centerX + (Math.random() - 0.5) * 200,
+                                y: centerY + (Math.random() - 0.5) * 100,
+                                vx: Math.cos(angle) * speed * 60,
+                                vy: Math.sin(angle) * speed * 60 - 30, // ميل للأعلى
+                                life: life,
+                                maxLife: life,
+                                color: sparkColor,
+                                size: 1.5 + Math.random() * 3.5
+                            });
                         }
-                    });
+                    }
 
-                    if(!response.ok) throw new Error('فشل الاتصال بـ Google TTS');
+                    // تحديث ورسم الجزيئات
+                    const dt = 1 / 60; // تقريباً
+                    for (let i = particles.length - 1; i >= 0; i--) {
+                        const p = particles[i];
+                        p.life -= dt;
+                        if (p.life <= 0) {
+                            particles.splice(i, 1);
+                            continue;
+                        }
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.vy += 40 * dt; // جاذبية خفيفة
 
-                    const blob = await response.blob();
-                    
-                    // إنشاء رابط للملف
-                    const objectURL = URL.createObjectURL(blob);
-                    audioPreview.src = objectURL;
-                    audioPreview.style.display = 'block';
-                    
-                    // حفظ الملف للتحميل
-                    btnDownload.disabled = false;
-                    btnDownload.onclick = () => {
+                        const alpha = p.life / p.maxLife;
+                        ctx.save();
+                        ctx.globalAlpha = alpha;
+                        ctx.shadowBlur = 6;
+                        ctx.shadowColor = p.color;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                }
+
+                // طلب الإطار التالي إذا لم يكن قيد التسجيل (للمعاينة المستمرة)
+                if (!isRecording) {
+                    animationFrameId = requestAnimationFrame(drawFrame);
+                } else {
+                    // أثناء التسجيل، نستمر بالرسم ولكن عبر حلقة التسجيل
+                    animationFrameId = requestAnimationFrame(drawFrame);
+                }
+            }
+
+            // بدء المعاينة
+            function startPreview() {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                startTime = performance.now();
+                animationFrameId = requestAnimationFrame(drawFrame);
+            }
+
+            // إيقاف المعاينة (عند التسجيل نتركها)
+            function stopPreview() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            }
+
+            // تحويل WebM إلى GIF باستخدام ffmpeg
+            async function convertWebMToGIF(webmBlob) {
+                const { FFmpeg } = FFmpegWASM;
+                const ffmpeg = new FFmpeg();
+                await ffmpeg.load();
+                const inputBytes = new Uint8Array(await webmBlob.arrayBuffer());
+                await ffmpeg.writeFile('input.webm', inputBytes);
+                // تحويل إلى GIF: fps 12, حجم مناسب
+                await ffmpeg.exec([
+                    '-i', 'input.webm',
+                    '-vf', 'fps=12,scale=500:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
+                    'output.gif'
+                ]);
+                const outputData = await ffmpeg.readFile('output.gif');
+                return new Blob([outputData], { type: 'image/gif' });
+            }
+
+            // إعداد مسجل الوسائط
+            function setupRecorder() {
+                const stream = canvas.captureStream(24); // 24 إطار بالثانية
+                const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ?
+                    'video/webm;codecs=vp9' : 'video/webm';
+                mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+                recordedChunks = [];
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+                mediaRecorder.onstop = async () => {
+                    const webmBlob = new Blob(recordedChunks, { type: mime });
+                    // تمكين زر تحميل WebM
+                    const webmUrl = URL.createObjectURL(webmBlob);
+                    btnDownloadWebM.disabled = false;
+                    btnDownloadWebM.onclick = () => {
                         const a = document.createElement('a');
-                        a.href = objectURL;
-                        a.download = `أغورط_صوت_${Date.now()}.mp3`;
+                        a.href = webmUrl;
+                        a.download = 'صورة_متحركة_' + Date.now() + '.webm';
                         a.click();
                     };
 
-                    genStatus.innerHTML = '✅ تم إنشاء الملف الصوتي بنجاح. اضغط تشغيل أو تحميل.';
-                    genStatus.className = 'status-text';
-                } catch (error) {
-                    console.error(error);
-                    genStatus.innerHTML = '❌ فشل توليد الصوت. قد يكون Google TTS محظوراً مؤقتاً. حاول مجدداً لاحقاً.';
-                    genStatus.className = 'status-text';
+                    // محاولة تحويل إلى GIF
+                    statusBadge.innerHTML = '<i class="fas fa-cog fa-spin"></i> جاري تحويل إلى GIF...';
+                    statusBadge.className = 'status-badge';
+                    try {
+                        const gifBlob = await convertWebMToGIF(webmBlob);
+                        const gifUrl = URL.createObjectURL(gifBlob);
+                        btnDownloadGIF.disabled = false;
+                        btnDownloadGIF.onclick = () => {
+                            const a = document.createElement('a');
+                            a.href = gifUrl;
+                            a.download = 'صورة_متحركة_' + Date.now() + '.gif';
+                            a.click();
+                        };
+                        statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> الصورة المتحركة جاهزة (GIF + WebM)';
+                        statusBadge.className = 'status-badge';
+                    } catch (err) {
+                        console.error('تعذر التحويل إلى GIF:', err);
+                        statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر إنشاء GIF. تم توفير WebM فقط.';
+                        statusBadge.className = 'status-badge';
+                    }
+                };
+                return mediaRecorder;
+            }
+
+            // بدء التسجيل
+            function startRecording() {
+                if (isRecording) return;
+                const rec = setupRecorder();
+                if (!rec) return;
+                // إعادة ضبط وقت البداية للحصول على حركة متسقة
+                startTime = performance.now();
+                particles = []; // مسح الجزيئات السابقة
+                rec.start();
+                isRecording = true;
+                btnStartRecord.disabled = true;
+                btnStopRecord.disabled = false;
+                btnDownloadGIF.disabled = true;
+                btnDownloadWebM.disabled = true;
+                statusBadge.innerHTML = '<i class="fas fa-circle"></i> جاري تسجيل الحركة...';
+                statusBadge.className = 'status-badge recording';
+                // التأكد من استمرار الرسم
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(drawFrame);
+            }
+
+            // إيقاف التسجيل
+            function stopRecording() {
+                if (!isRecording) return;
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
                 }
-                
-                btnGenerate.disabled = false;
+                isRecording = false;
+                btnStartRecord.disabled = false;
+                btnStopRecord.disabled = true;
+                // نستمر بالمعاينة
+                statusBadge.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> معالجة الملف...';
+                statusBadge.className = 'status-badge';
+                // لا نوقف الأنيميشن، بل نتركها للمعاينة
+            }
+
+            // أزرار التحكم
+            btnStartRecord.addEventListener('click', startRecording);
+            btnStopRecord.addEventListener('click', stopRecording);
+
+            // أي تغيير في المدخلات يعيد تشغيل المعاينة إذا لم يكن قيد التسجيل
+            const allInputs = [
+                animTextInput, fontFamilySelect, fontSizeSlider, textColorInput,
+                glowSizeSlider, glowColorInput, motionTypeSelect, motionSpeedSlider,
+                enableFireworksCheck, sparkDensitySlider, sparkColorInput,
+                bgTypeSelect, bgColor1Input, bgColor2Input, bgImageFileInput
+            ];
+            allInputs.forEach(inp => {
+                inp.addEventListener('input', () => {
+                    if (!isRecording) {
+                        // إعادة تشغيل المعاينة لمشاهدة التغييرات فوراً
+                        startPreview();
+                    }
+                });
+                inp.addEventListener('change', () => {
+                    if (!isRecording) {
+                        startPreview();
+                    }
+                });
             });
 
-            // التحميل أيضاً عند الضغط على الزر المنفصل
-            btnDownload.addEventListener('click', () => {
-                if(audioPreview.src) {
-                    const a = document.createElement('a');
-                    a.href = audioPreview.src;
-                    a.download = `أغورط_صوت_${Date.now()}.mp3`;
-                    a.click();
-                }
-            });
-
+            // بدء المعاينة الأولية
+            startPreview();
         })();
     </script>
 </body>
