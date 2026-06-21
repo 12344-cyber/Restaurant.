@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُحرّر الصور المتحركة للصلاة على النبي ﷺ</title>
+    <title>مُحرّر الصور العصرية للصلاة على النبي ﷺ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js">
+    </script>
     <style>
         * {
             margin: 0;
@@ -14,66 +15,64 @@
             box-sizing: border-box;
         }
         body {
-            background: #0a0f1a;
+            background: #020617;
             font-family: 'Cairo', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #e0e9f5;
-            padding: 15px;
+            color: #e2e8f0;
+            padding: 16px;
         }
-        .app-container {
-            max-width: 1300px;
+        .app {
+            max-width: 1280px;
             width: 100%;
-            background: #111827;
-            border-radius: 36px;
-            padding: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 128, 0.2);
+            background: #0f172a;
+            border-radius: 32px;
+            padding: 22px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(34,197,94,0.3);
             display: flex;
             flex-wrap: wrap;
-            gap: 24px;
+            gap: 20px;
         }
-        .preview-section {
+        .preview {
             flex: 2;
             min-width: 420px;
-            background: #0b1420;
-            border-radius: 28px;
-            padding: 20px;
-            border: 1px solid #2a3a50;
+            background: #0b1120;
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid #1e293b;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .preview-section h2 {
+        .preview h2 {
             color: #4ade80;
-            margin-bottom: 16px;
-            font-size: 1.7rem;
+            margin-bottom: 14px;
+            font-size: 1.6rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            text-shadow: 0 0 12px #22c55e;
+            text-shadow: 0 0 15px #22c55e;
         }
-        #animatedCanvas {
+        #canvas {
             width: 100%;
             max-width: 650px;
             height: auto;
-            aspect-ratio: 1 / 1;
-            border-radius: 24px;
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.3), 0 10px 30px rgba(0,0,0,0.8);
+            aspect-ratio: 1/1;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(74,222,128,0.4), 0 10px 30px rgba(0,0,0,0.9);
             border: 2px solid #334155;
             background: #020617;
-            cursor: pointer;
         }
-        .action-buttons {
+        .actions {
             display: flex;
-            gap: 14px;
+            gap: 12px;
             margin-top: 18px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .btn {
-            border: none;
             padding: 12px 28px;
             border-radius: 40px;
             font-weight: 700;
@@ -83,8 +82,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            border: none;
             font-family: 'Cairo', sans-serif;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
         }
         .btn-record {
             background: #22c55e;
@@ -92,8 +92,8 @@
         }
         .btn-record:hover {
             background: #16a34a;
-            box-shadow: 0 0 25px #22c55e;
-            transform: scale(1.03);
+            box-shadow: 0 0 30px #22c55e;
+            transform: scale(1.05);
         }
         .btn-stop {
             background: #ef4444;
@@ -116,11 +116,11 @@
             opacity: 0.4;
             cursor: not-allowed;
         }
-        .status {
-            background: rgba(34, 197, 94, 0.1);
+        .status-badge {
+            background: rgba(34,197,94,0.1);
             border: 1px solid #22c55e80;
             padding: 8px 18px;
-            border-radius: 24px;
+            border-radius: 20px;
             font-size: 0.85rem;
             color: #4ade80;
             margin-top: 10px;
@@ -128,31 +128,31 @@
             align-items: center;
             gap: 8px;
         }
-        .status.recording {
-            background: rgba(239, 68, 68, 0.15);
+        .status-badge.recording {
+            background: rgba(239,68,68,0.15);
             border-color: #ef4444;
             color: #fca5a5;
-            animation: pulse 1.2s infinite;
+            animation: pulse 1s infinite;
         }
         @keyframes pulse {
             0%,100%{ opacity:1; }
             50%{ opacity:0.5; }
         }
 
-        .control-panel {
+        .controls {
             flex: 1;
             min-width: 300px;
             background: #0f172a;
-            border-radius: 28px;
-            padding: 20px;
+            border-radius: 24px;
+            padding: 18px;
             border: 1px solid #1e293b;
             max-height: 90vh;
             overflow-y: auto;
         }
-        .control-panel h3 {
+        .controls h3 {
             color: #4ade80;
             font-size: 1.4rem;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             border-bottom: 2px solid #22c55e40;
             padding-bottom: 10px;
             display: flex;
@@ -160,18 +160,18 @@
             gap: 8px;
             text-shadow: 0 0 8px #22c55e;
         }
-        .form-group {
-            margin-bottom: 16px;
+        .field {
+            margin-bottom: 14px;
         }
-        .form-group label {
+        .field label {
             display: block;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #94a3b8;
             margin-bottom: 6px;
         }
-        .form-group input,
-        .form-group select {
+        .field input,
+        .field select {
             width: 100%;
             padding: 10px 14px;
             border-radius: 12px;
@@ -183,12 +183,12 @@
             transition: 0.2s;
             outline: none;
         }
-        .form-group input:focus,
-        .form-group select:focus {
+        .field input:focus,
+        .field select:focus {
             border-color: #4ade80;
-            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            box-shadow: 0 0 0 3px rgba(74,222,128,0.2);
         }
-        .form-group input[type="color"] {
+        .field input[type="color"] {
             height: 44px;
             padding: 4px;
         }
@@ -196,7 +196,7 @@
             display: flex;
             gap: 12px;
         }
-        .row .form-group {
+        .row .field {
             flex: 1;
         }
         .checkbox-group {
@@ -210,22 +210,17 @@
             height: 20px;
             accent-color: #4ade80;
         }
-        .hint {
-            color: #64748b;
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
-        .preset-buttons {
+        .presets {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            margin: 12px 0;
+            margin: 14px 0;
         }
         .preset-btn {
             background: #1e293b;
             border: 1px solid #334155;
             color: #cbd5e1;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 24px;
             font-size: 0.8rem;
             cursor: pointer;
@@ -236,159 +231,161 @@
             color: #0f172a;
             border-color: #4ade80;
         }
+        .hint {
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="app">
         <!-- قسم المعاينة -->
-        <div class="preview-section">
-            <h2><i class="fas fa-star-and-crescent"></i> الصورة المتحركة للصلاة على النبي</h2>
-            <canvas id="animatedCanvas" width="600" height="600"></canvas>
-            <div class="action-buttons">
-                <button class="btn btn-record" id="startRecordBtn"><i class="fas fa-play"></i> بدء التسجيل</button>
-                <button class="btn btn-stop" id="stopRecordBtn" disabled><i class="fas fa-stop"></i> إيقاف</button>
-                <button class="btn btn-download" id="downloadGifBtn" disabled><i class="fas fa-download"></i> تحميل GIF</button>
-                <button class="btn btn-download" id="downloadWebmBtn" disabled><i class="fas fa-download"></i> تحميل WebM</button>
+        <div class="preview">
+            <h2><i class="fas fa-star-and-crescent"></i> صورة متحركة عصرية</h2>
+            <canvas id="canvas" width="600" height="600"></canvas>
+            <div class="actions">
+                <button class="btn btn-record" id="startBtn"><i class="fas fa-play"></i> بدء التسجيل</button>
+                <button class="btn btn-stop" id="stopBtn" disabled><i class="fas fa-stop"></i> إيقاف</button>
+                <button class="btn btn-download" id="downloadGif" disabled><i class="fas fa-download"></i> تحميل GIF</button>
+                <button class="btn btn-download" id="downloadWebm" disabled><i class="fas fa-download"></i> تحميل WebM</button>
             </div>
-            <div id="statusMessage" class="status"><i class="fas fa-check-circle"></i> جاهز | حرك النص وتألق بالصلاة على النبي</div>
+            <div id="status" class="status-badge"><i class="fas fa-check-circle"></i> المعاينة نشطة | اضغط بدء التسجيل</div>
         </div>
 
         <!-- لوحة التحكم -->
-        <div class="control-panel">
-            <h3><i class="fas fa-sliders-h"></i> إعدادات الإبداع</h3>
-            <div class="form-group">
-                <label>✍️ عبارة الصلاة</label>
-                <input type="text" id="prayerText" value="صلى الله على محمد" maxlength="40">
+        <div class="controls">
+            <h3><i class="fas fa-sliders-h"></i> إعدادات متطورة</h3>
+            <div class="field">
+                <label>✍️ النص</label>
+                <input type="text" id="textInput" value="صلى الله على محمد" maxlength="40">
             </div>
             <div class="row">
-                <div class="form-group">
+                <div class="field">
                     <label>🎨 لون التوهج</label>
                     <input type="color" id="glowColor" value="#4ade80">
                 </div>
-                <div class="form-group">
+                <div class="field">
                     <label>💫 حجم التوهج</label>
-                    <input type="range" id="glowSize" value="28" min="5" max="60">
+                    <input type="range" id="glowSize" value="26" min="5" max="60">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="field">
                 <label>🌀 نوع الحركة</label>
                 <select id="motionType">
-                    <option value="pulseGlow" selected>نبض متوهج</option>
-                    <option value="wave">تموج لطيف</option>
-                    <option value="rotate">دوران هادئ</option>
+                    <option value="pulse" selected>نبض متوهج</option>
+                    <option value="wave">تموج جانبي</option>
+                    <option value="rotate">دوران أنيق</option>
                     <option value="float">ارتفاع وانخفاض</option>
-                    <option value="zoom">تكبير/تصغير سريع</option>
+                    <option value="zoom">تكبير/تصغير حيوي</option>
                 </select>
             </div>
             <div class="row">
-                <div class="form-group">
+                <div class="field">
                     <label>⚡ سرعة الحركة</label>
-                    <input type="range" id="motionSpeed" value="1.8" min="0.5" max="3.5" step="0.1">
+                    <input type="range" id="speed" value="1.7" min="0.5" max="3.5" step="0.1">
                 </div>
-                <div class="form-group">
+                <div class="field">
                     <label>🔤 حجم الخط</label>
-                    <input type="range" id="fontSize" value="70" min="35" max="130">
+                    <input type="range" id="fontSize" value="68" min="35" max="130">
                 </div>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="enableParticles" checked>
-                <label for="enableParticles">✨ جزيئات مضيئة (نجوم وقلوب)</label>
+                <input type="checkbox" id="particlesEnabled" checked>
+                <label for="particlesEnabled">✨ جزيئات ساحرة (نجوم وقلوب)</label>
             </div>
             <div class="row">
-                <div class="form-group">
+                <div class="field">
                     <label>🌟 كثافة الجزيئات</label>
-                    <input type="range" id="particleDensity" value="40" min="10" max="90">
+                    <input type="range" id="particleDensity" value="45" min="10" max="90">
                 </div>
-                <div class="form-group">
+                <div class="field">
                     <label>🎨 لون الجزيئات</label>
                     <input type="color" id="particleColor" value="#fbbf24">
                 </div>
             </div>
-            <div class="form-group">
-                <label>🖼️ خلفية</label>
+            <div class="field">
+                <label>🖼️ الخلفية</label>
                 <select id="bgType">
-                    <option value="gradient" selected>لون متدرج إسلامي</option>
-                    <option value="image">صورة من اختيارك</option>
+                    <option value="gradient" selected>لون متدرج فاخر</option>
+                    <option value="image">صورة شخصية</option>
                 </select>
             </div>
-            <div id="gradientOptions" class="row">
-                <div class="form-group">
-                    <label>اللون العلوي</label>
+            <div id="gradientColors" class="row">
+                <div class="field">
+                    <label>أعلى</label>
                     <input type="color" id="bgColor1" value="#064e3b">
                 </div>
-                <div class="form-group">
-                    <label>اللون السفلي</label>
+                <div class="field">
+                    <label>أسفل</label>
                     <input type="color" id="bgColor2" value="#0f172a">
                 </div>
             </div>
-            <div id="imageUploadOption" class="form-group" style="display:none;">
+            <div id="imageUpload" class="field" style="display:none;">
                 <label>📷 رفع صورة</label>
                 <input type="file" id="bgImageFile" accept="image/*">
             </div>
-            <div class="preset-buttons">
+            <div class="presets">
                 <span style="color:#94a3b8; font-size:0.8rem;">قوالب سريعة:</span>
-                <button class="preset-btn" data-preset="green">🌿 أخضر فسفوري</button>
-                <button class="preset-btn" data-preset="gold">✨ ذهبي ملكي</button>
-                <button class="preset-btn" data-preset="blue">💙 أزرق روحاني</button>
-                <button class="preset-btn" data-preset="red">❤️ أحمر دافئ</button>
+                <button class="preset-btn" data-preset="green">🌿 فسفوري</button>
+                <button class="preset-btn" data-preset="gold">✨ ذهبي</button>
+                <button class="preset-btn" data-preset="blue">💙 روحاني</button>
+                <button class="preset-btn" data-preset="rose">🌹 وردي</button>
             </div>
-            <div class="hint"><i class="fas fa-lightbulb"></i> اضغط "بدء التسجيل" لإنشاء الصورة المتحركة ونشرها</div>
+            <div class="hint"><i class="fas fa-lightbulb"></i> جرّب القوالب ثم اضغط بدء التسجيل لإنشاء صورة متحركة فائقة الجمال</div>
         </div>
     </div>
 
     <script>
         (() => {
-            const canvas = document.getElementById('animatedCanvas');
+            const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
 
             // عناصر التحكم
-            const prayerTextInput = document.getElementById('prayerText');
-            const glowColorInput = document.getElementById('glowColor');
-            const glowSizeSlider = document.getElementById('glowSize');
-            const motionTypeSelect = document.getElementById('motionType');
-            const motionSpeedSlider = document.getElementById('motionSpeed');
+            const textInput = document.getElementById('textInput');
+            const glowColor = document.getElementById('glowColor');
+            const glowSize = document.getElementById('glowSize');
+            const motionType = document.getElementById('motionType');
+            const speedSlider = document.getElementById('speed');
             const fontSizeSlider = document.getElementById('fontSize');
-            const enableParticlesCheck = document.getElementById('enableParticles');
-            const particleDensitySlider = document.getElementById('particleDensity');
-            const particleColorInput = document.getElementById('particleColor');
-            const bgTypeSelect = document.getElementById('bgType');
-            const gradientOptions = document.getElementById('gradientOptions');
-            const imageUploadOption = document.getElementById('imageUploadOption');
-            const bgColor1Input = document.getElementById('bgColor1');
-            const bgColor2Input = document.getElementById('bgColor2');
-            const bgImageFileInput = document.getElementById('bgImageFile');
-            const presetButtons = document.querySelectorAll('.preset-btn');
+            const particlesEnabled = document.getElementById('particlesEnabled');
+            const particleDensity = document.getElementById('particleDensity');
+            const particleColor = document.getElementById('particleColor');
+            const bgType = document.getElementById('bgType');
+            const gradientColors = document.getElementById('gradientColors');
+            const imageUploadDiv = document.getElementById('imageUpload');
+            const bgColor1 = document.getElementById('bgColor1');
+            const bgColor2 = document.getElementById('bgColor2');
+            const bgImageFile = document.getElementById('bgImageFile');
+            const presetBtns = document.querySelectorAll('.preset-btn');
 
-            // أزرار التشغيل
-            const startRecordBtn = document.getElementById('startRecordBtn');
-            const stopRecordBtn = document.getElementById('stopRecordBtn');
-            const downloadGifBtn = document.getElementById('downloadGifBtn');
-            const downloadWebmBtn = document.getElementById('downloadWebmBtn');
-            const statusMessage = document.getElementById('statusMessage');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const downloadGif = document.getElementById('downloadGif');
+            const downloadWebm = document.getElementById('downloadWebm');
+            const statusDiv = document.getElementById('status');
 
-            // متغيرات الحالة
             let bgImage = null;
             let isRecording = false;
             let mediaRecorder = null;
             let recordedChunks = [];
-            let animationFrameId = null;
+            let animFrame = null;
             let startTime = performance.now();
             let particles = [];
-            const MAX_PARTICLES = 250;
+            const MAX_PARTICLES = 280;
 
-            // تبديل نوع الخلفية
-            bgTypeSelect.addEventListener('change', () => {
-                if (bgTypeSelect.value === 'gradient') {
-                    gradientOptions.style.display = 'flex';
-                    imageUploadOption.style.display = 'none';
+            // تبديل الخلفية
+            bgType.addEventListener('change', () => {
+                if (bgType.value === 'gradient') {
+                    gradientColors.style.display = 'flex';
+                    imageUploadDiv.style.display = 'none';
                 } else {
-                    gradientOptions.style.display = 'none';
-                    imageUploadOption.style.display = 'block';
+                    gradientColors.style.display = 'none';
+                    imageUploadDiv.style.display = 'block';
                 }
             });
 
-            // رفع صورة الخلفية
-            bgImageFileInput.addEventListener('change', (e) => {
+            bgImageFile.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
@@ -400,63 +397,54 @@
                 reader.readAsDataURL(file);
             });
 
-            // القوالب السريعة
-            presetButtons.forEach(btn => {
+            // قوالب سريعة
+            presetBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const preset = btn.dataset.preset;
-                    switch(preset) {
-                        case 'green':
-                            glowColorInput.value = '#4ade80';
-                            particleColorInput.value = '#fbbf24';
-                            bgColor1Input.value = '#064e3b';
-                            bgColor2Input.value = '#0f172a';
-                            break;
-                        case 'gold':
-                            glowColorInput.value = '#f59e0b';
-                            particleColorInput.value = '#fcd34d';
-                            bgColor1Input.value = '#1c1917';
-                            bgColor2Input.value = '#292524';
-                            break;
-                        case 'blue':
-                            glowColorInput.value = '#38bdf8';
-                            particleColorInput.value = '#c084fc';
-                            bgColor1Input.value = '#0c1929';
-                            bgColor2Input.value = '#1e1b4b';
-                            break;
-                        case 'red':
-                            glowColorInput.value = '#f87171';
-                            particleColorInput.value = '#fca5a5';
-                            bgColor1Input.value = '#450a0a';
-                            bgColor2Input.value = '#1f0f0f';
-                            break;
+                    const p = btn.dataset.preset;
+                    if (p === 'green') {
+                        glowColor.value = '#4ade80';
+                        particleColor.value = '#fbbf24';
+                        bgColor1.value = '#064e3b';
+                        bgColor2.value = '#0f172a';
+                    } else if (p === 'gold') {
+                        glowColor.value = '#f59e0b';
+                        particleColor.value = '#fcd34d';
+                        bgColor1.value = '#1c1917';
+                        bgColor2.value = '#292524';
+                    } else if (p === 'blue') {
+                        glowColor.value = '#38bdf8';
+                        particleColor.value = '#c084fc';
+                        bgColor1.value = '#0c1929';
+                        bgColor2.value = '#1e1b4b';
+                    } else if (p === 'rose') {
+                        glowColor.value = '#fb7185';
+                        particleColor.value = '#fda4af';
+                        bgColor1.value = '#4c0519';
+                        bgColor2.value = '#1f1235';
                     }
                     if (!isRecording) startPreview();
                 });
             });
 
-            // رسم نجمة خماسية
-            function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            // رسم نجمة
+            function drawStar(ctx, cx, cy, spikes, outerR, innerR) {
                 let rot = Math.PI / 2 * 3;
-                let x = cx;
-                let y = cy;
                 let step = Math.PI / spikes;
                 ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius);
+                ctx.moveTo(cx, cy - outerR);
                 for (let i = 0; i < spikes; i++) {
-                    x = cx + Math.cos(rot) * outerRadius;
-                    y = cy + Math.sin(rot) * outerRadius;
+                    let x = cx + Math.cos(rot) * outerR;
+                    let y = cy + Math.sin(rot) * outerR;
                     ctx.lineTo(x, y);
                     rot += step;
-                    x = cx + Math.cos(rot) * innerRadius;
-                    y = cy + Math.sin(rot) * innerRadius;
+                    x = cx + Math.cos(rot) * innerR;
+                    y = cy + Math.sin(rot) * innerR;
                     ctx.lineTo(x, y);
                     rot += step;
                 }
-                ctx.lineTo(cx, cy - outerRadius);
                 ctx.closePath();
             }
 
-            // رسم قلب صغير
             function drawHeart(ctx, x, y, size) {
                 ctx.save();
                 ctx.translate(x, y);
@@ -469,200 +457,188 @@
                 ctx.restore();
             }
 
-            // رسم إطار واحد
-            function drawFrame(timestamp) {
-                const W = canvas.width;
-                const H = canvas.height;
+            function drawFrame(now) {
+                const W = canvas.width,
+                    H = canvas.height;
                 ctx.clearRect(0, 0, W, H);
 
-                // الخلفية
-                if (bgTypeSelect.value === 'gradient') {
+                // خلفية
+                if (bgType.value === 'gradient') {
                     const grad = ctx.createLinearGradient(0, 0, 0, H);
-                    grad.addColorStop(0, bgColor1Input.value);
-                    grad.addColorStop(1, bgColor2Input.value);
+                    grad.addColorStop(0, bgColor1.value);
+                    grad.addColorStop(1, bgColor2.value);
                     ctx.fillStyle = grad;
                     ctx.fillRect(0, 0, W, H);
                 } else if (bgImage) {
-                    const imgAspect = bgImage.width / bgImage.height;
-                    const canvasAspect = W / H;
+                    const iA = bgImage.width / bgImage.height;
+                    const cA = W / H;
                     let dw, dh, dx, dy;
-                    if (imgAspect > canvasAspect) {
+                    if (iA > cA) {
                         dh = H;
-                        dw = H * imgAspect;
+                        dw = H * iA;
                         dx = (W - dw) / 2;
                         dy = 0;
                     } else {
                         dw = W;
-                        dh = W / imgAspect;
+                        dh = W / iA;
                         dx = 0;
                         dy = (H - dh) / 2;
                     }
                     ctx.drawImage(bgImage, dx, dy, dw, dh);
                 }
 
-                // إعدادات النص والحركة
-                const text = prayerTextInput.value.trim() || 'صلى الله على محمد';
-                const glowColor = glowColorInput.value;
-                const glowSize = parseInt(glowSizeSlider.value);
-                const motionType = motionTypeSelect.value;
-                const motionSpeed = parseFloat(motionSpeedSlider.value);
+                const text = textInput.value.trim() || 'صلى الله على محمد';
+                const gColor = glowColor.value;
+                const gSize = parseInt(glowSize.value);
+                const mType = motionType.value;
+                const speed = parseFloat(speedSlider.value);
                 const fontSize = parseInt(fontSizeSlider.value);
-                const particlesEnabled = enableParticlesCheck.checked;
-                const particleDensity = parseInt(particleDensitySlider.value);
-                const particleColor = particleColorInput.value;
+                const useParticles = particlesEnabled.checked;
+                const pDensity = parseInt(particleDensity.value);
+                const pColor = particleColor.value;
 
-                const elapsed = (timestamp - startTime) / 1000;
-                let offsetX = 0, offsetY = 0, rotation = 0, scale = 1.0;
+                const elapsed = (now - startTime) / 1000;
+                let offX = 0,
+                    offY = 0,
+                    rot = 0,
+                    scale = 1;
 
-                switch (motionType) {
-                    case 'pulseGlow':
-                        scale = 1.0 + 0.12 * Math.sin(elapsed * 2.5 * motionSpeed);
+                switch (mType) {
+                    case 'pulse':
+                        scale = 1 + 0.12 * Math.sin(elapsed * 2.5 * speed);
                         break;
                     case 'wave':
-                        offsetX = 20 * Math.sin(elapsed * 3 * motionSpeed);
+                        offX = 22 * Math.sin(elapsed * 3 * speed);
                         break;
                     case 'rotate':
-                        rotation = (elapsed * 15 * motionSpeed) % 360;
+                        rot = (elapsed * 15 * speed) % 360;
                         break;
                     case 'float':
-                        offsetY = 18 * Math.sin(elapsed * 2 * motionSpeed);
+                        offY = 18 * Math.sin(elapsed * 2 * speed);
                         break;
                     case 'zoom':
-                        scale = 1.0 + 0.2 * Math.abs(Math.sin(elapsed * 3 * motionSpeed));
+                        scale = 1 + 0.2 * Math.abs(Math.sin(elapsed * 3 * speed));
                         break;
                 }
 
-                // رسم النص مع تأثيرات التوهج
                 ctx.save();
-                ctx.translate(W/2 + offsetX, H/2 + offsetY);
-                if (motionType === 'rotate') {
-                    ctx.rotate(rotation * Math.PI / 180);
-                }
+                ctx.translate(W / 2 + offX, H / 2 + offY);
+                if (mType === 'rotate') ctx.rotate(rot * Math.PI / 180);
                 ctx.scale(scale, scale);
-                ctx.font = `bold ${fontSize}px "Cairo", "Traditional Arabic", "Arial", sans-serif`;
+                ctx.font = `bold ${fontSize}px "Cairo", "Traditional Arabic", "Arial"`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
-                // طبقات التوهج
-                if (glowSize > 0) {
-                    ctx.shadowBlur = glowSize;
-                    ctx.shadowColor = glowColor;
-                    ctx.fillStyle = glowColor;
+                // توهج متعدد الطبقات
+                if (gSize > 0) {
+                    ctx.shadowBlur = gSize;
+                    ctx.shadowColor = gColor;
+                    ctx.fillStyle = gColor;
                     ctx.fillText(text, 0, 0);
-                    ctx.shadowBlur = glowSize * 1.6;
+                    ctx.shadowBlur = gSize * 1.7;
                     ctx.fillText(text, 0, 0);
                 }
-                // النص الأساسي
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(text, 0, 0);
                 ctx.restore();
 
-                // إضافة إطار زخرفي بسيط (خط ذهبي حول النص)
+                // إطار زخرفي متوهج
                 ctx.save();
-                ctx.strokeStyle = glowColor;
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = glowColor;
-                ctx.globalAlpha = 0.5 + 0.3 * Math.sin(elapsed * 3);
-                const boxSize = fontSize * 1.8;
-                ctx.strokeRect(W/2 - boxSize/2, H/2 - boxSize/2, boxSize, boxSize);
+                ctx.strokeStyle = gColor;
+                ctx.lineWidth = 2.5;
+                ctx.shadowBlur = 14;
+                ctx.shadowColor = gColor;
+                ctx.globalAlpha = 0.45 + 0.25 * Math.sin(elapsed * 4);
+                const boxW = fontSize * 2.2;
+                const boxH = fontSize * 1.8;
+                ctx.strokeRect(W / 2 - boxW / 2 + offX, H / 2 - boxH / 2 + offY, boxW, boxH);
                 ctx.restore();
 
-                // جزيئات متطايرة (نجوم وقلوب ودوائر)
-                if (particlesEnabled) {
-                    const centerX = W/2 + offsetX;
-                    const centerY = H/2 + offsetY;
-                    const spawnRate = particleDensity / 8;
-                    for (let i = 0; i < spawnRate; i++) {
+                // جزيئات
+                if (useParticles) {
+                    const centerX = W / 2 + offX;
+                    const centerY = H / 2 + offY;
+                    const spawn = pDensity / 6;
+                    for (let i = 0; i < spawn; i++) {
                         if (particles.length < MAX_PARTICLES) {
                             const angle = Math.random() * Math.PI * 2;
-                            const speed = 0.8 + Math.random() * 5;
-                            const life = 0.7 + Math.random() * 1.8;
-                            const type = Math.random() < 0.3 ? 'heart' : (Math.random() < 0.5 ? 'star' : 'circle');
+                            const spd = 0.7 + Math.random() * 4.5;
+                            const life = 0.7 + Math.random() * 2;
+                            const type = Math.random() < 0.35 ? 'heart' : (Math.random() < 0.5 ? 'star' : 'circle');
                             particles.push({
-                                x: centerX + (Math.random() - 0.5) * 250,
-                                y: centerY + (Math.random() - 0.5) * 150,
-                                vx: Math.cos(angle) * speed * 50,
-                                vy: Math.sin(angle) * speed * 50 - 20,
-                                life: life,
+                                x: centerX + (Math.random() - 0.5) * 280,
+                                y: centerY + (Math.random() - 0.5) * 180,
+                                vx: Math.cos(angle) * spd * 45,
+                                vy: Math.sin(angle) * spd * 45 - 15,
+                                life,
                                 maxLife: life,
-                                color: particleColor,
-                                size: 2 + Math.random() * 5,
-                                type: type
+                                color: pColor,
+                                size: 2 + Math.random() * 5.5,
+                                type
                             });
                         }
                     }
-
-                    const dt = 1/60;
-                    for (let i = particles.length-1; i >= 0; i--) {
+                    const dt = 1 / 60;
+                    for (let i = particles.length - 1; i >= 0; i--) {
                         const p = particles[i];
                         p.life -= dt;
-                        if (p.life <= 0) {
-                            particles.splice(i, 1);
-                            continue;
-                        }
+                        if (p.life <= 0) { particles.splice(i, 1); continue; }
                         p.x += p.vx * dt;
                         p.y += p.vy * dt;
-                        p.vy += 15 * dt;
-
+                        p.vy += 18 * dt;
                         const alpha = p.life / p.maxLife;
                         ctx.save();
                         ctx.globalAlpha = alpha;
-                        ctx.shadowBlur = 8;
+                        ctx.shadowBlur = 7;
                         ctx.shadowColor = p.color;
                         ctx.fillStyle = p.color;
                         if (p.type === 'star') {
                             drawStar(ctx, p.x, p.y, 5, p.size * 1.2, p.size * 0.5);
                             ctx.fill();
                         } else if (p.type === 'heart') {
-                            drawHeart(ctx, p.x, p.y, p.size * 1.5);
+                            drawHeart(ctx, p.x, p.y, p.size * 1.6);
                             ctx.fill();
                         } else {
                             ctx.beginPath();
-                            ctx.arc(p.x, p.y, p.size * 0.8, 0, Math.PI*2);
+                            ctx.arc(p.x, p.y, p.size * 0.7, 0, Math.PI * 2);
                             ctx.fill();
                         }
                         ctx.restore();
                     }
                 }
 
-                // استمرار الحلقة
-                if (!isRecording || isRecording) {
-                    animationFrameId = requestAnimationFrame(drawFrame);
-                }
+                animFrame = requestAnimationFrame(drawFrame);
             }
 
             function startPreview() {
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                if (animFrame) cancelAnimationFrame(animFrame);
                 startTime = performance.now();
                 particles = [];
-                animationFrameId = requestAnimationFrame(drawFrame);
+                animFrame = requestAnimationFrame(drawFrame);
             }
 
-            // التسجيل
+            // إعداد التسجيل
             function setupRecorder() {
                 const stream = canvas.captureStream(24);
                 const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ?
                     'video/webm;codecs=vp9' : 'video/webm';
                 mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
                 recordedChunks = [];
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) recordedChunks.push(e.data);
-                };
+                mediaRecorder.ondataavailable = e => { if (e.data.size) recordedChunks.push(e.data); };
                 mediaRecorder.onstop = async () => {
                     const webmBlob = new Blob(recordedChunks, { type: mime });
                     const webmUrl = URL.createObjectURL(webmBlob);
-                    downloadWebmBtn.disabled = false;
-                    downloadWebmBtn.onclick = () => {
+                    downloadWebm.disabled = false;
+                    downloadWebm.onclick = () => {
                         const a = document.createElement('a');
                         a.href = webmUrl;
                         a.download = 'صلاة_على_النبي_متحركة.webm';
                         a.click();
                     };
 
-                    statusMessage.innerHTML = '<i class="fas fa-cog fa-spin"></i> جاري تحويل إلى GIF...';
-                    statusMessage.className = 'status';
+                    statusDiv.innerHTML = '<i class="fas fa-cog fa-spin"></i> جاري تحويل إلى GIF عالي الجودة...';
+                    statusDiv.className = 'status-badge';
                     try {
                         const { FFmpeg } = FFmpegWASM;
                         const ffmpeg = new FFmpeg();
@@ -671,25 +647,25 @@
                         await ffmpeg.writeFile('input.webm', inputBytes);
                         await ffmpeg.exec([
                             '-i', 'input.webm',
-                            '-vf', 'fps=12,scale=500:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
+                            '-vf', 'fps=15,scale=500:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
                             'output.gif'
                         ]);
-                        const outputData = await ffmpeg.readFile('output.gif');
-                        const gifBlob = new Blob([outputData], { type: 'image/gif' });
+                        const outData = await ffmpeg.readFile('output.gif');
+                        const gifBlob = new Blob([outData], { type: 'image/gif' });
                         const gifUrl = URL.createObjectURL(gifBlob);
-                        downloadGifBtn.disabled = false;
-                        downloadGifBtn.onclick = () => {
+                        downloadGif.disabled = false;
+                        downloadGif.onclick = () => {
                             const a = document.createElement('a');
                             a.href = gifUrl;
                             a.download = 'صلاة_على_النبي_متحركة.gif';
                             a.click();
                         };
-                        statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> تم إنشاء الصورة المتحركة بنجاح 🌟';
-                        statusMessage.className = 'status';
+                        statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> تم إنشاء الصورة العصرية بنجاح 🌟';
+                        statusDiv.className = 'status-badge';
                     } catch (err) {
                         console.error(err);
-                        statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر تحويل GIF (WebM متاح)';
-                        statusMessage.className = 'status';
+                        statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تعذر إنشاء GIF (WebM متوفر)';
+                        statusDiv.className = 'status-badge';
                     }
                 };
                 return mediaRecorder;
@@ -703,44 +679,40 @@
                 particles = [];
                 rec.start();
                 isRecording = true;
-                startRecordBtn.disabled = true;
-                stopRecordBtn.disabled = false;
-                downloadGifBtn.disabled = true;
-                downloadWebmBtn.disabled = true;
-                statusMessage.innerHTML = '<i class="fas fa-circle"></i> جاري تسجيل الحركة...';
-                statusMessage.className = 'status recording';
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                animationFrameId = requestAnimationFrame(drawFrame);
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                downloadGif.disabled = true;
+                downloadWebm.disabled = true;
+                statusDiv.innerHTML = '<i class="fas fa-circle"></i> جاري تسجيل الصورة المتحركة...';
+                statusDiv.className = 'status-badge recording';
+                if (animFrame) cancelAnimationFrame(animFrame);
+                animFrame = requestAnimationFrame(drawFrame);
             }
 
             function stopRecording() {
                 if (!isRecording) return;
-                if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
-                }
+                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
                 isRecording = false;
-                startRecordBtn.disabled = false;
-                stopRecordBtn.disabled = true;
-                statusMessage.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> معالجة...';
-                statusMessage.className = 'status';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> معالجة الصورة...';
+                statusDiv.className = 'status-badge';
             }
 
-            startRecordBtn.addEventListener('click', startRecording);
-            stopRecordBtn.addEventListener('click', stopRecording);
+            startBtn.addEventListener('click', startRecording);
+            stopBtn.addEventListener('click', stopRecording);
 
-            // تحديث المعاينة عند تغيير أي إعداد
+            // تحديث المعاينة عند التغيير
             const allInputs = [
-                prayerTextInput, glowColorInput, glowSizeSlider, motionTypeSelect,
-                motionSpeedSlider, fontSizeSlider, enableParticlesCheck,
-                particleDensitySlider, particleColorInput, bgTypeSelect,
-                bgColor1Input, bgColor2Input, bgImageFileInput
+                textInput, glowColor, glowSize, motionType, speedSlider, fontSizeSlider,
+                particlesEnabled, particleDensity, particleColor, bgType,
+                bgColor1, bgColor2, bgImageFile
             ];
             allInputs.forEach(inp => {
                 inp.addEventListener('input', () => { if (!isRecording) startPreview(); });
                 inp.addEventListener('change', () => { if (!isRecording) startPreview(); });
             });
 
-            // بدء المعاينة
             startPreview();
         })();
     </script>
