@@ -7,27 +7,156 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Cairo', sans-serif; background: #0a1a2e; color: #fff; padding: 10px; min-height: 100vh; direction: rtl; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #0a1a2e;
+    color: #fff;
+    padding: 10px;
+    min-height: 100vh;
+    direction: rtl;
+  }
   .app { max-width: 900px; margin: auto; }
-  h1 { text-align: center; color: #00FF00; font-size: 1.4rem; margin: 10px 0 20px; padding: 10px; background: #0f1f33; border-radius: 15px; border: 2px solid #00FF0040; }
-  .step { background: #0f1f33; border-radius: 18px; padding: 18px; margin-bottom: 14px; border: 2px solid #2e4a6a; }
-  .step-title { color: #00FF00; font-size: 1.15rem; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-  .step-title .num { background: #00FF00; color: #0a1a2e; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
+
+  h1 {
+    text-align: center;
+    color: #00FF00;
+    font-size: 1.4rem;
+    margin: 10px 0 20px;
+    padding: 10px;
+    background: #0f1f33;
+    border-radius: 15px;
+    border: 2px solid #00FF0040;
+  }
+
+  .step {
+    background: #0f1f33;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 2px solid #2e4a6a;
+  }
+  .step-title {
+    color: #00FF00;
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-title .num {
+    background: #00FF00;
+    color: #0a1a2e;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
   label { display: block; font-size: 0.95rem; color: #b8d0e8; margin-bottom: 8px; font-weight: 700; }
-  input[type="file"], input[type="text"], textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #2e4a6a; background: #0a1a2a; color: #fff; font-size: 1rem; font-family: 'Cairo', sans-serif; outline: none; }
+
+  input[type="file"], input[type="text"], textarea, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #2e4a6a;
+    background: #0a1a2a;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Cairo', sans-serif;
+    outline: none;
+  }
   input:focus, textarea:focus { border-color: #00FF00; }
   textarea { min-height: 80px; resize: vertical; font-size: 1.05rem; }
-  .size-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-  .size-buttons button { padding: 14px 6px; background: #1a2f3f; border: 2px solid #2e4a6a; color: #fff; border-radius: 12px; font-size: 1rem; font-family: 'Cairo'; font-weight: 700; cursor: pointer; }
-  .size-buttons button.active { background: #00FF00; color: #0a1a2e; border-color: #00FF00; }
-  .positions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 300px; margin: 10px auto; }
-  .positions button { padding: 18px 6px; background: #1a2f3f; border: 2px solid #2e4a6a; color: #fff; border-radius: 12px; font-size: 1.5rem; cursor: pointer; }
-  .positions button.active { background: #00FF00; color: #0a1a2e; border-color: #00FF00; }
-  .logo-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .logo-box img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #00FF00; background: #000; object-fit: cover; display: none; }
+
+  .size-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .size-buttons button {
+    padding: 14px 6px;
+    background: #1a2f3f;
+    border: 2px solid #2e4a6a;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Cairo';
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .size-buttons button.active {
+    background: #00FF00;
+    color: #0a1a2e;
+    border-color: #00FF00;
+  }
+
+  .positions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+    margin: 10px auto;
+  }
+  .positions button {
+    padding: 18px 6px;
+    background: #1a2f3f;
+    border: 2px solid #2e4a6a;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  .positions button.active {
+    background: #00FF00;
+    color: #0a1a2e;
+    border-color: #00FF00;
+  }
+
+  .logo-box {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .logo-box img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #00FF00;
+    background: #000;
+    object-fit: cover;
+    display: none;
+  }
   .logo-box img.visible { display: block; }
-  .logo-box .info { flex: 1; min-width: 150px; font-size: 0.85rem; color: #b8d0e8; }
-  .big-btn { width: 100%; padding: 20px; border: none; border-radius: 20px; font-size: 1.2rem; font-weight: 900; font-family: 'Cairo'; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .logo-box .info {
+    flex: 1;
+    min-width: 150px;
+    font-size: 0.85rem;
+    color: #b8d0e8;
+  }
+
+  .big-btn {
+    width: 100%;
+    padding: 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    font-family: 'Cairo';
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
   .big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-green { background: #00FF00; color: #0a1a2e; }
   .btn-red { background: #ff4757; color: #fff; }
@@ -36,30 +165,133 @@
   .btn-purple { background: #9c27b0; color: #fff; }
   .btn-cyan { background: #00bcd4; color: #0a1a2e; }
   .btn-pink { background: #e91e63; color: #fff; }
-  #previewCanvas { width: 100%; border-radius: 14px; background: #000; border: 3px solid #2e4a6a; display: block; touch-action: none; cursor: move; }
-  .status { padding: 16px; border-radius: 14px; text-align: center; font-size: 1rem; font-weight: 700; margin-top: 10px; background: #0a1a2a; border: 2px solid #2e4a6a; color: #b8d0e8; line-height: 1.7; }
+
+  #previewCanvas {
+    width: 100%;
+    border-radius: 14px;
+    background: #000;
+    border: 3px solid #2e4a6a;
+    display: block;
+    touch-action: none;
+    cursor: move;
+  }
+
+  .status {
+    padding: 16px;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 10px;
+    background: #0a1a2a;
+    border: 2px solid #2e4a6a;
+    color: #b8d0e8;
+    line-height: 1.7;
+  }
   .status.ok { color: #00FF00; border-color: #00FF0050; background: #00FF0010; }
   .status.err { color: #ff4757; border-color: #ff475750; background: #ff475710; }
   .status.busy { color: #ffc107; border-color: #ffc10750; background: #ffc10710; }
-  .hint { background: #00FF0010; border-right: 4px solid #00FF00; padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; color: #b8d0e8; margin-top: 10px; line-height: 1.7; }
-  .timer { text-align: center; font-size: 1.6rem; font-weight: 900; color: #ff4757; margin-top: 8px; letter-spacing: 2px; display: none; }
+
+  .hint {
+    background: #00FF0010;
+    border-right: 4px solid #00FF00;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #b8d0e8;
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+
+  .timer {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #ff4757;
+    margin-top: 8px;
+    letter-spacing: 2px;
+    display: none;
+  }
   .timer.show { display: block; }
-  .live-dot { display: inline-block; width: 12px; height: 12px; background: #ff4757; border-radius: 50%; margin-left: 6px; animation: blink 1s infinite; }
+
+  .live-dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    background: #ff4757;
+    border-radius: 50%;
+    margin-left: 6px;
+    animation: blink 1s infinite;
+  }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-  .music-indicator { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #9c27b010; border: 2px solid #9c27b050; border-radius: 12px; margin-top: 10px; font-size: 0.9rem; color: #d8b4ff; font-weight: 700; }
-  .music-indicator .bars { display: flex; gap: 3px; align-items: flex-end; height: 18px; }
-  .music-indicator .bars span { width: 4px; background: #9c27b0; border-radius: 2px; animation: eq 0.9s ease-in-out infinite; }
+
+  .music-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #9c27b010;
+    border: 2px solid #9c27b050;
+    border-radius: 12px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #d8b4ff;
+    font-weight: 700;
+  }
+  .music-indicator .bars {
+    display: flex; gap: 3px; align-items: flex-end; height: 18px;
+  }
+  .music-indicator .bars span {
+    width: 4px; background: #9c27b0; border-radius: 2px;
+    animation: eq 0.9s ease-in-out infinite;
+  }
   .music-indicator .bars span:nth-child(1) { height: 40%; animation-delay: 0s; }
   .music-indicator .bars span:nth-child(2) { height: 90%; animation-delay: 0.15s; }
   .music-indicator .bars span:nth-child(3) { height: 60%; animation-delay: 0.3s; }
   .music-indicator .bars span:nth-child(4) { height: 80%; animation-delay: 0.45s; }
   .music-indicator.paused .bars span { animation-play-state: paused; opacity: 0.3; }
   @keyframes eq { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
-  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media (max-width: 500px) { .btn-row { grid-template-columns: 1fr; } }
-  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 8px; background: #2e4a6a; outline: none; padding: 0; border: none; }
-  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #9c27b0; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 8px #9c27b0; }
-  input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #9c27b0; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 8px #9c27b0; }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 500px) {
+    .btn-row { grid-template-columns: 1fr; }
+  }
+
+  /* منزلق مستوى الموسيقى */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background: #2e4a6a;
+    outline: none;
+    padding: 0;
+    border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #9c27b0;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px #9c27b0;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #9c27b0;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px #9c27b0;
+  }
 </style>
 </head>
 <body>
@@ -67,55 +299,50 @@
 
   <h1>🎬 استوديو الفيديو المباشر</h1>
 
+  <!-- ============ 1 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">1</span> مصدر الفيديو</div>
+
     <div class="size-buttons" id="sourceButtons" style="grid-template-columns: repeat(2, 1fr);">
       <button data-src="file" class="active">📁 رفع فيديو</button>
       <button data-src="camera">🎥 تصوير مباشر</button>
     </div>
+
     <div id="fileBox" style="margin-top:12px;">
       <input type="file" id="videoFile" accept="video/*">
     </div>
+
     <div id="cameraBox" style="display:none; margin-top:12px;">
       <button class="big-btn btn-blue" id="btnCamOn" style="margin-top:0;">🎥 تشغيل الكاميرا والميكروفون</button>
       <div class="btn-row" id="camControls" style="display:none;">
         <button class="big-btn btn-red" id="btnCamOff">⏹️ إيقاف</button>
         <button class="big-btn btn-cyan" id="btnSwitchCam">🔄 تبديل الكاميرا</button>
       </div>
-      <div class="hint">سيطلب المتصفح السماح بالوصول للكاميرا والميكروفون. اضغط «السماح».</div>
+      <div class="hint">سيطلب المتصفح السماح بالوصول للكاميرا والميكروفون. اضغط «السماح».<br>
+      زر <b>🔄 تبديل الكاميرا</b> ينتقل بين الأمامية والخلفية (يعمل جيداً على الهاتف).</div>
     </div>
   </div>
 
+  <!-- ============ 2 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">2</span> اكتب الخبر هنا</div>
-    <textarea id="newsText" placeholder="اكتب خبرك هنا..."></textarea>
-    <label style="margin-top:12px;">نمط العرض</label>
-    <div class="size-buttons" id="newsModeButtons" style="grid-template-columns: repeat(2, 1fr);">
-      <button data-mode="static" class="active">📰 ثابت</button>
-      <button data-mode="ticker">📜 شريط متحرك</button>
-    </div>
-    <div id="tickerSpeedBox" style="display:none; margin-top:12px;">
-      <label>سرعة الشريط</label>
-      <div class="size-buttons" id="tickerSpeedButtons" style="grid-template-columns: repeat(3, 1fr);">
-        <button data-speed="0.5">بطيء</button>
-        <button data-speed="1" class="active">متوسط</button>
-        <button data-speed="2">سريع</button>
-      </div>
-    </div>
+    <textarea id="newsText" placeholder="اكتب خبرك هنا... مثال: افتتاح طريق جديد في نواكشوط"></textarea>
   </div>
 
+  <!-- ============ 3 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">3</span> الشعار (اختياري)</div>
     <div class="logo-box">
       <img id="logoPreview" src="" alt="الشعار">
       <div class="info">
         <b style="color:#00FF00;">لم يتم اختيار شعار</b><br>
-        <span style="font-size:0.8rem;">اختر صورة شعارك 👇</span>
+        <span style="font-size:0.8rem;">اختر صورة شعارك من جهازك 👇</span>
       </div>
     </div>
     <input type="file" id="logoFile" accept="image/*" style="margin-top:10px;">
   </div>
 
+  <!-- ============ 4 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">4</span> حجم الخبر</div>
     <div class="size-buttons" id="sizeButtons">
@@ -126,72 +353,107 @@
     </div>
   </div>
 
+  <!-- ============ 5 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">5</span> موضع الخبر</div>
     <div class="positions" id="posButtons">
-      <button data-pos="top">⬆️</button>
-      <button data-pos="middle">⏺️</button>
-      <button data-pos="bottom" class="active">⬇️</button>
-      <button data-pos="bottomleft">↙️</button>
-      <button data-pos="bottomright">↘️</button>
-      <button data-pos="center">🎯</button>
+      <button data-pos="top" title="فوق">⬆️</button>
+      <button data-pos="middle" title="وسط">⏺️</button>
+      <button data-pos="bottom" title="تحت" class="active">⬇️</button>
+      <button data-pos="bottomleft" title="تحت يسار">↙️</button>
+      <button data-pos="bottomright" title="تحت يمين">↘️</button>
+      <button data-pos="center" title="وسط تماماً">🎯</button>
     </div>
-    <div class="hint">💡 في نمط «الشريط المتحرك» يتحكم موضع الخبر في ارتفاع الشريط.</div>
+    <div class="hint">💡 أو اسحب النص مباشرة في المعاينة بالأسفل ←</div>
   </div>
 
+  <!-- ============ 6 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">6</span> المعاينة</div>
     <canvas id="previewCanvas"></canvas>
     <div class="hint">👆 اسحب النص أو الشعار داخل الفيديو لتحريكهما</div>
   </div>
 
+  <!-- ============ 7 ============ -->
   <div class="step">
-    <div class="step-title"><span class="num">7</span> الفيديو الآخر</div>
+    <div class="step-title"><span class="num">7</span> الفيديو الآخر (للتبديل أثناء البث)</div>
     <input type="file" id="otherFile" accept="video/*">
-    <div class="hint">أثناء التسجيل اضغط «🎬 بث الفيديو الآخر» للتبديل إليه، ثم «🎤 العودة» للرجوع.</div>
+    <div class="hint">
+      ارفع مقطعاً ثانياً. أثناء التسجيل اضغط «🎬 بث الفيديو الآخر» لينتقل البث إليه فوراً،
+      ثم اضغط «🎤 العودة» لترجع إليك.
+    </div>
     <div id="otherInfo" class="hint" style="display:none;"></div>
   </div>
 
+  <!-- ============ 8 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">8</span> الموسيقى الخلفية (اختياري)</div>
     <input type="file" id="musicFile" accept="audio/*">
-    <div class="hint">أثناء التسجيل يظهر زر «🎵 تشغيل الموسيقى» — اضغطه عندما تنتهي من الكلام، ثم «🎤 العودة للكلام».</div>
+    <div class="hint">
+      ارفع ملف موسيقى (mp3 / wav / m4a). أثناء التسجيل يظهر زر
+      «🎵 تشغيل الموسيقى» — اضغطه عندما تنتهي من الكلام لينتقل الصوت إلى الموسيقى،
+      واضغط «🎤 العودة للكلام» للرجوع.
+    </div>
     <div id="musicInfo" class="hint" style="display:none;"></div>
+
+    <!-- ✅ منزلق مستوى صوت الموسيقى -->
     <div id="musicVolBox" style="display:none; margin-top:12px;">
       <label style="display:flex; justify-content:space-between; align-items:center;">
         <span>🔊 مستوى صوت الموسيقى</span>
         <span id="musicVolVal" style="color:#d8b4ff; font-weight:900;">180%</span>
       </label>
-      <input type="range" id="musicVol" min="0" max="400" value="180" step="10" style="margin-top:10px;">
+      <input type="range" id="musicVol" min="0" max="400" value="180" step="10"
+             style="margin-top:10px;">
+      <div class="hint" style="margin-top:8px; background:#9c27b010; border-right-color:#9c27b0;">
+        💡 ارفع النسبة إذا كانت الموسيقى منخفضة، أو أنزلها إذا كانت تغطي على الكلام.
+      </div>
     </div>
   </div>
 
+  <!-- ============ 9 ============ -->
   <div class="step">
     <div class="step-title"><span class="num">9</span> التسجيل</div>
-    <button class="big-btn btn-green" id="btnStart" disabled>▶️ ابدأ التسجيل</button>
+
+    <button class="big-btn btn-green" id="btnStart" disabled>
+      ▶️ ابدأ التسجيل
+    </button>
+
     <div class="btn-row" id="switchRow" style="display:none; margin-top:10px;">
-      <button class="big-btn btn-orange" id="btnSwitch" style="display:none; margin-top:0;">🎬 بث الفيديو الآخر</button>
-      <button class="big-btn btn-purple" id="btnMusic" style="display:none; margin-top:0;">🎵 تشغيل الموسيقى</button>
+      <button class="big-btn btn-orange" id="btnSwitch" style="display:none; margin-top:0;">
+        🎬 بث الفيديو الآخر
+      </button>
+      <button class="big-btn btn-purple" id="btnMusic" style="display:none; margin-top:0;">
+        🎵 تشغيل الموسيقى
+      </button>
     </div>
+
     <div class="music-indicator paused" id="musicInd" style="display:none;">
       <div class="bars"><span></span><span></span><span></span><span></span></div>
       <span id="musicIndText">الموسيقى متوقفة — الصوت من الميكروفون</span>
     </div>
-    <button class="big-btn btn-red" id="btnStop" disabled style="display:none;">⏹️ أوقف التسجيل</button>
+
+    <button class="big-btn btn-red" id="btnStop" disabled style="display:none;">
+      ⏹️ أوقف التسجيل
+    </button>
+
     <div class="timer" id="timer">00:00</div>
+
     <div class="status" id="status">👆 اختر مصدر الفيديو أولاً</div>
-    <button class="big-btn btn-blue" id="btnDownload" style="display:none;">⬇️ تحميل الفيديو</button>
+
+    <button class="big-btn btn-blue" id="btnDownload" style="display:none;">
+      ⬇️ تحميل الفيديو
+    </button>
   </div>
 
 </div>
 
 <script>
 // ============================================================
-//  استوديو فيديو مباشر — نسخة محسّنة للأداء على الهاتف
+//  استوديو فيديو مباشر
+//  - رفع فيديو أو تصوير مباشر بالكاميرا (مع تبديل أمامية/خلفية)
+//  - دمج/تبديل مع فيديو آخر بضغطة زر
+//  - موسيقى خلفية قابلة للتبديل مع الكلام + منزلق تضخيم الصوت
 // ============================================================
-
-// كشف الهاتف لتفعيل التحسينات
-const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
 // ===== الحالة =====
 let videoFile = null, logoImg = null;
@@ -200,16 +462,11 @@ let cameraReady = false;
 let otherLoaded = false;
 let musicLoaded = false;
 
-let activeSource = 'file';
-let broadcast    = 'main';
-let musicOn      = false;
-let musicBoost   = 1.8;
-let currentFacing = 'user';
-
-let newsMode = 'static';
-let tickerSpeedFactor = 1;
-let tickerX = 0;
-let tickerInited = false;
+let activeSource = 'file';     // 'file' | 'camera'
+let broadcast    = 'main';     // 'main' | 'other'
+let musicOn      = false;      // هل الموسيقى تعمل الآن
+let musicBoost   = 1.8;        // معامل تضخيم صوت الموسيقى (1 = بدون تكبير)
+let currentFacing = 'user';    // 'user' = أمامية | 'environment' = خلفية
 
 let isRecording = false;
 let mediaRecorder = null;
@@ -229,13 +486,8 @@ let isDragging = null;
 let dragOff = { x: 0, y: 0 };
 let timerInterval = null;
 let recordStartTime = 0;
-let lastFrameTime = 0;
-let lastRenderTime = 0;
 
-// ✅ قيود الرسم — 30 إطاراً/ثانية (مطابق للتسجيل)
-const TARGET_FRAME_MS = 1000 / 30;
-
-// عناصر الفيديو/الصوت المخفية
+// ===== عناصر الفيديو/الصوت المخفية =====
 const video = document.createElement('video');
 video.playsInline = true;
 video.muted = false;
@@ -265,14 +517,12 @@ musicEl.crossOrigin = 'anonymous';
   document.body.appendChild(v);
 });
 
+// ===== عناصر الواجهة =====
 const $ = id => document.getElementById(id);
 const videoFileInp = $('videoFile');
 const otherFileInp = $('otherFile');
 const musicFileInp = $('musicFile');
 const newsText = $('newsText');
-const newsModeButtons = $('newsModeButtons');
-const tickerSpeedBox = $('tickerSpeedBox');
-const tickerSpeedButtons = $('tickerSpeedButtons');
 const logoFileInp = $('logoFile');
 const logoPreview = $('logoPreview');
 const sizeButtons = $('sizeButtons');
@@ -287,12 +537,7 @@ const btnSwitchCam = $('btnSwitchCam');
 const otherInfo = $('otherInfo');
 const musicInfo = $('musicInfo');
 const canvas = $('previewCanvas');
-
-// ✅ alpha:false = تسريع كبير في الرسم على الهاتف
-const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-ctx.imageSmoothingEnabled = true;
-ctx.imageSmoothingQuality = 'low';
-
+const ctx = canvas.getContext('2d');
 const btnStart = $('btnStart');
 const btnStop = $('btnStop');
 const btnSwitch = $('btnSwitch');
@@ -318,7 +563,7 @@ function fmtTime(s) {
 }
 
 // ============================================================
-//  صيغة التسجيل
+//  اختيار أفضل صيغة
 // ============================================================
 function pickBestMime(hasAudio) {
   if (typeof MediaRecorder === 'undefined') return { mime: '', ext: 'webm' };
@@ -342,11 +587,13 @@ function pickBestMime(hasAudio) {
     'video/webm;codecs=vp8',
     'video/webm'
   ];
+
   const list = hasAudio ? withAudio : withoutAudio;
   for (const m of list) {
     try {
       if (MediaRecorder.isTypeSupported(m)) {
         const isMp4 = m.indexOf('mp4') !== -1;
+        console.log('✅ MIME مختار:', m);
         return { mime: m, ext: isMp4 ? 'mp4' : 'webm' };
       }
     } catch (e) {}
@@ -364,64 +611,106 @@ let gainMain = null, gainOther = null, gainMic = null, gainMusic = null;
 function ensureAudio() {
   if (audioCtx) return audioCtx;
   const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return null;
+  if (!AC) { console.warn('⚠️ AudioContext غير مدعوم'); return null; }
+
   try {
     audioCtx = new AC();
     audioDest = audioCtx.createMediaStreamDestination();
+
     gainMain  = audioCtx.createGain();
     gainOther = audioCtx.createGain();
     gainMic   = audioCtx.createGain();
     gainMusic = audioCtx.createGain();
+
     gainMain.gain.value  = 1;
     gainOther.gain.value = 0;
     gainMic.gain.value   = 1;
-    gainMusic.gain.value = 0;
-    musicBoost = 1.8;
+    gainMusic.gain.value = 0;      // يبدأ صامتاً
+    musicBoost = 1.8;              // ✅ التضخيم الافتراضي 180%
+
     gainMain.connect(audioDest);
     gainOther.connect(audioDest);
     gainMic.connect(audioDest);
     gainMusic.connect(audioDest);
+
     gainMain.connect(audioCtx.destination);
     gainOther.connect(audioCtx.destination);
     gainMusic.connect(audioCtx.destination);
+
+    console.log('✅ AudioContext جاهز');
     return audioCtx;
-  } catch (e) { audioCtx = null; return null; }
+  } catch (e) {
+    console.error('❌ فشل إنشاء AudioContext:', e);
+    audioCtx = null;
+    return null;
+  }
 }
+
 function resumeAudio() {
   const c = ensureAudio();
-  if (c && c.state === 'suspended') c.resume().catch(() => {});
+  if (c && c.state === 'suspended') {
+    c.resume().then(() => console.log('🔊 AudioContext resumed'))
+               .catch(err => console.warn('resume failed:', err));
+  }
   return c;
 }
+
 function connectMainEl() {
-  if (!ensureAudio() || srcMainEl) return;
-  try { srcMainEl = audioCtx.createMediaElementSource(video); srcMainEl.connect(gainMain); } catch (e) {}
+  if (!ensureAudio()) return;
+  if (srcMainEl) return;
+  try {
+    srcMainEl = audioCtx.createMediaElementSource(video);
+    srcMainEl.connect(gainMain);
+    console.log('🔗 ربط صوت الفيديو الرئيسي');
+  } catch (e) { console.warn('فشل ربط صوت الفيديو الرئيسي:', e); }
 }
+
 function connectOtherEl() {
-  if (!ensureAudio() || srcOtherEl) return;
-  try { srcOtherEl = audioCtx.createMediaElementSource(otherVideo); srcOtherEl.connect(gainOther); } catch (e) {}
+  if (!ensureAudio()) return;
+  if (srcOtherEl) return;
+  try {
+    srcOtherEl = audioCtx.createMediaElementSource(otherVideo);
+    srcOtherEl.connect(gainOther);
+    console.log('🔗 ربط صوت الفيديو الآخر');
+  } catch (e) { console.warn('فشل ربط صوت الفيديو الآخر:', e); }
 }
+
 function connectMusicEl() {
-  if (!ensureAudio() || srcMusicEl) return;
-  try { srcMusicEl = audioCtx.createMediaElementSource(musicEl); srcMusicEl.connect(gainMusic); } catch (e) {}
+  if (!ensureAudio()) return;
+  if (srcMusicEl) return;
+  try {
+    srcMusicEl = audioCtx.createMediaElementSource(musicEl);
+    srcMusicEl.connect(gainMusic);
+    console.log('🎵 ربط صوت الموسيقى');
+  } catch (e) { console.warn('فشل ربط صوت الموسيقى:', e); }
 }
+
 function connectMic() {
-  if (!ensureAudio() || !cameraStream) return false;
+  if (!ensureAudio()) return false;
+  if (!cameraStream) return false;
   const at = cameraStream.getAudioTracks();
-  if (!at.length) return false;
+  if (!at.length) { console.warn('⚠️ لا يوجد مسار صوتي في الكاميرا'); return false; }
+
   try {
     if (micNode) { try { micNode.disconnect(); } catch (e) {} micNode = null; }
     micNode = audioCtx.createMediaStreamSource(cameraStream);
     micNode.connect(gainMic);
+    console.log('🎤 ربط الميكروفون');
     return true;
-  } catch (e) { return false; }
+  } catch (e) { console.warn('فشل ربط الميكروفون:', e); return false; }
 }
+
+// توزيع الصوت حسب وضع البث + حالة الموسيقى
 function applyMix() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
+
   const mainOn  = (broadcast === 'main')  ? 1 : 0;
   const otherOn = (broadcast === 'other') ? 1 : 0;
+
   const micOn = mainOn && !musicOn ? 1 : 0;
-  const musicVol = (mainOn && musicOn) ? musicBoost : 0;
+  const musicVol = (mainOn && musicOn) ? musicBoost : 0;   // ✅ يستخدم التضخيم
+
   if (gainMain)  gainMain.gain.setTargetAtTime(mainOn, t, 0.05);
   if (gainMic)   gainMic.gain.setTargetAtTime(micOn, t, 0.05);
   if (gainOther) gainOther.gain.setTargetAtTime(otherOn, t, 0.05);
@@ -429,7 +718,7 @@ function applyMix() {
 }
 
 // ============================================================
-//  مصدر الفيديو
+//  اختيار مصدر الفيديو
 // ============================================================
 sourceButtons.addEventListener('click', e => {
   const btn = e.target.closest('button');
@@ -437,11 +726,13 @@ sourceButtons.addEventListener('click', e => {
   sourceButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   activeSource = btn.dataset.src;
+
   fileBox.style.display   = (activeSource === 'file')   ? 'block' : 'none';
   cameraBox.style.display = (activeSource === 'camera') ? 'block' : 'none';
+
   resizeCanvasForSource();
   refreshStartBtn();
-  redraw(0);
+  redraw();
 });
 
 function resizeCanvasForSource() {
@@ -450,13 +741,6 @@ function resizeCanvasForSource() {
     w = video.videoWidth; h = video.videoHeight;
   } else if (activeSource === 'camera' && cameraReady && camVideo.videoWidth) {
     w = camVideo.videoWidth; h = camVideo.videoHeight;
-  }
-  // ✅ حدّ أعلى للدقة على الهاتف = 720 بكسل (تقليل الحمل كثيراً)
-  const maxDim = IS_MOBILE ? 720 : 1280;
-  if (Math.max(w, h) > maxDim) {
-    const scale = maxDim / Math.max(w, h);
-    w = Math.round(w * scale);
-    h = Math.round(h * scale);
   }
   w -= w % 2; h -= h % 2;
   if (w > 0 && h > 0) { canvas.width = w; canvas.height = h; }
@@ -467,129 +751,113 @@ function refreshStartBtn() {
   btnStart.disabled = !ready || isRecording;
 }
 
+// ============================================================
+//  رفع الفيديو الرئيسي
+// ============================================================
 videoFileInp.addEventListener('change', e => {
   videoFile = e.target.files[0];
   if (!videoFile) return;
   try {
-    if (video.src) URL.revokeObjectURL(video.src);
     video.src = URL.createObjectURL(videoFile);
     video.load();
-  } catch (err) { setStatus('err', '⚠️ خطأ في تحميل الفيديو'); return; }
+  } catch (err) {
+    setStatus('err', '⚠️ خطأ في تحميل الفيديو');
+    return;
+  }
   video.onloadedmetadata = () => {
     videoLoaded = true;
     video.currentTime = 0;
     if (activeSource === 'file') resizeCanvasForSource();
     refreshStartBtn();
-    redraw(0);
+    redraw();
     setStatus('ok', '✅ الفيديو جاهز! اضغط الزر الأخضر');
   };
   video.onerror = () => setStatus('err', '⚠️ خطأ في صيغة الفيديو');
 });
 
 // ============================================================
-//  الكاميرا المباشرة
-// ✅ محاولات متدرجة — تبدأ بدقة مناسبة للهاتف
+//  الكاميرا المباشرة (مع تبديل أمامية/خلفية)
 // ============================================================
 async function startCameraStream(facing) {
   if (cameraStream) {
     try { cameraStream.getTracks().forEach(t => t.stop()); } catch (e) {}
     cameraStream = null;
-    // انتظار قصير لتحرير المورد
-    await new Promise(r => setTimeout(r, 250));
   }
 
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error('المتصفح لا يدعم الكاميرا. افتح الصفحة عبر HTTPS.');
-  }
-
-  // ✅ على الهاتف نطلب 640×480 مباشرة لتقليل الحمل
-  const W = IS_MOBILE ? 640 : 1280;
-  const H = IS_MOBILE ? 480 : 720;
-
-  const attempts = [
-    { video: { facingMode: { ideal: facing }, width: { ideal: W }, height: { ideal: H } },
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
-    { video: { facingMode: { ideal: facing } },
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
-    { video: { facingMode: facing }, audio: true },
-    { video: true, audio: true },
-    { video: true, audio: false }
-  ];
-
-  let lastErr = null;
-  for (let i = 0; i < attempts.length; i++) {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia(attempts[i]);
-      console.log('✅ الكاميرا — محاولة', i + 1);
-      break;
-    } catch (err) {
-      lastErr = err;
-      console.warn('فشلت المحاولة', i + 1, err.name);
-      if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
-        throw new Error('تم رفض الوصول للكاميرا. امنح الإذن من إعدادات المتصفح.');
-      }
-      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        throw new Error('لا توجد كاميرا متصلة بالجهاز.');
-      }
-      if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-        await new Promise(r => setTimeout(r, 500));
-      }
+  const constraints = {
+    video: {
+      facingMode: { ideal: facing },
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
     }
-  }
-  if (!cameraStream) {
-    throw new Error('فشل تشغيل الكاميرا: ' + (lastErr ? lastErr.message : 'خطأ غير معروف'));
-  }
+  };
 
+  cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
   camVideo.srcObject = cameraStream;
   camVideo.muted = true;
-  try { await camVideo.play(); } catch (e) {}
+  await camVideo.play();
   if (!camVideo.videoWidth) {
-    await new Promise(res => {
-      const t = setTimeout(res, 2000);
-      camVideo.onloadedmetadata = () => { clearTimeout(t); res(); };
-    });
+    await new Promise(res => { camVideo.onloadedmetadata = res; });
   }
   currentFacing = facing;
+  console.log('🎥 الكاميرا تعمل الآن:', facing === 'user' ? 'أمامية' : 'خلفية');
 }
 
 btnCamOn.addEventListener('click', async function () {
   try {
     setStatus('busy', '⏳ جاري تشغيل الكاميرا...');
     await startCameraStream('user');
+
     cameraReady = true;
     resizeCanvasForSource();
+
     resumeAudio();
     connectMic();
     applyMix();
+
     btnCamOn.style.display = 'none';
     camControls.style.display = 'grid';
     refreshStartBtn();
-    redraw(0);
+    redraw();
+
     const hasMic = cameraStream.getAudioTracks().length > 0;
-    setStatus('ok', '✅ الكاميرا جاهزة' + (hasMic ? ' مع الميكروفون 🎤' : ' (بدون ميكروفون)'));
+    setStatus('ok', '✅ الكاميرا جاهزة' + (hasMic ? ' مع الميكروفون 🎤' : ' (بدون ميكروفون)') +
+      ' — اضغط الزر الأخضر للبدء');
   } catch (e) {
-    console.error(e);
-    setStatus('err', '⚠️ ' + (e.message || e));
+    console.error('Camera error:', e);
+    setStatus('err', '⚠️ تعذر تشغيل الكاميرا: ' + (e.message || e) +
+      '<br><span style="font-size:0.8rem;">تأكد من السماح بالوصول للكاميرا والميكروفون</span>');
   }
 });
 
+// ✅ تبديل الكاميرا الأمامية ↔ الخلفية
 btnSwitchCam.addEventListener('click', async function () {
   if (!cameraReady) return;
   const newFacing = (currentFacing === 'user') ? 'environment' : 'user';
   btnSwitchCam.disabled = true;
-  const old = btnSwitchCam.textContent;
+  const oldText = btnSwitchCam.textContent;
   btnSwitchCam.textContent = '⏳ جاري التبديل...';
+
   try {
     await startCameraStream(newFacing);
     if (audioCtx) { connectMic(); applyMix(); }
     resizeCanvasForSource();
-    redraw(0);
-    setStatus('ok', '✅ تم التبديل إلى ' + (newFacing === 'user' ? 'الأمامية' : 'الخلفية'));
+    redraw();
+    setStatus('ok',
+      '✅ تم التبديل إلى الكاميرا ' +
+      (newFacing === 'user' ? 'الأمامية' : 'الخلفية'));
   } catch (e) {
-    setStatus('err', '⚠️ ' + (e.message || e));
+    console.error('Switch camera error:', e);
+    setStatus('err', '⚠️ تعذر تبديل الكاميرا: ' + (e.message || e) +
+      '<br><span style="font-size:0.8rem;">قد لا تحتوي هذه الكاميرا على كاميرا ثانية</span>');
   } finally {
     btnSwitchCam.disabled = false;
-    btnSwitchCam.textContent = old;
+    btnSwitchCam.textContent = oldText;
   }
 });
 
@@ -600,14 +868,16 @@ btnCamOff.addEventListener('click', function () {
 });
 
 function stopCamera() {
-  try { if (cameraStream) cameraStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+  try {
+    if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+  } catch (e) {}
   cameraStream = null;
   cameraReady = false;
   camVideo.srcObject = null;
   btnCamOn.style.display = 'flex';
   camControls.style.display = 'none';
   refreshStartBtn();
-  redraw(0);
+  redraw();
 }
 
 // ============================================================
@@ -617,13 +887,16 @@ otherFileInp.addEventListener('change', e => {
   const f = e.target.files[0];
   if (!f) return;
   otherLoaded = false;
-  try { if (otherVideo.src) URL.revokeObjectURL(otherVideo.src); } catch (er) {}
   otherVideo.src = URL.createObjectURL(f);
   otherVideo.load();
+
   otherVideo.onloadedmetadata = () => {
     otherLoaded = true;
     otherInfo.style.display = 'block';
-    otherInfo.innerHTML = '✅ تم تحميل الفيديو الآخر — المدة: <b style="color:#00FF00;">' + fmtTime(otherVideo.duration) + '</b>';
+    otherInfo.innerHTML =
+      '✅ تم تحميل الفيديو الآخر — المدة: <b style="color:#00FF00;">' +
+      fmtTime(otherVideo.duration) + '</b><br>' +
+      'أثناء التسجيل سيظهر زر «🎬 بث الفيديو الآخر».';
     if (audioCtx) { connectOtherEl(); applyMix(); }
   };
   otherVideo.onerror = () => {
@@ -632,25 +905,31 @@ otherFileInp.addEventListener('change', e => {
     otherInfo.innerHTML = '⚠️ تعذر تحميل الفيديو الآخر';
   };
 });
+
 otherVideo.addEventListener('ended', () => {
   if (isRecording && broadcast === 'other') switchBackToMain();
 });
 
 // ============================================================
-//  الموسيقى
+//  الموسيقى الخلفية
 // ============================================================
 musicFileInp.addEventListener('change', e => {
   const f = e.target.files[0];
   if (!f) return;
   musicLoaded = false;
-  try { if (musicEl.src) URL.revokeObjectURL(musicEl.src); } catch (er) {}
   musicEl.src = URL.createObjectURL(f);
   musicEl.load();
+
+  // إظهار منزلق التحكم
   musicVolBox.style.display = 'block';
+
   musicEl.onloadedmetadata = () => {
     musicLoaded = true;
     musicInfo.style.display = 'block';
-    musicInfo.innerHTML = '✅ تم تحميل الموسيقى — المدة: <b style="color:#d8b4ff;">' + fmtTime(musicEl.duration) + '</b>';
+    musicInfo.innerHTML =
+      '✅ تم تحميل الموسيقى — المدة: <b style="color:#d8b4ff;">' +
+      fmtTime(musicEl.duration) + '</b><br>' +
+      'أثناء التسجيل سيظهر زر «🎵 تشغيل الموسيقى».';
     if (audioCtx) { connectMusicEl(); applyMix(); }
   };
   musicEl.onerror = () => {
@@ -660,6 +939,7 @@ musicFileInp.addEventListener('change', e => {
   };
 });
 
+// ✅ منزلق التحكم في مستوى صوت الموسيقى
 musicVolSlider.addEventListener('input', () => {
   musicBoost = parseInt(musicVolSlider.value, 10) / 100;
   musicVolVal.textContent = musicVolSlider.value + '%';
@@ -668,14 +948,20 @@ musicVolSlider.addEventListener('input', () => {
   }
 });
 
+// زر تشغيل/إيقاف الموسيقى أثناء التسجيل
 btnMusic.addEventListener('click', function () {
   if (!isRecording || !musicLoaded) return;
+
   if (!musicOn) {
     musicOn = true;
-    try { musicEl.currentTime = 0; const p = musicEl.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+    try {
+      musicEl.currentTime = 0;
+      const p = musicEl.play();
+      if (p && p.catch) p.catch(err => console.warn('music play failed:', err));
+    } catch (e) { console.warn(e); }
     applyMix();
     updateMusicUI();
-    setStatus('busy', '<span class="live-dot"></span> 🎵 البث الآن للموسيقى');
+    setStatus('busy', '<span class="live-dot"></span> 🎵 البث الآن للموسيقى — اضغط الزر للعودة للكلام');
   } else {
     musicOn = false;
     try { musicEl.pause(); } catch (e) {}
@@ -713,40 +999,22 @@ logoFileInp.addEventListener('change', e => {
     logoPreview.src = img.src;
     logoPreview.classList.add('visible');
     const info = logoPreview.parentElement.querySelector('.info');
-    if (info) info.innerHTML = '<b style="color:#00FF00;">تم اختيار الشعار ✅</b>';
-    redraw(0);
+    if (info) info.innerHTML = '<b style="color:#00FF00;">تم اختيار الشعار ✅</b><br><span style="font-size:0.8rem;">اختر صورة أخرى للتبديل 👇</span>';
+    redraw();
   };
   img.src = URL.createObjectURL(file);
 });
 
 // ============================================================
-//  نمط الخبر
+//  حجم الخبر / موضعه
 // ============================================================
-newsModeButtons.addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  newsModeButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  newsMode = btn.dataset.mode;
-  tickerSpeedBox.style.display = (newsMode === 'ticker') ? 'block' : 'none';
-  tickerInited = false;
-  redraw(0);
-});
-tickerSpeedButtons.addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  tickerSpeedButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  tickerSpeedFactor = parseFloat(btn.dataset.speed);
-});
-
 sizeButtons.addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
   sizeButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   newsSize = parseInt(btn.dataset.size);
-  redraw(0);
+  redraw();
 });
 
 const POS_MAP = {
@@ -762,9 +1030,10 @@ posButtons.addEventListener('click', e => {
   if (!btn) return;
   posButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const p = POS_MAP[btn.dataset.pos];
+  newsPos = btn.dataset.pos;
+  const p = POS_MAP[newsPos];
   newsX = p.x; newsY = p.y;
-  redraw(0);
+  redraw();
 });
 
 // ============================================================
@@ -819,110 +1088,7 @@ function drawPip(el, W, H) {
   ctx.restore();
 }
 
-// ✅ خبر ثابت — بدون shadowBlur (استبدل بـ stroke أسود)
-function drawStaticNews(W, H) {
-  const news = newsText.value.trim();
-  if (!news) { canvas._newsBounds = null; return; }
-  const sizes = { 2: 0.035, 3: 0.05, 4: 0.07, 5: 0.095 };
-  const fs = W * (sizes[newsSize] || 0.05);
-  ctx.font = `900 ${fs}px Cairo, Tahoma, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  const maxWidth = W * 0.9;
-  const words = news.split(' ');
-  const lines = [];
-  let line = '';
-  for (const w of words) {
-    const test = line ? line + ' ' + w : w;
-    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
-    else line = test;
-  }
-  if (line) lines.push(line);
-
-  const lineH = fs * 1.3;
-  const totalH = lines.length * lineH;
-  const boxX = newsX * W;
-  const boxY = newsY * H;
-  const startY = boxY - totalH / 2 + lineH / 2;
-
-  let maxLineW = 0;
-  for (const l of lines) maxLineW = Math.max(maxLineW, ctx.measureText(l).width);
-
-  const padX = 20, padY = 12;
-  const bx = boxX - maxLineW / 2 - padX;
-  const by = boxY - totalH / 2 - padY;
-  const bw = maxLineW + padX * 2;
-  const bh = totalH + padY * 2;
-
-  ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.beginPath();
-  ctx.roundRect(bx, by, bw, bh, 12);
-  ctx.fill();
-  ctx.strokeStyle = '#00FF00';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // ✅ نص بحدود سوداء بدل الظل (أسرع بكثير)
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = Math.max(3, fs * 0.12);
-  ctx.strokeStyle = '#000';
-  ctx.fillStyle = '#00FF00';
-  lines.forEach((l, i) => {
-    const y = startY + i * lineH;
-    ctx.strokeText(l, boxX, y);
-    ctx.fillText(l, boxX, y);
-  });
-
-  canvas._newsBounds = { x: bx, y: by, w: bw, h: bh };
-}
-
-// ✅ شريط الأخبار المتحرك — بدون shadowBlur
-function drawTickerNews(W, H, dt) {
-  const news = newsText.value.trim();
-  if (!news) { tickerInited = false; return; }
-  const sizes = { 2: 0.045, 3: 0.055, 4: 0.075, 5: 0.095 };
-  const fs = W * (sizes[newsSize] || 0.055);
-  ctx.font = `900 ${fs}px Cairo, Tahoma, sans-serif`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-
-  const textW = ctx.measureText(news).width;
-  if (!tickerInited) { tickerX = W + 30; tickerInited = true; }
-
-  const y = newsY * H;
-  const bgH = fs * 1.8;
-  const top = y - bgH / 2;
-
-  ctx.fillStyle = 'rgba(0,0,0,0.75)';
-  ctx.fillRect(0, top, W, bgH);
-  ctx.strokeStyle = '#00FF00';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(0, top); ctx.lineTo(W, top);
-  ctx.moveTo(0, top + bgH); ctx.lineTo(W, top + bgH);
-  ctx.stroke();
-
-  tickerX -= (W * 0.25 * tickerSpeedFactor) * (dt || 0.033);
-  if (tickerX < -textW - 30) tickerX = W + 30;
-
-  // ✅ نص بحدود بدل ظل
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = Math.max(3, fs * 0.12);
-  ctx.strokeStyle = '#000';
-  ctx.fillStyle = '#00FF00';
-  ctx.strokeText(news, tickerX, y);
-  ctx.fillText(news, tickerX, y);
-
-  canvas._newsBounds = null;
-}
-
-function drawTickerOrNews(W, H, dt) {
-  if (newsMode === 'ticker') drawTickerNews(W, H, dt || 0);
-  else drawStaticNews(W, H);
-}
-
-function redraw(dt) {
+function redraw() {
   const W = canvas.width, H = canvas.height;
   if (!W || !H) return;
 
@@ -930,6 +1096,7 @@ function redraw(dt) {
   ctx.fillRect(0, 0, W, H);
 
   let drew = false;
+
   if (broadcast === 'other' && otherLoaded && otherVideo.readyState >= 2) {
     drew = drawCover(otherVideo, W, H);
     if (activeSource === 'camera' && camVideo.readyState >= 2) drawPip(camVideo, W, H);
@@ -952,7 +1119,6 @@ function redraw(dt) {
     );
   }
 
-  // الشعار — بدون shadowBlur
   if (logoImg && logoImg.width) {
     const lw = W * 0.18;
     const lh = (logoImg.height / logoImg.width) * lw;
@@ -960,13 +1126,9 @@ function redraw(dt) {
     let ly = logoY * H - lh / 2;
     lx = Math.max(0, Math.min(W - lw, lx));
     ly = Math.max(0, Math.min(H - lh, ly));
-    // إطار أخضر رقيق بدل الظل
     ctx.save();
-    ctx.strokeStyle = '#00FF00';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(lx - 2, ly - 2, lw + 4, lh + 4, 8);
-    ctx.stroke();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00FF0080';
     ctx.drawImage(logoImg, lx, ly, lw, lh);
     ctx.restore();
     canvas._logoBounds = { x: lx, y: ly, w: lw, h: lh };
@@ -974,13 +1136,63 @@ function redraw(dt) {
     canvas._logoBounds = null;
   }
 
-  drawTickerOrNews(W, H, dt);
+  const news = newsText.value.trim();
+  if (news) {
+    const sizes = { 2: 0.035, 3: 0.05, 4: 0.07, 5: 0.095 };
+    const fs = W * (sizes[newsSize] || 0.05);
+    ctx.font = `900 ${fs}px Cairo, Tahoma, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const maxWidth = W * 0.9;
+    const words = news.split(' ');
+    const lines = [];
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = w;
+      } else line = test;
+    }
+    if (line) lines.push(line);
+
+    const lineH = fs * 1.3;
+    const totalH = lines.length * lineH;
+    const boxX = newsX * W;
+    const boxY = newsY * H;
+    const startY = boxY - totalH / 2 + lineH / 2;
+
+    let maxLineW = 0;
+    for (const l of lines) maxLineW = Math.max(maxLineW, ctx.measureText(l).width);
+
+    const padX = 20, padY = 12;
+    const bx = boxX - maxLineW / 2 - padX;
+    const by = boxY - totalH / 2 - padY;
+    const bw = maxLineW + padX * 2;
+    const bh = totalH + padY * 2;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#00FF00';
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#00FF00';
+    lines.forEach((l, i) => ctx.fillText(l, boxX, startY + i * lineH));
+    ctx.shadowBlur = 0;
+
+    canvas._newsBounds = { x: bx, y: by, w: bw, h: bh };
+  } else {
+    canvas._newsBounds = null;
+  }
 }
 
-newsText.addEventListener('input', () => {
-  tickerInited = false;
-  redraw(0);
-});
+newsText.addEventListener('input', redraw);
 
 // ============================================================
 //  السحب
@@ -999,7 +1211,7 @@ function inside(pt, b) {
 function down(e) {
   if (isRecording) return;
   const pt = getPt(e);
-  if (newsMode === 'static' && inside(pt, canvas._newsBounds)) {
+  if (inside(pt, canvas._newsBounds)) {
     isDragging = 'news';
     dragOff.x = pt.x - canvas._newsBounds.x;
     dragOff.y = pt.y - canvas._newsBounds.y;
@@ -1025,7 +1237,7 @@ function move(e) {
     logoY = Math.max(0.1, Math.min(0.9, (pt.y - dragOff.y + b.h / 2) / H));
   }
   if (e.cancelable) e.preventDefault();
-  redraw(0);
+  redraw();
 }
 function up() { isDragging = null; }
 
@@ -1037,23 +1249,6 @@ canvas.addEventListener('touchstart', down, { passive: false });
 canvas.addEventListener('touchmove', move, { passive: false });
 canvas.addEventListener('touchend', up);
 canvas.addEventListener('touchcancel', up);
-
-// ============================================================
-//  ✅ حلقة الرسم — محدودة بـ 30 إطاراً/ثانية
-//  هذا هو الإصلاح الأهم للأداء
-// ============================================================
-function renderLoop(ts) {
-  animFrame = requestAnimationFrame(renderLoop);
-
-  // تقييد الرسم إلى 30fps — يتطابق مع التسجيل
-  if (ts - lastRenderTime < TARGET_FRAME_MS - 1) return;
-  const dt = lastFrameTime ? Math.min(0.1, (ts - lastFrameTime) / 1000) : 0.033;
-  lastFrameTime = ts;
-  lastRenderTime = ts;
-
-  const needsAnim = (newsMode === 'ticker' && newsText.value.trim()) || isRecording;
-  if (needsAnim) redraw(dt);
-}
 
 // ============================================================
 //  المؤقّت
@@ -1075,23 +1270,29 @@ function stopTimer() {
 }
 
 // ============================================================
-//  زر التبديل
+//  زر التبديل بين الفيديو الرئيسي والفيديو الآخر
 // ============================================================
 btnSwitch.addEventListener('click', function () {
   if (!isRecording || !otherLoaded) return;
+
   if (broadcast === 'main') {
     broadcast = 'other';
     try { if (activeSource === 'file') video.pause(); } catch (e) {}
     try { otherVideo.currentTime = 0; } catch (e) {}
     const p = otherVideo.play();
-    if (p && p.catch) p.catch(() => {});
+    if (p && p.catch) p.catch(err => console.warn('other play failed:', err));
     applyMix();
     updateSwitchUI();
-    setStatus('busy', '🎬 البث الآن للفيديو الآخر — اضغط الزر للعودة');
+    if (musicOn) {
+      setStatus('busy', '🎬 البث الآن للفيديو الآخر (الموسيقى ستُستأنف عند الرجوع)');
+    } else {
+      setStatus('busy', '🎬 البث الآن للفيديو الآخر — اضغط الزر للعودة إليك');
+    }
   } else {
     switchBackToMain();
   }
 });
+
 function switchBackToMain() {
   broadcast = 'main';
   try { otherVideo.pause(); } catch (e) {}
@@ -1101,8 +1302,15 @@ function switchBackToMain() {
   }
   applyMix();
   updateSwitchUI();
-  if (isRecording) setStatus('busy', '🔴 جاري التسجيل — أنت على البث الآن 🎤');
+  if (isRecording) {
+    if (musicOn) {
+      setStatus('busy', '<span class="live-dot"></span> 🎵 البث الرئيسي مع الموسيقى');
+    } else {
+      setStatus('busy', '🔴 جاري التسجيل — أنت على البث الآن 🎤');
+    }
+  }
 }
+
 function updateSwitchUI() {
   if (broadcast === 'other') {
     btnSwitch.textContent = '🎤 العودة للبث المباشر';
@@ -1141,8 +1349,6 @@ btnStart.addEventListener('click', function () {
     updateSwitchUI();
     updateMusicUI();
 
-    tickerInited = false;
-
     canvasStream = canvas.captureStream(30);
     if (!canvasStream || canvasStream.getVideoTracks().length === 0) {
       throw new Error('تعذر التقاط صورة الفيديو');
@@ -1156,8 +1362,10 @@ btnStart.addEventListener('click', function () {
       if (aTracks && aTracks.length > 0) {
         aTracks.forEach(t => tracks.push(t));
         audioAdded = true;
+        console.log('🎵 مسار صوتي مختلط — القنوات:', aTracks.length);
       }
     }
+
     if (!audioAdded && activeSource === 'file') {
       try {
         const fn = video.captureStream || video.mozCaptureStream;
@@ -1169,7 +1377,7 @@ btnStart.addEventListener('click', function () {
             audioAdded = true;
           }
         }
-      } catch (e) {}
+      } catch (e) { console.warn(e); }
     }
 
     const fmt = pickBestMime(audioAdded);
@@ -1177,14 +1385,9 @@ btnStart.addEventListener('click', function () {
     outputExt = fmt.ext;
 
     const combined = new MediaStream(tracks);
-
-    // ✅ معدل بت منخفض على الهاتف لتقليل الحمل
-    const bitrates = IS_MOBILE
-      ? { 480: 800000, 720: 2000000, 1080: 3500000 }
-      : { 480: 1500000, 720: 3000000, 1080: 6000000 };
-    const options = { videoBitsPerSecond: bitrates[exportQuality] || 2000000 };
+    const options = { videoBitsPerSecond: 5000000 };
     if (pickMime) options.mimeType = pickMime;
-    if (audioAdded) options.audioBitsPerSecond = 96000;
+    if (audioAdded) options.audioBitsPerSecond = 128000;
 
     mediaRecorder = new MediaRecorder(combined, options);
     recordedChunks = [];
@@ -1214,7 +1417,9 @@ btnStart.addEventListener('click', function () {
       btnSwitch.style.display = 'flex';
       showRow = true;
       updateSwitchUI();
-    } else btnSwitch.style.display = 'none';
+    } else {
+      btnSwitch.style.display = 'none';
+    }
     if (musicLoaded) {
       btnMusic.style.display = 'flex';
       musicInd.style.display = 'flex';
@@ -1230,18 +1435,21 @@ btnStart.addEventListener('click', function () {
       'busy',
       '<span class="live-dot"></span> جاري التسجيل' +
       (audioAdded ? ' مع الصوت ✅' : ' (بدون صوت)') +
+      (showRow ? '<br><span style="font-size:0.85rem;">يمكنك التبديل بين الفيديو/الموسيقى في أي لحظة</span>' : '') +
       '<br>اضغط الزر الأحمر عند الانتهاء'
     );
 
     if (activeSource === 'file') {
       const p = video.play();
       if (p && typeof p.then === 'function') {
-        p.catch(err => {
+        p.then(() => loop()).catch(err => {
           console.error('Play failed:', err);
-          setStatus('err', '⚠️ تعذر تشغيل الفيديو');
+          setStatus('err', '⚠️ تعذر تشغيل الفيديو — اضغط الزر الأخضر مجدداً');
           cancelRecording();
         });
-      }
+      } else loop();
+    } else {
+      loop();
     }
 
   } catch (e) {
@@ -1256,6 +1464,11 @@ btnStart.addEventListener('click', function () {
   }
 });
 
+function loop() {
+  redraw();
+  if (isRecording) animFrame = requestAnimationFrame(loop);
+}
+
 // ============================================================
 //  إيقاف التسجيل
 // ============================================================
@@ -1264,16 +1477,25 @@ btnStop.addEventListener('click', () => stopRecording());
 function stopRecording() {
   if (!isRecording) return;
   isRecording = false;
+
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
   stopTimer();
+
   try {
     if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-  } catch (e) { finishRecording(); }
+  } catch (e) {
+    console.warn('stop failed:', e);
+    finishRecording();
+  }
+
   try { video.pause(); } catch (e) {}
   try { otherVideo.pause(); } catch (e) {}
   try { musicEl.pause(); } catch (e) {}
+
   broadcast = 'main';
   musicOn = false;
   applyMix();
+
   btnStop.style.display = 'none';
   btnStop.disabled = true;
   switchRow.style.display = 'none';
@@ -1285,6 +1507,7 @@ function stopRecording() {
 
 function cancelRecording() {
   isRecording = false;
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
   stopTimer();
   try {
     if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
@@ -1301,27 +1524,29 @@ video.addEventListener('ended', () => {
 });
 
 // ============================================================
-//  تجهيز الملف
+//  تجهيز الملف النهائي
 // ============================================================
 function finishRecording() {
   if (!recordedChunks || recordedChunks.length === 0) {
-    setStatus('err', '⚠️ لم يتم تسجيل أي بيانات');
+    setStatus('err', '⚠️ لم يتم تسجيل أي بيانات — حاول مرة أخرى');
     return;
   }
+
   const mime = (mediaRecorder && mediaRecorder.mimeType) || pickMime || 'video/webm';
+  outputBlob = new Blob(recordedChunks, { type: mime });
+
   const isMp4 = mime.indexOf('mp4') !== -1;
   outputExt = isMp4 ? 'mp4' : 'webm';
-  outputBlob = new Blob(recordedChunks, { type: mime });
+
+  console.log('📦 حجم الملف:', outputBlob.size, 'bytes | النوع:', mime);
+
   if (outputBlob.size < 1000) {
     setStatus('err', '⚠️ التسجيل قصير جداً');
     return;
   }
-  const sizeMB = (outputBlob.size / (1024 * 1024)).toFixed(2);
-  setStatus('ok',
-    '✅ الفيديو جاهز<br>' +
-    'الحجم: <b>' + sizeMB + ' ميجابايت</b> — الصيغة: <b>' + outputExt.toUpperCase() + '</b>' +
-    (isMp4 ? '' : '<br><span style="color:#ffc107;font-size:0.85rem;">ملاحظة: متصفحك لا يدعم MP4 — الناتج WebM.</span>')
-  );
+
+  setStatus('ok', '✅ الفيديو جاهز بصيغة ' + outputExt.toUpperCase() +
+    ' — اضغط زر التحميل ⬇️');
   btnDownload.style.display = 'flex';
 }
 
@@ -1338,6 +1563,7 @@ btnDownload.addEventListener('click', function () {
       if (!namePart) namePart = 'فيديو';
     }
     const filename = 'فيديو_' + namePart + '.' + outputExt;
+
     const url = URL.createObjectURL(outputBlob);
     const a = document.createElement('a');
     a.href = url;
@@ -1347,8 +1573,10 @@ btnDownload.addEventListener('click', function () {
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 15000);
+
     setStatus('ok', '✅ تم التحميل: ' + filename);
   } catch (e) {
+    console.error('Download error:', e);
     setStatus('err', '⚠️ تعذر التحميل: ' + e.message);
   }
 });
@@ -1358,15 +1586,7 @@ btnDownload.addEventListener('click', function () {
 // ============================================================
 canvas.width = 640;
 canvas.height = 360;
-redraw(0);
-animFrame = requestAnimationFrame(renderLoop);
-
-window.addEventListener('beforeunload', () => {
-  try { if (cameraStream) cameraStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-  try { if (canvasStream) canvasStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-  try { if (animFrame) cancelAnimationFrame(animFrame); } catch (e) {}
-  try { if (audioCtx) audioCtx.close(); } catch (e) {}
-});
+redraw();
 </script>
 </body>
 </html>
