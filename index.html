@@ -224,7 +224,6 @@
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-  /* مؤشر حالة الموسيقى */
   .music-indicator {
     display: flex;
     align-items: center;
@@ -259,6 +258,39 @@
   }
   @media (max-width: 500px) {
     .btn-row { grid-template-columns: 1fr; }
+  }
+
+  /* منزلق مستوى الموسيقى */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background: #2e4a6a;
+    outline: none;
+    padding: 0;
+    border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #9c27b0;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px #9c27b0;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #9c27b0;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px #9c27b0;
   }
 </style>
 </head>
@@ -363,6 +395,19 @@
       واضغط «🎤 العودة للكلام» للرجوع.
     </div>
     <div id="musicInfo" class="hint" style="display:none;"></div>
+
+    <!-- ✅ منزلق مستوى صوت الموسيقى -->
+    <div id="musicVolBox" style="display:none; margin-top:12px;">
+      <label style="display:flex; justify-content:space-between; align-items:center;">
+        <span>🔊 مستوى صوت الموسيقى</span>
+        <span id="musicVolVal" style="color:#d8b4ff; font-weight:900;">180%</span>
+      </label>
+      <input type="range" id="musicVol" min="0" max="400" value="180" step="10"
+             style="margin-top:10px;">
+      <div class="hint" style="margin-top:8px; background:#9c27b010; border-right-color:#9c27b0;">
+        💡 ارفع النسبة إذا كانت الموسيقى منخفضة، أو أنزلها إذا كانت تغطي على الكلام.
+      </div>
+    </div>
   </div>
 
   <!-- ============ 9 ============ -->
@@ -407,7 +452,7 @@
 //  استوديو فيديو مباشر
 //  - رفع فيديو أو تصوير مباشر بالكاميرا (مع تبديل أمامية/خلفية)
 //  - دمج/تبديل مع فيديو آخر بضغطة زر
-//  - موسيقى خلفية قابلة للتبديل مع الكلام أثناء التسجيل
+//  - موسيقى خلفية قابلة للتبديل مع الكلام + منزلق تضخيم الصوت
 // ============================================================
 
 // ===== الحالة =====
@@ -420,6 +465,7 @@ let musicLoaded = false;
 let activeSource = 'file';     // 'file' | 'camera'
 let broadcast    = 'main';     // 'main' | 'other'
 let musicOn      = false;      // هل الموسيقى تعمل الآن
+let musicBoost   = 1.8;        // معامل تضخيم صوت الموسيقى (1 = بدون تكبير)
 let currentFacing = 'user';    // 'user' = أمامية | 'environment' = خلفية
 
 let isRecording = false;
@@ -502,6 +548,9 @@ const musicInd = $('musicInd');
 const musicIndText = $('musicIndText');
 const statusEl = $('status');
 const timerEl = $('timer');
+const musicVolSlider = $('musicVol');
+const musicVolVal = $('musicVolVal');
+const musicVolBox = $('musicVolBox');
 
 function setStatus(type, msg) {
   statusEl.className = 'status ' + (type || '');
@@ -554,7 +603,6 @@ function pickBestMime(hasAudio) {
 
 // ============================================================
 //  نظام الصوت المختلط
-//  المصادر: ميكروفون / صوت الفيديو الرئيسي / صوت الفيديو الآخر / الموسيقى
 // ============================================================
 let audioCtx = null, audioDest = null;
 let srcMainEl = null, srcOtherEl = null, srcMusicEl = null, micNode = null;
@@ -577,15 +625,14 @@ function ensureAudio() {
     gainMain.gain.value  = 1;
     gainOther.gain.value = 0;
     gainMic.gain.value   = 1;
-    gainMusic.gain.value = 0;
+    gainMusic.gain.value = 0;      // يبدأ صامتاً
+    musicBoost = 1.8;              // ✅ التضخيم الافتراضي 180%
 
-    // كل المصادر → مسار التسجيل
     gainMain.connect(audioDest);
     gainOther.connect(audioDest);
     gainMic.connect(audioDest);
     gainMusic.connect(audioDest);
 
-    // السماعات: الفيديو + الفيديو الآخر + الموسيقى (لكن ليس الميكروفون لتجنّب الصدى)
     gainMain.connect(audioCtx.destination);
     gainOther.connect(audioCtx.destination);
     gainMusic.connect(audioCtx.destination);
@@ -661,10 +708,8 @@ function applyMix() {
   const mainOn  = (broadcast === 'main')  ? 1 : 0;
   const otherOn = (broadcast === 'other') ? 1 : 0;
 
-  // الميكروفون يعمل فقط عندما: البث الرئيسي + الموسيقى متوقفة
   const micOn = mainOn && !musicOn ? 1 : 0;
-  // الموسيقى تعمل فقط عندما: البث الرئيسي + الموسيقى مشغّلة
-  const musicVol = mainOn && musicOn ? 1 : 0;
+  const musicVol = (mainOn && musicOn) ? musicBoost : 0;   // ✅ يستخدم التضخيم
 
   if (gainMain)  gainMain.gain.setTargetAtTime(mainOn, t, 0.05);
   if (gainMic)   gainMic.gain.setTargetAtTime(micOn, t, 0.05);
@@ -673,7 +718,7 @@ function applyMix() {
 }
 
 // ============================================================
-//  اختيار مصدر الفيديو (ملف / كاميرا)
+//  اختيار مصدر الفيديو
 // ============================================================
 sourceButtons.addEventListener('click', e => {
   const btn = e.target.closest('button');
@@ -734,7 +779,6 @@ videoFileInp.addEventListener('change', e => {
 //  الكاميرا المباشرة (مع تبديل أمامية/خلفية)
 // ============================================================
 async function startCameraStream(facing) {
-  // أوقف أي بث قديم أولاً
   if (cameraStream) {
     try { cameraStream.getTracks().forEach(t => t.stop()); } catch (e) {}
     cameraStream = null;
@@ -791,7 +835,7 @@ btnCamOn.addEventListener('click', async function () {
   }
 });
 
-// ✅ تبديل الكاميرا الأمامية ↔ الخلفية (يعمل حتى أثناء التسجيل)
+// ✅ تبديل الكاميرا الأمامية ↔ الخلفية
 btnSwitchCam.addEventListener('click', async function () {
   if (!cameraReady) return;
   const newFacing = (currentFacing === 'user') ? 'environment' : 'user';
@@ -801,7 +845,6 @@ btnSwitchCam.addEventListener('click', async function () {
 
   try {
     await startCameraStream(newFacing);
-    // أعد ربط الميكروفون الجديد (قد يكون من مصدر مختلف)
     if (audioCtx) { connectMic(); applyMix(); }
     resizeCanvasForSource();
     redraw();
@@ -838,7 +881,7 @@ function stopCamera() {
 }
 
 // ============================================================
-//  الفيديو الآخر (المقطع الثاني)
+//  الفيديو الآخر
 // ============================================================
 otherFileInp.addEventListener('change', e => {
   const f = e.target.files[0];
@@ -877,6 +920,9 @@ musicFileInp.addEventListener('change', e => {
   musicEl.src = URL.createObjectURL(f);
   musicEl.load();
 
+  // إظهار منزلق التحكم
+  musicVolBox.style.display = 'block';
+
   musicEl.onloadedmetadata = () => {
     musicLoaded = true;
     musicInfo.style.display = 'block';
@@ -884,7 +930,6 @@ musicFileInp.addEventListener('change', e => {
       '✅ تم تحميل الموسيقى — المدة: <b style="color:#d8b4ff;">' +
       fmtTime(musicEl.duration) + '</b><br>' +
       'أثناء التسجيل سيظهر زر «🎵 تشغيل الموسيقى».';
-    // اربط عنصر الموسيقى بـ AudioContext إن كان جاهزاً
     if (audioCtx) { connectMusicEl(); applyMix(); }
   };
   musicEl.onerror = () => {
@@ -894,12 +939,20 @@ musicFileInp.addEventListener('change', e => {
   };
 });
 
-// ✅ زر تشغيل/إيقاف الموسيقى أثناء التسجيل
+// ✅ منزلق التحكم في مستوى صوت الموسيقى
+musicVolSlider.addEventListener('input', () => {
+  musicBoost = parseInt(musicVolSlider.value, 10) / 100;
+  musicVolVal.textContent = musicVolSlider.value + '%';
+  if (audioCtx && musicOn && gainMusic) {
+    gainMusic.gain.setTargetAtTime(musicBoost, audioCtx.currentTime, 0.05);
+  }
+});
+
+// زر تشغيل/إيقاف الموسيقى أثناء التسجيل
 btnMusic.addEventListener('click', function () {
   if (!isRecording || !musicLoaded) return;
 
   if (!musicOn) {
-    // شغّل الموسيقى + اكتم الميكروفون
     musicOn = true;
     try {
       musicEl.currentTime = 0;
@@ -910,7 +963,6 @@ btnMusic.addEventListener('click', function () {
     updateMusicUI();
     setStatus('busy', '<span class="live-dot"></span> 🎵 البث الآن للموسيقى — اضغط الزر للعودة للكلام');
   } else {
-    // أوقف الموسيقى + أعد الميكروفون
     musicOn = false;
     try { musicEl.pause(); } catch (e) {}
     applyMix();
@@ -1360,7 +1412,6 @@ btnStart.addEventListener('click', function () {
     btnStop.disabled = false;
     btnDownload.style.display = 'none';
 
-    // أزرار التبديل
     let showRow = false;
     if (otherLoaded) {
       btnSwitch.style.display = 'flex';
