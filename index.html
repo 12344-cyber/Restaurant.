@@ -144,10 +144,10 @@
 
   .big-btn {
     width: 100%;
-    padding: 22px;
+    padding: 20px;
     border: none;
     border-radius: 20px;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 900;
     font-family: 'Cairo';
     cursor: pointer;
@@ -157,14 +157,14 @@
     justify-content: center;
     gap: 10px;
   }
+  .big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-green { background: #00FF00; color: #0a1a2e; }
-  .btn-green:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-red { background: #ff4757; color: #fff; }
-  .btn-red:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-blue { background: #2e7d32; color: #fff; }
-  .btn-blue:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-orange { background: #ff9800; color: #0a1a2e; }
-  .btn-orange:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-purple { background: #9c27b0; color: #fff; }
+  .btn-cyan { background: #00bcd4; color: #0a1a2e; }
+  .btn-pink { background: #e91e63; color: #fff; }
 
   #previewCanvas {
     width: 100%;
@@ -223,6 +223,43 @@
     animation: blink 1s infinite;
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* مؤشر حالة الموسيقى */
+  .music-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #9c27b010;
+    border: 2px solid #9c27b050;
+    border-radius: 12px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #d8b4ff;
+    font-weight: 700;
+  }
+  .music-indicator .bars {
+    display: flex; gap: 3px; align-items: flex-end; height: 18px;
+  }
+  .music-indicator .bars span {
+    width: 4px; background: #9c27b0; border-radius: 2px;
+    animation: eq 0.9s ease-in-out infinite;
+  }
+  .music-indicator .bars span:nth-child(1) { height: 40%; animation-delay: 0s; }
+  .music-indicator .bars span:nth-child(2) { height: 90%; animation-delay: 0.15s; }
+  .music-indicator .bars span:nth-child(3) { height: 60%; animation-delay: 0.3s; }
+  .music-indicator .bars span:nth-child(4) { height: 80%; animation-delay: 0.45s; }
+  .music-indicator.paused .bars span { animation-play-state: paused; opacity: 0.3; }
+  @keyframes eq { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 500px) {
+    .btn-row { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -245,8 +282,12 @@
 
     <div id="cameraBox" style="display:none; margin-top:12px;">
       <button class="big-btn btn-blue" id="btnCamOn" style="margin-top:0;">🎥 تشغيل الكاميرا والميكروفون</button>
-      <button class="big-btn btn-red" id="btnCamOff" style="display:none;">⏹️ إيقاف الكاميرا</button>
-      <div class="hint">سيطلب المتصفح السماح بالوصول للكاميرا والميكروفون. اضغط «السماح».</div>
+      <div class="btn-row" id="camControls" style="display:none;">
+        <button class="big-btn btn-red" id="btnCamOff">⏹️ إيقاف</button>
+        <button class="big-btn btn-cyan" id="btnSwitchCam">🔄 تبديل الكاميرا</button>
+      </div>
+      <div class="hint">سيطلب المتصفح السماح بالوصول للكاميرا والميكروفون. اضغط «السماح».<br>
+      زر <b>🔄 تبديل الكاميرا</b> ينتقل بين الأمامية والخلفية (يعمل جيداً على الهاتف).</div>
     </div>
   </div>
 
@@ -306,23 +347,45 @@
     <div class="step-title"><span class="num">7</span> الفيديو الآخر (للتبديل أثناء البث)</div>
     <input type="file" id="otherFile" accept="video/*">
     <div class="hint">
-      ارفع مقطعاً ثانياً (شخص آخر يتحدث مثلاً). أثناء التسجيل اضغط زر
-      «🎬 بث الفيديو الآخر» لينتقل البث إليه فوراً، ثم اضغط «🎤 العودة» لترجع إليك.
+      ارفع مقطعاً ثانياً. أثناء التسجيل اضغط «🎬 بث الفيديو الآخر» لينتقل البث إليه فوراً،
+      ثم اضغط «🎤 العودة» لترجع إليك.
     </div>
     <div id="otherInfo" class="hint" style="display:none;"></div>
   </div>
 
   <!-- ============ 8 ============ -->
   <div class="step">
-    <div class="step-title"><span class="num">8</span> التسجيل</div>
+    <div class="step-title"><span class="num">8</span> الموسيقى الخلفية (اختياري)</div>
+    <input type="file" id="musicFile" accept="audio/*">
+    <div class="hint">
+      ارفع ملف موسيقى (mp3 / wav / m4a). أثناء التسجيل يظهر زر
+      «🎵 تشغيل الموسيقى» — اضغطه عندما تنتهي من الكلام لينتقل الصوت إلى الموسيقى،
+      واضغط «🎤 العودة للكلام» للرجوع.
+    </div>
+    <div id="musicInfo" class="hint" style="display:none;"></div>
+  </div>
+
+  <!-- ============ 9 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">9</span> التسجيل</div>
 
     <button class="big-btn btn-green" id="btnStart" disabled>
       ▶️ ابدأ التسجيل
     </button>
 
-    <button class="big-btn btn-orange" id="btnSwitch" style="display:none;">
-      🎬 بث الفيديو الآخر
-    </button>
+    <div class="btn-row" id="switchRow" style="display:none; margin-top:10px;">
+      <button class="big-btn btn-orange" id="btnSwitch" style="display:none; margin-top:0;">
+        🎬 بث الفيديو الآخر
+      </button>
+      <button class="big-btn btn-purple" id="btnMusic" style="display:none; margin-top:0;">
+        🎵 تشغيل الموسيقى
+      </button>
+    </div>
+
+    <div class="music-indicator paused" id="musicInd" style="display:none;">
+      <div class="bars"><span></span><span></span><span></span><span></span></div>
+      <span id="musicIndText">الموسيقى متوقفة — الصوت من الميكروفون</span>
+    </div>
 
     <button class="big-btn btn-red" id="btnStop" disabled style="display:none;">
       ⏹️ أوقف التسجيل
@@ -342,9 +405,9 @@
 <script>
 // ============================================================
 //  استوديو فيديو مباشر
-//  - رفع فيديو  أو  تصوير مباشر بالكاميرا
-//  - دمج/تبديل مع فيديو آخر بضغطة زر أثناء التسجيل
-//  - صوت مختلط عبر AudioContext (ميكروفون + صوت الفيديو الآخر)
+//  - رفع فيديو أو تصوير مباشر بالكاميرا (مع تبديل أمامية/خلفية)
+//  - دمج/تبديل مع فيديو آخر بضغطة زر
+//  - موسيقى خلفية قابلة للتبديل مع الكلام أثناء التسجيل
 // ============================================================
 
 // ===== الحالة =====
@@ -352,9 +415,12 @@ let videoFile = null, logoImg = null;
 let videoLoaded = false;
 let cameraReady = false;
 let otherLoaded = false;
+let musicLoaded = false;
 
-let activeSource = 'file';   // 'file' | 'camera'
-let broadcast    = 'main';   // 'main' | 'other'
+let activeSource = 'file';     // 'file' | 'camera'
+let broadcast    = 'main';     // 'main' | 'other'
+let musicOn      = false;      // هل الموسيقى تعمل الآن
+let currentFacing = 'user';    // 'user' = أمامية | 'environment' = خلفية
 
 let isRecording = false;
 let mediaRecorder = null;
@@ -375,7 +441,7 @@ let dragOff = { x: 0, y: 0 };
 let timerInterval = null;
 let recordStartTime = 0;
 
-// ===== عناصر الفيديو المخفية =====
+// ===== عناصر الفيديو/الصوت المخفية =====
 const video = document.createElement('video');
 video.playsInline = true;
 video.muted = false;
@@ -386,7 +452,7 @@ video.setAttribute('webkit-playsinline', '');
 
 const camVideo = document.createElement('video');
 camVideo.playsInline = true;
-camVideo.muted = true;                 // الكتم هنا لا يؤثر على الصوت المسجَّل
+camVideo.muted = true;
 camVideo.setAttribute('playsinline', '');
 camVideo.setAttribute('webkit-playsinline', '');
 
@@ -394,6 +460,11 @@ const otherVideo = document.createElement('video');
 otherVideo.playsInline = true;
 otherVideo.setAttribute('playsinline', '');
 otherVideo.setAttribute('webkit-playsinline', '');
+
+const musicEl = document.createElement('audio');
+musicEl.loop = true;
+musicEl.preload = 'auto';
+musicEl.crossOrigin = 'anonymous';
 
 [video, camVideo, otherVideo].forEach(v => {
   v.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:2px;height:2px;opacity:0.01;pointer-events:none;';
@@ -404,6 +475,7 @@ otherVideo.setAttribute('webkit-playsinline', '');
 const $ = id => document.getElementById(id);
 const videoFileInp = $('videoFile');
 const otherFileInp = $('otherFile');
+const musicFileInp = $('musicFile');
 const newsText = $('newsText');
 const logoFileInp = $('logoFile');
 const logoPreview = $('logoPreview');
@@ -412,15 +484,22 @@ const posButtons = $('posButtons');
 const sourceButtons = $('sourceButtons');
 const fileBox = $('fileBox');
 const cameraBox = $('cameraBox');
+const camControls = $('camControls');
 const btnCamOn = $('btnCamOn');
 const btnCamOff = $('btnCamOff');
+const btnSwitchCam = $('btnSwitchCam');
 const otherInfo = $('otherInfo');
+const musicInfo = $('musicInfo');
 const canvas = $('previewCanvas');
 const ctx = canvas.getContext('2d');
 const btnStart = $('btnStart');
 const btnStop = $('btnStop');
 const btnSwitch = $('btnSwitch');
+const btnMusic = $('btnMusic');
 const btnDownload = $('btnDownload');
+const switchRow = $('switchRow');
+const musicInd = $('musicInd');
+const musicIndText = $('musicIndText');
 const statusEl = $('status');
 const timerEl = $('timer');
 
@@ -474,11 +553,12 @@ function pickBestMime(hasAudio) {
 }
 
 // ============================================================
-//  خط الصوت المختلط
+//  نظام الصوت المختلط
+//  المصادر: ميكروفون / صوت الفيديو الرئيسي / صوت الفيديو الآخر / الموسيقى
 // ============================================================
 let audioCtx = null, audioDest = null;
-let srcMainEl = null, srcOtherEl = null, micNode = null;
-let gainMain = null, gainOther = null, gainMic = null;
+let srcMainEl = null, srcOtherEl = null, srcMusicEl = null, micNode = null;
+let gainMain = null, gainOther = null, gainMic = null, gainMusic = null;
 
 function ensureAudio() {
   if (audioCtx) return audioCtx;
@@ -492,19 +572,23 @@ function ensureAudio() {
     gainMain  = audioCtx.createGain();
     gainOther = audioCtx.createGain();
     gainMic   = audioCtx.createGain();
+    gainMusic = audioCtx.createGain();
 
     gainMain.gain.value  = 1;
     gainOther.gain.value = 0;
     gainMic.gain.value   = 1;
+    gainMusic.gain.value = 0;
 
     // كل المصادر → مسار التسجيل
     gainMain.connect(audioDest);
     gainOther.connect(audioDest);
     gainMic.connect(audioDest);
+    gainMusic.connect(audioDest);
 
-    // السماعات: الفيديو فقط (الميكروفون لا يُسمَّع لتجنّب الصدى)
+    // السماعات: الفيديو + الفيديو الآخر + الموسيقى (لكن ليس الميكروفون لتجنّب الصدى)
     gainMain.connect(audioCtx.destination);
     gainOther.connect(audioCtx.destination);
+    gainMusic.connect(audioCtx.destination);
 
     console.log('✅ AudioContext جاهز');
     return audioCtx;
@@ -544,6 +628,16 @@ function connectOtherEl() {
   } catch (e) { console.warn('فشل ربط صوت الفيديو الآخر:', e); }
 }
 
+function connectMusicEl() {
+  if (!ensureAudio()) return;
+  if (srcMusicEl) return;
+  try {
+    srcMusicEl = audioCtx.createMediaElementSource(musicEl);
+    srcMusicEl.connect(gainMusic);
+    console.log('🎵 ربط صوت الموسيقى');
+  } catch (e) { console.warn('فشل ربط صوت الموسيقى:', e); }
+}
+
 function connectMic() {
   if (!ensureAudio()) return false;
   if (!cameraStream) return false;
@@ -559,16 +653,23 @@ function connectMic() {
   } catch (e) { console.warn('فشل ربط الميكروفون:', e); return false; }
 }
 
-// توزيع الصوت حسب وضع البث الحالي
+// توزيع الصوت حسب وضع البث + حالة الموسيقى
 function applyMix() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
+
   const mainOn  = (broadcast === 'main')  ? 1 : 0;
   const otherOn = (broadcast === 'other') ? 1 : 0;
 
+  // الميكروفون يعمل فقط عندما: البث الرئيسي + الموسيقى متوقفة
+  const micOn = mainOn && !musicOn ? 1 : 0;
+  // الموسيقى تعمل فقط عندما: البث الرئيسي + الموسيقى مشغّلة
+  const musicVol = mainOn && musicOn ? 1 : 0;
+
   if (gainMain)  gainMain.gain.setTargetAtTime(mainOn, t, 0.05);
-  if (gainMic)   gainMic.gain.setTargetAtTime(mainOn, t, 0.05);
+  if (gainMic)   gainMic.gain.setTargetAtTime(micOn, t, 0.05);
   if (gainOther) gainOther.gain.setTargetAtTime(otherOn, t, 0.05);
+  if (gainMusic) gainMusic.gain.setTargetAtTime(musicVol, t, 0.08);
 }
 
 // ============================================================
@@ -630,24 +731,43 @@ videoFileInp.addEventListener('change', e => {
 });
 
 // ============================================================
-//  الكاميرا المباشرة
+//  الكاميرا المباشرة (مع تبديل أمامية/خلفية)
 // ============================================================
+async function startCameraStream(facing) {
+  // أوقف أي بث قديم أولاً
+  if (cameraStream) {
+    try { cameraStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    cameraStream = null;
+  }
+
+  const constraints = {
+    video: {
+      facingMode: { ideal: facing },
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
+    }
+  };
+
+  cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+  camVideo.srcObject = cameraStream;
+  camVideo.muted = true;
+  await camVideo.play();
+  if (!camVideo.videoWidth) {
+    await new Promise(res => { camVideo.onloadedmetadata = res; });
+  }
+  currentFacing = facing;
+  console.log('🎥 الكاميرا تعمل الآن:', facing === 'user' ? 'أمامية' : 'خلفية');
+}
+
 btnCamOn.addEventListener('click', async function () {
   try {
     setStatus('busy', '⏳ جاري تشغيل الكاميرا...');
-
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-    });
-
-    camVideo.srcObject = cameraStream;
-    camVideo.muted = true;
-    await camVideo.play();
-
-    if (!camVideo.videoWidth) {
-      await new Promise(res => { camVideo.onloadedmetadata = res; });
-    }
+    await startCameraStream('user');
 
     cameraReady = true;
     resizeCanvasForSource();
@@ -657,16 +777,44 @@ btnCamOn.addEventListener('click', async function () {
     applyMix();
 
     btnCamOn.style.display = 'none';
-    btnCamOff.style.display = 'flex';
+    camControls.style.display = 'grid';
     refreshStartBtn();
     redraw();
 
     const hasMic = cameraStream.getAudioTracks().length > 0;
-    setStatus('ok', '✅ الكاميرا جاهزة' + (hasMic ? ' مع الميكروفون 🎤' : ' (بدون ميكروفون)') + ' — اضغط الزر الأخضر');
+    setStatus('ok', '✅ الكاميرا جاهزة' + (hasMic ? ' مع الميكروفون 🎤' : ' (بدون ميكروفون)') +
+      ' — اضغط الزر الأخضر للبدء');
   } catch (e) {
     console.error('Camera error:', e);
     setStatus('err', '⚠️ تعذر تشغيل الكاميرا: ' + (e.message || e) +
       '<br><span style="font-size:0.8rem;">تأكد من السماح بالوصول للكاميرا والميكروفون</span>');
+  }
+});
+
+// ✅ تبديل الكاميرا الأمامية ↔ الخلفية (يعمل حتى أثناء التسجيل)
+btnSwitchCam.addEventListener('click', async function () {
+  if (!cameraReady) return;
+  const newFacing = (currentFacing === 'user') ? 'environment' : 'user';
+  btnSwitchCam.disabled = true;
+  const oldText = btnSwitchCam.textContent;
+  btnSwitchCam.textContent = '⏳ جاري التبديل...';
+
+  try {
+    await startCameraStream(newFacing);
+    // أعد ربط الميكروفون الجديد (قد يكون من مصدر مختلف)
+    if (audioCtx) { connectMic(); applyMix(); }
+    resizeCanvasForSource();
+    redraw();
+    setStatus('ok',
+      '✅ تم التبديل إلى الكاميرا ' +
+      (newFacing === 'user' ? 'الأمامية' : 'الخلفية'));
+  } catch (e) {
+    console.error('Switch camera error:', e);
+    setStatus('err', '⚠️ تعذر تبديل الكاميرا: ' + (e.message || e) +
+      '<br><span style="font-size:0.8rem;">قد لا تحتوي هذه الكاميرا على كاميرا ثانية</span>');
+  } finally {
+    btnSwitchCam.disabled = false;
+    btnSwitchCam.textContent = oldText;
   }
 });
 
@@ -684,7 +832,7 @@ function stopCamera() {
   cameraReady = false;
   camVideo.srcObject = null;
   btnCamOn.style.display = 'flex';
-  btnCamOff.style.display = 'none';
+  camControls.style.display = 'none';
   refreshStartBtn();
   redraw();
 }
@@ -707,7 +855,6 @@ otherFileInp.addEventListener('change', e => {
       fmtTime(otherVideo.duration) + '</b><br>' +
       'أثناء التسجيل سيظهر زر «🎬 بث الفيديو الآخر».';
     if (audioCtx) { connectOtherEl(); applyMix(); }
-    console.log('✅ الفيديو الآخر جاهز');
   };
   otherVideo.onerror = () => {
     otherLoaded = false;
@@ -719,6 +866,74 @@ otherFileInp.addEventListener('change', e => {
 otherVideo.addEventListener('ended', () => {
   if (isRecording && broadcast === 'other') switchBackToMain();
 });
+
+// ============================================================
+//  الموسيقى الخلفية
+// ============================================================
+musicFileInp.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  musicLoaded = false;
+  musicEl.src = URL.createObjectURL(f);
+  musicEl.load();
+
+  musicEl.onloadedmetadata = () => {
+    musicLoaded = true;
+    musicInfo.style.display = 'block';
+    musicInfo.innerHTML =
+      '✅ تم تحميل الموسيقى — المدة: <b style="color:#d8b4ff;">' +
+      fmtTime(musicEl.duration) + '</b><br>' +
+      'أثناء التسجيل سيظهر زر «🎵 تشغيل الموسيقى».';
+    // اربط عنصر الموسيقى بـ AudioContext إن كان جاهزاً
+    if (audioCtx) { connectMusicEl(); applyMix(); }
+  };
+  musicEl.onerror = () => {
+    musicLoaded = false;
+    musicInfo.style.display = 'block';
+    musicInfo.innerHTML = '⚠️ تعذر تحميل ملف الموسيقى';
+  };
+});
+
+// ✅ زر تشغيل/إيقاف الموسيقى أثناء التسجيل
+btnMusic.addEventListener('click', function () {
+  if (!isRecording || !musicLoaded) return;
+
+  if (!musicOn) {
+    // شغّل الموسيقى + اكتم الميكروفون
+    musicOn = true;
+    try {
+      musicEl.currentTime = 0;
+      const p = musicEl.play();
+      if (p && p.catch) p.catch(err => console.warn('music play failed:', err));
+    } catch (e) { console.warn(e); }
+    applyMix();
+    updateMusicUI();
+    setStatus('busy', '<span class="live-dot"></span> 🎵 البث الآن للموسيقى — اضغط الزر للعودة للكلام');
+  } else {
+    // أوقف الموسيقى + أعد الميكروفون
+    musicOn = false;
+    try { musicEl.pause(); } catch (e) {}
+    applyMix();
+    updateMusicUI();
+    if (isRecording) setStatus('busy', '🔴 جاري التسجيل — الصوت من الميكروفون 🎤');
+  }
+});
+
+function updateMusicUI() {
+  if (musicOn) {
+    btnMusic.textContent = '🎤 العودة للكلام';
+    btnMusic.classList.remove('btn-purple');
+    btnMusic.classList.add('btn-pink');
+    musicInd.classList.remove('paused');
+    musicIndText.textContent = '🎵 الموسيقى تعمل الآن — الميكروفون مكتوم';
+  } else {
+    btnMusic.textContent = '🎵 تشغيل الموسيقى';
+    btnMusic.classList.remove('btn-pink');
+    btnMusic.classList.add('btn-purple');
+    musicInd.classList.add('paused');
+    musicIndText.textContent = 'الموسيقى متوقفة — الصوت من الميكروفون';
+  }
+}
 
 // ============================================================
 //  الشعار
@@ -739,7 +954,7 @@ logoFileInp.addEventListener('change', e => {
 });
 
 // ============================================================
-//  حجم الخبر
+//  حجم الخبر / موضعه
 // ============================================================
 sizeButtons.addEventListener('click', e => {
   const btn = e.target.closest('button');
@@ -750,9 +965,6 @@ sizeButtons.addEventListener('click', e => {
   redraw();
 });
 
-// ============================================================
-//  موضع الخبر
-// ============================================================
 const POS_MAP = {
   top:         { x: 0.5, y: 0.15 },
   middle:      { x: 0.5, y: 0.5 },
@@ -834,13 +1046,9 @@ function redraw() {
   let drew = false;
 
   if (broadcast === 'other' && otherLoaded && otherVideo.readyState >= 2) {
-    // ===== بث الفيديو الآخر =====
     drew = drawCover(otherVideo, W, H);
-    if (activeSource === 'camera' && camVideo.readyState >= 2) {
-      drawPip(camVideo, W, H);   // صورة صغيرة للمتحدث
-    }
+    if (activeSource === 'camera' && camVideo.readyState >= 2) drawPip(camVideo, W, H);
   } else {
-    // ===== البث الرئيسي =====
     if (activeSource === 'camera') {
       if (camVideo.readyState >= 2) drew = drawCover(camVideo, W, H);
     } else {
@@ -859,7 +1067,6 @@ function redraw() {
     );
   }
 
-  // ===== الشعار =====
   if (logoImg && logoImg.width) {
     const lw = W * 0.18;
     const lh = (logoImg.height / logoImg.width) * lw;
@@ -877,7 +1084,6 @@ function redraw() {
     canvas._logoBounds = null;
   }
 
-  // ===== النص الإخباري =====
   const news = newsText.value.trim();
   if (news) {
     const sizes = { 2: 0.035, 3: 0.05, 4: 0.07, 5: 0.095 };
@@ -1012,13 +1218,12 @@ function stopTimer() {
 }
 
 // ============================================================
-//  زر التبديل بين المصدرين أثناء التسجيل
+//  زر التبديل بين الفيديو الرئيسي والفيديو الآخر
 // ============================================================
 btnSwitch.addEventListener('click', function () {
   if (!isRecording || !otherLoaded) return;
 
   if (broadcast === 'main') {
-    // → اذهب للفيديو الآخر
     broadcast = 'other';
     try { if (activeSource === 'file') video.pause(); } catch (e) {}
     try { otherVideo.currentTime = 0; } catch (e) {}
@@ -1026,7 +1231,11 @@ btnSwitch.addEventListener('click', function () {
     if (p && p.catch) p.catch(err => console.warn('other play failed:', err));
     applyMix();
     updateSwitchUI();
-    setStatus('busy', '🎬 البث الآن للفيديو الآخر — اضغط الزر للعودة إليك');
+    if (musicOn) {
+      setStatus('busy', '🎬 البث الآن للفيديو الآخر (الموسيقى ستُستأنف عند الرجوع)');
+    } else {
+      setStatus('busy', '🎬 البث الآن للفيديو الآخر — اضغط الزر للعودة إليك');
+    }
   } else {
     switchBackToMain();
   }
@@ -1041,7 +1250,13 @@ function switchBackToMain() {
   }
   applyMix();
   updateSwitchUI();
-  if (isRecording) setStatus('busy', '🔴 جاري التسجيل — أنت على البث الآن');
+  if (isRecording) {
+    if (musicOn) {
+      setStatus('busy', '<span class="live-dot"></span> 🎵 البث الرئيسي مع الموسيقى');
+    } else {
+      setStatus('busy', '🔴 جاري التسجيل — أنت على البث الآن 🎤');
+    }
+  }
 }
 
 function updateSwitchUI() {
@@ -1063,13 +1278,9 @@ btnStart.addEventListener('click', function () {
   const ready = (activeSource === 'file') ? videoLoaded : cameraReady;
   if (!ready || isRecording) return;
 
-  console.log('▶️ بدء التسجيل | المصدر:', activeSource);
-
   try {
-    // 1) تشغيل / استئناف الصوت
     resumeAudio();
 
-    // 2) ربط مصادر الصوت
     if (activeSource === 'file') {
       video.muted = false;
       video.volume = 1;
@@ -1078,13 +1289,14 @@ btnStart.addEventListener('click', function () {
       connectMic();
     }
     if (otherLoaded) connectOtherEl();
+    if (musicLoaded) connectMusicEl();
 
-    // 3) الوضع الافتراضي: البث الرئيسي
     broadcast = 'main';
+    musicOn = false;
     applyMix();
     updateSwitchUI();
+    updateMusicUI();
 
-    // 4) مسار الفيديو من الكانفاس
     canvasStream = canvas.captureStream(30);
     if (!canvasStream || canvasStream.getVideoTracks().length === 0) {
       throw new Error('تعذر التقاط صورة الفيديو');
@@ -1092,18 +1304,16 @@ btnStart.addEventListener('click', function () {
     const tracks = [];
     canvasStream.getVideoTracks().forEach(t => tracks.push(t));
 
-    // 5) مسار الصوت المختلط
     let audioAdded = false;
     if (audioDest) {
       const aTracks = audioDest.stream.getAudioTracks();
       if (aTracks && aTracks.length > 0) {
         aTracks.forEach(t => tracks.push(t));
         audioAdded = true;
-        console.log('🎵 مسار صوتي مختلط — عدد القنوات:', aTracks.length);
+        console.log('🎵 مسار صوتي مختلط — القنوات:', aTracks.length);
       }
     }
 
-    // 6) خطة بديلة (رفع فيديو فقط)
     if (!audioAdded && activeSource === 'file') {
       try {
         const fn = video.captureStream || video.mozCaptureStream;
@@ -1113,23 +1323,16 @@ btnStart.addEventListener('click', function () {
           if (at && at.length > 0) {
             at.forEach(t => tracks.push(t));
             audioAdded = true;
-            console.log('🎵 مسار صوتي احتياطي');
           }
         }
       } catch (e) { console.warn(e); }
     }
 
-    if (!audioAdded) console.warn('⚠️ لا يوجد صوت — سيُسجَّل الفيديو صامتاً');
-
-    // 7) الصيغة
     const fmt = pickBestMime(audioAdded);
     pickMime = fmt.mime;
     outputExt = fmt.ext;
 
-    // 8) MediaRecorder
     const combined = new MediaStream(tracks);
-    console.log('📼 المسارات:', combined.getTracks().map(t => t.kind));
-
     const options = { videoBitsPerSecond: 5000000 };
     if (pickMime) options.mimeType = pickMime;
     if (audioAdded) options.audioBitsPerSecond = 128000;
@@ -1142,14 +1345,12 @@ btnStart.addEventListener('click', function () {
     mediaRecorder.onerror = ev => console.error('MediaRecorder error:', ev);
     mediaRecorder.onstop = () => finishRecording();
 
-    // 9) التحضير للتشغيل
     if (activeSource === 'file') {
       video.currentTime = 0;
     } else {
       try { otherVideo.pause(); otherVideo.currentTime = 0; } catch (e) {}
     }
 
-    // 10) ابدأ
     mediaRecorder.start(500);
     isRecording = true;
     startTimer();
@@ -1159,23 +1360,34 @@ btnStart.addEventListener('click', function () {
     btnStop.disabled = false;
     btnDownload.style.display = 'none';
 
-    // زر التبديل يظهر فقط إذا وُجد فيديو آخر
+    // أزرار التبديل
+    let showRow = false;
     if (otherLoaded) {
       btnSwitch.style.display = 'flex';
+      showRow = true;
       updateSwitchUI();
     } else {
       btnSwitch.style.display = 'none';
     }
+    if (musicLoaded) {
+      btnMusic.style.display = 'flex';
+      musicInd.style.display = 'flex';
+      showRow = true;
+      updateMusicUI();
+    } else {
+      btnMusic.style.display = 'none';
+      musicInd.style.display = 'none';
+    }
+    switchRow.style.display = showRow ? 'grid' : 'none';
 
     setStatus(
       'busy',
       '<span class="live-dot"></span> جاري التسجيل' +
       (audioAdded ? ' مع الصوت ✅' : ' (بدون صوت)') +
-      (otherLoaded ? '<br><span style="font-size:0.85rem;">يمكنك التبديل للفيديو الآخر في أي لحظة</span>' : '') +
+      (showRow ? '<br><span style="font-size:0.85rem;">يمكنك التبديل بين الفيديو/الموسيقى في أي لحظة</span>' : '') +
       '<br>اضغط الزر الأحمر عند الانتهاء'
     );
 
-    // 11) شغّل المصدر
     if (activeSource === 'file') {
       const p = video.play();
       if (p && typeof p.then === 'function') {
@@ -1195,7 +1407,8 @@ btnStart.addEventListener('click', function () {
     isRecording = false;
     btnStart.style.display = 'flex';
     btnStop.style.display = 'none';
-    btnSwitch.style.display = 'none';
+    switchRow.style.display = 'none';
+    musicInd.style.display = 'none';
     stopTimer();
   }
 });
@@ -1226,12 +1439,16 @@ function stopRecording() {
 
   try { video.pause(); } catch (e) {}
   try { otherVideo.pause(); } catch (e) {}
+  try { musicEl.pause(); } catch (e) {}
+
   broadcast = 'main';
+  musicOn = false;
   applyMix();
 
   btnStop.style.display = 'none';
   btnStop.disabled = true;
-  btnSwitch.style.display = 'none';
+  switchRow.style.display = 'none';
+  musicInd.style.display = 'none';
   btnStart.style.display = 'flex';
   btnStart.disabled = false;
   setStatus('busy', '⏳ جاري تجهيز الملف...');
@@ -1244,8 +1461,10 @@ function cancelRecording() {
   try {
     if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
   } catch (e) {}
+  try { musicEl.pause(); } catch (e) {}
   btnStop.style.display = 'none';
-  btnSwitch.style.display = 'none';
+  switchRow.style.display = 'none';
+  musicInd.style.display = 'none';
   btnStart.style.display = 'flex';
 }
 
@@ -1254,7 +1473,7 @@ video.addEventListener('ended', () => {
 });
 
 // ============================================================
-//  تجهيز الملف
+//  تجهيز الملف النهائي
 // ============================================================
 function finishRecording() {
   if (!recordedChunks || recordedChunks.length === 0) {
