@@ -1,637 +1,1322 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آيات بينات | استماع وتحميل موثوق</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a1f1a;
-            --card: #0b2b24;
-            --panel: #0d3329;
-            --border: #1f5c45;
-            --gold: #fbbf24;
-            --green: #4ade80;
-            --text: #e2e8f0;
-            --muted: #a7c5b8;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--bg);
-            font-family: 'Cairo', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--text);
-            padding: 15px;
-        }
-        .container {
-            max-width: 950px;
-            width: 100%;
-            background: var(--card);
-            border-radius: 32px;
-            padding: 25px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,255,128,0.3);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .header h1 {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--gold);
-            text-shadow: 0 0 15px #f59e0b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-family: 'Amiri', 'Cairo', serif;
-        }
-        .search-panel {
-            background: var(--panel);
-            border-radius: 24px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
-            margin-bottom: 15px;
-        }
-        .input-group {
-            flex: 1;
-            min-width: 150px;
-        }
-        .input-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid #2d5a44;
-            background: #1a3d30;
-            color: #fff;
-            font-size: 0.95rem;
-            font-family: 'Cairo', sans-serif;
-            outline: none;
-            transition: 0.2s;
-        }
-        .input-group input:focus,
-        .input-group select:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 0 2px rgba(74,222,128,0.3);
-        }
-        .btn {
-            background: #22c55e;
-            color: #052e16;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Cairo', sans-serif;
-            white-space: nowrap;
-        }
-        .btn:hover { background: #16a34a; box-shadow: 0 0 20px #22c55e; }
-        .btn-gold { background: #f59e0b; color: #0a1f1a; }
-        .btn-gold:hover { background: #d97706; box-shadow: 0 0 20px #f59e0b; }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            text-decoration: none;
-            font-weight: 700;
-            padding: 8px 18px;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-        .btn-outline:hover { background: var(--gold); color: #0a1f1a; }
-        .ayah-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .ayah-item {
-            background: #0a2a1f;
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #255a40;
-            transition: 0.3s;
-        }
-        .ayah-item.unavailable {
-            opacity: 0.7;
-            border-color: #ef4444;
-        }
-        .ayah-text {
-            font-family: 'Amiri', 'Traditional Arabic', serif;
-            font-size: 1.6rem;
-            line-height: 2.2;
-            color: var(--text);
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .ayah-audio {
-            width: 100%;
-            margin: 8px 0;
-            accent-color: #22c55e;
-            height: 36px;
-        }
-        .ayah-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 8px;
-        }
-        .status-msg {
-            text-align: center;
-            margin: 12px 0;
-            color: #86efac;
-            font-weight: 600;
-            min-height: 25px;
-        }
-        .error-msg {
-            color: #fca5a5;
-            font-size: 0.85rem;
-            text-align: center;
-        }
-        .note {
-            font-size: 0.8rem;
-            color: #9cb4a5;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .debug-panel {
-            margin-top: 20px;
-            background: #000;
-            color: #0f0;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            display: none;
-            direction: ltr;
-            text-align: left;
-        }
-        .debug-panel.active { display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استوديو الفيديو المباشر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #0a1a2e;
+    color: #fff;
+    padding: 10px;
+    min-height: 100vh;
+    direction: rtl;
+  }
+  .app { max-width: 900px; margin: auto; }
+
+  h1 {
+    text-align: center;
+    color: #00FF00;
+    font-size: 1.4rem;
+    margin: 10px 0 20px;
+    padding: 10px;
+    background: #0f1f33;
+    border-radius: 15px;
+    border: 2px solid #00FF0040;
+  }
+
+  .step {
+    background: #0f1f33;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 2px solid #2e4a6a;
+  }
+  .step-title {
+    color: #00FF00;
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-title .num {
+    background: #00FF00;
+    color: #0a1a2e;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  label { display: block; font-size: 0.95rem; color: #b8d0e8; margin-bottom: 8px; font-weight: 700; }
+
+  input[type="file"], input[type="text"], textarea, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #2e4a6a;
+    background: #0a1a2a;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Cairo', sans-serif;
+    outline: none;
+  }
+  input:focus, textarea:focus { border-color: #00FF00; }
+  textarea { min-height: 80px; resize: vertical; font-size: 1.05rem; }
+
+  .size-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .size-buttons button {
+    padding: 14px 6px;
+    background: #1a2f3f;
+    border: 2px solid #2e4a6a;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Cairo';
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .size-buttons button.active {
+    background: #00FF00;
+    color: #0a1a2e;
+    border-color: #00FF00;
+  }
+
+  .positions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+    margin: 10px auto;
+  }
+  .positions button {
+    padding: 18px 6px;
+    background: #1a2f3f;
+    border: 2px solid #2e4a6a;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  .positions button.active {
+    background: #00FF00;
+    color: #0a1a2e;
+    border-color: #00FF00;
+  }
+
+  .logo-box {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .logo-box img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #00FF00;
+    background: #000;
+    object-fit: cover;
+    display: none;
+  }
+  .logo-box img.visible { display: block; }
+  .logo-box .info {
+    flex: 1;
+    min-width: 150px;
+    font-size: 0.85rem;
+    color: #b8d0e8;
+  }
+
+  .big-btn {
+    width: 100%;
+    padding: 22px;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-family: 'Cairo';
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-green { background: #00FF00; color: #0a1a2e; }
+  .btn-green:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-red { background: #ff4757; color: #fff; }
+  .btn-red:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-blue { background: #2e7d32; color: #fff; }
+  .btn-blue:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-orange { background: #ff9800; color: #0a1a2e; }
+  .btn-orange:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  #previewCanvas {
+    width: 100%;
+    border-radius: 14px;
+    background: #000;
+    border: 3px solid #2e4a6a;
+    display: block;
+    touch-action: none;
+    cursor: move;
+  }
+
+  .status {
+    padding: 16px;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 10px;
+    background: #0a1a2a;
+    border: 2px solid #2e4a6a;
+    color: #b8d0e8;
+    line-height: 1.7;
+  }
+  .status.ok { color: #00FF00; border-color: #00FF0050; background: #00FF0010; }
+  .status.err { color: #ff4757; border-color: #ff475750; background: #ff475710; }
+  .status.busy { color: #ffc107; border-color: #ffc10750; background: #ffc10710; }
+
+  .hint {
+    background: #00FF0010;
+    border-right: 4px solid #00FF00;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #b8d0e8;
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+
+  .timer {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #ff4757;
+    margin-top: 8px;
+    letter-spacing: 2px;
+    display: none;
+  }
+  .timer.show { display: block; }
+
+  .live-dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    background: #ff4757;
+    border-radius: 50%;
+    margin-left: 6px;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-quran"></i> آيات بينات</h1>
-            <p style="color:var(--muted);">تشغيل وتحميل مباشر للتلاوات القرآنية</p>
-        </div>
+<div class="app">
 
-        <div class="search-panel">
-            <div class="row">
-                <div class="input-group">
-                    <label><i class="fas fa-book"></i> رقم السورة</label>
-                    <input type="number" id="surahNum" value="51" min="1" max="114">
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-list-ol"></i> أرقام الآيات</label>
-                    <input type="text" id="ayahNumbers" value="49-51" placeholder="مثال: 1,3,5-7">
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-microphone"></i> القارئ</label>
-                    <select id="reciter">
-                        <option value="Alafasy_128kbps" selected>مشاري العفاسي</option>
-                        <option value="AbdulBaset_Mujawwad_128kbps">عبد الباسط عبد الصمد</option>
-                        <option value="Abdurrahmaan_As-Sudais_128kbps">عبد الرحمن السديس</option>
-                        <option value="Ahmed_Al-Ajamy_128kbps">أحمد العجمي</option>
-                        <option value="Hudhaify_128kbps">علي الحذيفي</option>
-                        <option value="Maher_AlMuaiqly_128kbps">ماهر المعيقلي</option>
-                        <option value="Muhammad_Jibreel_128kbps">محمد جبريل</option>
-                        <option value="Yasser_Ad-Dussary_128kbps">ياسر الدوسري</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn" id="fetchBtn"><i class="fas fa-search"></i> جلب الآيات</button>
-            <div class="note">
-                <i class="fas fa-info-circle"></i> يتم التحقق من وجود كل مقطع صوتي عبر تشغيل تجريبي آمن.
-            </div>
-        </div>
+  <h1>🎬 استوديو الفيديو المباشر</h1>
 
-        <div id="globalStatus" class="status-msg"></div>
-        <div id="ayahContainer" class="ayah-list"></div>
+  <!-- ============ 1 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">1</span> مصدر الفيديو</div>
 
-        <div style="text-align:center; margin-top:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <button class="btn btn-gold" id="playAllBtn" style="display:none;">
-                <i class="fas fa-play-circle"></i> تشغيل الكل بالتسلسل
-            </button>
-            <button class="btn btn-gold" id="downloadAllBtn" style="display:none;">
-                <i class="fas fa-download"></i> تحميل الكل (كل آية منفردة)
-            </button>
-        </div>
-
-        <div style="text-align:center; margin-top:10px;">
-            <button class="btn-outline" id="toggleDebug" style="font-size:0.7rem; padding:4px 12px;">
-                <i class="fas fa-bug"></i> سجل الأخطاء والفحص
-            </button>
-        </div>
-        <div id="debugPanel" class="debug-panel"></div>
+    <div class="size-buttons" id="sourceButtons" style="grid-template-columns: repeat(2, 1fr);">
+      <button data-src="file" class="active">📁 رفع فيديو</button>
+      <button data-src="camera">🎥 تصوير مباشر</button>
     </div>
 
-    <script>
-        (() => {
-            // DOM elements
-            const surahNum = document.getElementById('surahNum');
-            const ayahNumbers = document.getElementById('ayahNumbers');
-            const reciterSelect = document.getElementById('reciter');
-            const fetchBtn = document.getElementById('fetchBtn');
-            const container = document.getElementById('ayahContainer');
-            const globalStatus = document.getElementById('globalStatus');
-            const playAllBtn = document.getElementById('playAllBtn');
-            const downloadAllBtn = document.getElementById('downloadAllBtn');
-            const debugPanel = document.getElementById('debugPanel');
-            const toggleDebug = document.getElementById('toggleDebug');
+    <div id="fileBox" style="margin-top:12px;">
+      <input type="file" id="videoFile" accept="video/*">
+    </div>
 
-            let currentAyahs = [];
-            let isPlayingAll = false;
-            let currentPlayIndex = 0;
-            let audioElement = null;
+    <div id="cameraBox" style="display:none; margin-top:12px;">
+      <button class="big-btn btn-blue" id="btnCamOn" style="margin-top:0;">🎥 تشغيل الكاميرا والميكروفون</button>
+      <button class="big-btn btn-red" id="btnCamOff" style="display:none;">⏹️ إيقاف الكاميرا</button>
+      <div class="hint">سيطلب المتصفح السماح بالوصول للكاميرا والميكروفون. اضغط «السماح».</div>
+    </div>
+  </div>
 
-            // سجل الأخطاء
-            const debugLog = [];
-            function log(msg, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                const entry = `[${timestamp}] ${type.toUpperCase()}: ${msg}`;
-                debugLog.push(entry);
-                if (debugPanel.classList.contains('active')) {
-                    debugPanel.textContent = debugLog.join('\n');
-                    debugPanel.scrollTop = debugPanel.scrollHeight;
-                }
-                console.log(entry);
-            }
+  <!-- ============ 2 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">2</span> اكتب الخبر هنا</div>
+    <textarea id="newsText" placeholder="اكتب خبرك هنا... مثال: افتتاح طريق جديد في نواكشوط"></textarea>
+  </div>
 
-            toggleDebug.addEventListener('click', () => {
-                debugPanel.classList.toggle('active');
-                if (debugPanel.classList.contains('active')) {
-                    debugPanel.textContent = debugLog.join('\n');
-                    debugPanel.scrollTop = debugPanel.scrollHeight;
-                }
-            });
+  <!-- ============ 3 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">3</span> الشعار (اختياري)</div>
+    <div class="logo-box">
+      <img id="logoPreview" src="" alt="الشعار">
+      <div class="info">
+        <b style="color:#00FF00;">لم يتم اختيار شعار</b><br>
+        <span style="font-size:0.8rem;">اختر صورة شعارك من جهازك 👇</span>
+      </div>
+    </div>
+    <input type="file" id="logoFile" accept="image/*" style="margin-top:10px;">
+  </div>
 
-            // تحليل الأرقام المدخلة
-            function parseNumbers(str) {
-                const nums = new Set();
-                const parts = str.split(/[,،]+/);
-                for (let part of parts) {
-                    part = part.trim();
-                    if (part.includes('-')) {
-                        const [s, e] = part.split('-');
-                        const start = parseInt(s);
-                        const end = parseInt(e);
-                        if (!isNaN(start) && !isNaN(end) && start <= end) {
-                            for (let i = start; i <= end; i++) nums.add(i);
-                        }
-                    } else {
-                        const n = parseInt(part);
-                        if (!isNaN(n)) nums.add(n);
-                    }
-                }
-                return Array.from(nums).sort((a, b) => a - b);
-            }
+  <!-- ============ 4 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">4</span> حجم الخبر</div>
+    <div class="size-buttons" id="sizeButtons">
+      <button data-size="2">صغير</button>
+      <button data-size="3" class="active">وسط</button>
+      <button data-size="4">كبير</button>
+      <button data-size="5">ضخم</button>
+    </div>
+  </div>
 
-            // جلب نص السورة
-            async function fetchSurahText(surah) {
-                const url = `https://api.alquran.cloud/v1/surah/${surah}`;
-                log(`جلب نص السورة من: ${url}`);
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`فشل جلب السورة (${res.status})`);
-                const data = await res.json();
-                if (data.code !== 200) throw new Error('بيانات غير صالحة');
-                log(`تم جلب ${data.data.ayahs.length} آية`);
-                return data.data.ayahs;
-            }
+  <!-- ============ 5 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">5</span> موضع الخبر</div>
+    <div class="positions" id="posButtons">
+      <button data-pos="top" title="فوق">⬆️</button>
+      <button data-pos="middle" title="وسط">⏺️</button>
+      <button data-pos="bottom" title="تحت" class="active">⬇️</button>
+      <button data-pos="bottomleft" title="تحت يسار">↙️</button>
+      <button data-pos="bottomright" title="تحت يمين">↘️</button>
+      <button data-pos="center" title="وسط تماماً">🎯</button>
+    </div>
+    <div class="hint">💡 أو اسحب النص مباشرة في المعاينة بالأسفل ←</div>
+  </div>
 
-            // بناء رابط الصوت
-            function getAudioUrl(surah, ayah, reciterPath) {
-                const paddedSurah = String(surah).padStart(3, '0');
-                const paddedAyah = String(ayah).padStart(3, '0');
-                return `https://www.everyayah.com/data/${reciterPath}/${paddedSurah}${paddedAyah}.mp3`;
-            }
+  <!-- ============ 6 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">6</span> المعاينة</div>
+    <canvas id="previewCanvas"></canvas>
+    <div class="hint">👆 اسحب النص أو الشعار داخل الفيديو لتحريكهما</div>
+  </div>
 
-            // التحقق من وجود الصوت باستخدام Audio (يتجاوز CORS)
-            function verifyAudio(url, timeoutMs = 8000) {
-                return new Promise((resolve) => {
-                    const audio = new Audio();
-                    let resolved = false;
+  <!-- ============ 7 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">7</span> الفيديو الآخر (للتبديل أثناء البث)</div>
+    <input type="file" id="otherFile" accept="video/*">
+    <div class="hint">
+      ارفع مقطعاً ثانياً (شخص آخر يتحدث مثلاً). أثناء التسجيل اضغط زر
+      «🎬 بث الفيديو الآخر» لينتقل البث إليه فوراً، ثم اضغط «🎤 العودة» لترجع إليك.
+    </div>
+    <div id="otherInfo" class="hint" style="display:none;"></div>
+  </div>
 
-                    const cleanup = () => {
-                        if (!resolved) {
-                            resolved = true;
-                            audio.removeEventListener('canplay', onCanPlay);
-                            audio.removeEventListener('error', onError);
-                            audio.src = '';
-                            audio.load();
-                        }
-                    };
+  <!-- ============ 8 ============ -->
+  <div class="step">
+    <div class="step-title"><span class="num">8</span> التسجيل</div>
 
-                    const onCanPlay = () => {
-                        cleanup();
-                        resolve(true);
-                    };
+    <button class="big-btn btn-green" id="btnStart" disabled>
+      ▶️ ابدأ التسجيل
+    </button>
 
-                    const onError = () => {
-                        cleanup();
-                        resolve(false);
-                    };
+    <button class="big-btn btn-orange" id="btnSwitch" style="display:none;">
+      🎬 بث الفيديو الآخر
+    </button>
 
-                    audio.addEventListener('canplay', onCanPlay, { once: true });
-                    audio.addEventListener('error', onError, { once: true });
+    <button class="big-btn btn-red" id="btnStop" disabled style="display:none;">
+      ⏹️ أوقف التسجيل
+    </button>
 
-                    // timeout احتياطي
-                    const timer = setTimeout(() => {
-                        cleanup();
-                        resolve(false);
-                    }, timeoutMs);
+    <div class="timer" id="timer">00:00</div>
 
-                    audio.preload = 'none';
-                    audio.src = url;
-                    audio.load();
-                });
-            }
+    <div class="status" id="status">👆 اختر مصدر الفيديو أولاً</div>
 
-            // عرض الآيات
-            function renderAyahs(ayahs) {
-                container.innerHTML = '';
-                currentAyahs = ayahs;
-                playAllBtn.style.display = 'none';
-                downloadAllBtn.style.display = 'none';
+    <button class="big-btn btn-blue" id="btnDownload" style="display:none;">
+      ⬇️ تحميل الفيديو
+    </button>
+  </div>
 
-                if (ayahs.length === 0) {
-                    container.innerHTML = '<p style="text-align:center;color:var(--gold);">لا توجد آيات متاحة للعرض.</p>';
-                    return;
-                }
+</div>
 
-                const availableAyahs = ayahs.filter(a => a.audioExists);
-                if (availableAyahs.length > 0) {
-                    playAllBtn.style.display = 'inline-flex';
-                    downloadAllBtn.style.display = 'inline-flex';
-                }
+<script>
+// ============================================================
+//  استوديو فيديو مباشر
+//  - رفع فيديو  أو  تصوير مباشر بالكاميرا
+//  - دمج/تبديل مع فيديو آخر بضغطة زر أثناء التسجيل
+//  - صوت مختلط عبر AudioContext (ميكروفون + صوت الفيديو الآخر)
+// ============================================================
 
-                ayahs.forEach((ayah) => {
-                    const div = document.createElement('div');
-                    div.className = 'ayah-item';
-                    if (!ayah.audioExists) {
-                        div.classList.add('unavailable');
-                    }
+// ===== الحالة =====
+let videoFile = null, logoImg = null;
+let videoLoaded = false;
+let cameraReady = false;
+let otherLoaded = false;
 
-                    let audioHtml = '';
-                    if (ayah.audioExists) {
-                        audioHtml = `<audio class="ayah-audio" src="${ayah.audio}" controls preload="none"></audio>`;
-                    } else {
-                        audioHtml = `<div class="error-msg"><i class="fas fa-exclamation-triangle"></i> المقطع الصوتي غير متوفر حالياً</div>`;
-                    }
+let activeSource = 'file';   // 'file' | 'camera'
+let broadcast    = 'main';   // 'main' | 'other'
 
-                    div.innerHTML = `
-                        <div class="ayah-text">
-                            ﴿${ayah.text}﴾ 
-                            <span style="font-size:0.8rem;color:var(--gold);">[${ayah.number}]</span>
-                        </div>
-                        ${audioHtml}
-                        <div class="ayah-actions">
-                            ${ayah.audioExists ? `
-                                <button class="btn btn-outline download-single" data-url="${ayah.audio}" data-filename="آية_${ayah.number}.mp3">
-                                    <i class="fas fa-download"></i> تحميل
-                                </button>
-                            ` : `
-                                <span class="error-msg">تحميل غير متاح</span>
-                            `}
-                            <button class="btn-outline test-link" data-url="${ayah.audio}" style="font-size:0.7rem; padding:4px 10px;">
-                                <i class="fas fa-link"></i> اختبار الرابط
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
+let isRecording = false;
+let mediaRecorder = null;
+let recordedChunks = [];
+let canvasStream = null;
+let cameraStream = null;
 
-                // ربط أزرار التحميل المنفرد
-                document.querySelectorAll('.download-single').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const url = btn.dataset.url;
-                        const filename = btn.dataset.filename;
-                        downloadFile(url, filename, btn);
-                    });
-                });
+let animFrame = null;
+let outputBlob = null;
+let outputExt = 'mp4';
+let pickMime = '';
+let newsSize = 3;
+let newsPos = 'bottom';
+let newsX = 0.5, newsY = 0.85;
+let logoX = 0.5, logoY = 0.15;
+let isDragging = null;
+let dragOff = { x: 0, y: 0 };
+let timerInterval = null;
+let recordStartTime = 0;
 
-                // ربط أزرار اختبار الرابط
-                document.querySelectorAll('.test-link').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const url = btn.dataset.url;
-                        log(`اختبار الرابط: ${url}`);
-                        window.open(url, '_blank');
-                    });
-                });
-            }
+// ===== عناصر الفيديو المخفية =====
+const video = document.createElement('video');
+video.playsInline = true;
+video.muted = false;
+video.volume = 1;
+video.preload = 'auto';
+video.setAttribute('playsinline', '');
+video.setAttribute('webkit-playsinline', '');
 
-            // تحميل ملف واحد
-            async function downloadFile(url, filename, btnElement) {
-                const originalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = '<span class="spinner"></span> جاري التحميل...';
-                btnElement.disabled = true;
-                try {
-                    log(`بدء تحميل: ${filename} من ${url}`);
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`فشل التحميل (${response.status})`);
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(blobUrl);
-                    log(`تم تحميل ${filename} بنجاح`);
-                    globalStatus.textContent = `✅ تم تحميل ${filename}`;
-                } catch (err) {
-                    log(`فشل التحميل ${filename}: ${err.message}. سيتم فتح الرابط في نافذة جديدة.`, 'error');
-                    window.open(url, '_blank');
-                    globalStatus.textContent = `⚠️ تعذر التحميل المباشر، تم فتح الرابط في نافذة جديدة`;
-                } finally {
-                    btnElement.innerHTML = originalHtml;
-                    btnElement.disabled = false;
-                }
-            }
+const camVideo = document.createElement('video');
+camVideo.playsInline = true;
+camVideo.muted = true;                 // الكتم هنا لا يؤثر على الصوت المسجَّل
+camVideo.setAttribute('playsinline', '');
+camVideo.setAttribute('webkit-playsinline', '');
 
-            // تحميل جميع الآيات المتاحة
-            async function downloadAllAyahs() {
-                const available = currentAyahs.filter(a => a.audioExists);
-                if (available.length === 0) {
-                    globalStatus.textContent = 'لا توجد آيات متاحة للتحميل.';
-                    return;
-                }
-                downloadAllBtn.disabled = true;
-                globalStatus.textContent = `جاري تحميل ${available.length} آيات...`;
-                log(`بدء تحميل ${available.length} آيات`);
-                for (let i = 0; i < available.length; i++) {
-                    const ayah = available[i];
-                    globalStatus.textContent = `تحميل الآية ${ayah.number} من ${available.length}...`;
-                    await downloadFile(ayah.audio, `آية_${ayah.number}.mp3`, downloadAllBtn);
-                    await new Promise(r => setTimeout(r, 500));
-                }
-                globalStatus.textContent = '✅ تم تحميل جميع الآيات المتاحة.';
-                downloadAllBtn.disabled = false;
-            }
+const otherVideo = document.createElement('video');
+otherVideo.playsInline = true;
+otherVideo.setAttribute('playsinline', '');
+otherVideo.setAttribute('webkit-playsinline', '');
 
-            // تشغيل الآيات بالتسلسل
-            function playAllSequentially() {
-                const available = currentAyahs.filter(a => a.audioExists);
-                if (available.length === 0) return;
+[video, camVideo, otherVideo].forEach(v => {
+  v.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:2px;height:2px;opacity:0.01;pointer-events:none;';
+  document.body.appendChild(v);
+});
 
-                if (isPlayingAll) {
-                    stopPlayAll();
-                    return;
-                }
+// ===== عناصر الواجهة =====
+const $ = id => document.getElementById(id);
+const videoFileInp = $('videoFile');
+const otherFileInp = $('otherFile');
+const newsText = $('newsText');
+const logoFileInp = $('logoFile');
+const logoPreview = $('logoPreview');
+const sizeButtons = $('sizeButtons');
+const posButtons = $('posButtons');
+const sourceButtons = $('sourceButtons');
+const fileBox = $('fileBox');
+const cameraBox = $('cameraBox');
+const btnCamOn = $('btnCamOn');
+const btnCamOff = $('btnCamOff');
+const otherInfo = $('otherInfo');
+const canvas = $('previewCanvas');
+const ctx = canvas.getContext('2d');
+const btnStart = $('btnStart');
+const btnStop = $('btnStop');
+const btnSwitch = $('btnSwitch');
+const btnDownload = $('btnDownload');
+const statusEl = $('status');
+const timerEl = $('timer');
 
-                isPlayingAll = true;
-                currentPlayIndex = 0;
-                playAllBtn.innerHTML = '<i class="fas fa-stop-circle"></i> إيقاف التشغيل';
-                globalStatus.textContent = `تشغيل الآية 1 من ${available.length}`;
-                playAyahAtIndex(available);
-            }
+function setStatus(type, msg) {
+  statusEl.className = 'status ' + (type || '');
+  statusEl.innerHTML = msg;
+}
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return '--:--';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
 
-            function playAyahAtIndex(available) {
-                if (currentPlayIndex >= available.length) {
-                    stopPlayAll();
-                    globalStatus.textContent = '✅ انتهى تشغيل جميع الآيات.';
-                    return;
-                }
+// ============================================================
+//  اختيار أفضل صيغة
+// ============================================================
+function pickBestMime(hasAudio) {
+  if (typeof MediaRecorder === 'undefined') return { mime: '', ext: 'webm' };
 
-                const ayah = available[currentPlayIndex];
-                if (audioElement) {
-                    audioElement.pause();
-                    audioElement.src = '';
-                }
-                audioElement = new Audio(ayah.audio);
-                audioElement.preload = 'auto';
-                audioElement.onloadeddata = () => {
-                    audioElement.play().catch(err => {
-                        log(`فشل تشغيل الآية ${ayah.number}: ${err.message}`, 'error');
-                        currentPlayIndex++;
-                        playAyahAtIndex(available);
-                    });
-                };
-                audioElement.onended = () => {
-                    currentPlayIndex++;
-                    if (isPlayingAll) {
-                        globalStatus.textContent = `تشغيل الآية ${currentPlayIndex + 1} من ${available.length}`;
-                        playAyahAtIndex(available);
-                    }
-                };
-                audioElement.onerror = () => {
-                    log(`خطأ في تشغيل الآية ${ayah.number}`, 'error');
-                    currentPlayIndex++;
-                    playAyahAtIndex(available);
-                };
-            }
+  const withAudio = [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=h264,aac',
+    'video/mp4;codecs=avc1,aac',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm'
+  ];
+  const withoutAudio = [
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4;codecs=avc1',
+    'video/mp4;codecs=h264',
+    'video/mp4',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ];
 
-            function stopPlayAll() {
-                isPlayingAll = false;
-                if (audioElement) {
-                    audioElement.pause();
-                    audioElement.src = '';
-                }
-                playAllBtn.innerHTML = '<i class="fas fa-play-circle"></i> تشغيل الكل بالتسلسل';
-            }
+  const list = hasAudio ? withAudio : withoutAudio;
+  for (const m of list) {
+    try {
+      if (MediaRecorder.isTypeSupported(m)) {
+        const isMp4 = m.indexOf('mp4') !== -1;
+        console.log('✅ MIME مختار:', m);
+        return { mime: m, ext: isMp4 ? 'mp4' : 'webm' };
+      }
+    } catch (e) {}
+  }
+  return { mime: '', ext: 'webm' };
+}
 
-            // زر جلب الآيات
-            fetchBtn.addEventListener('click', async () => {
-                const surah = parseInt(surahNum.value);
-                const reciterPath = reciterSelect.value;
-                const numbers = parseNumbers(ayahNumbers.value);
+// ============================================================
+//  خط الصوت المختلط
+// ============================================================
+let audioCtx = null, audioDest = null;
+let srcMainEl = null, srcOtherEl = null, micNode = null;
+let gainMain = null, gainOther = null, gainMic = null;
 
-                if (!surah || surah < 1 || surah > 114) {
-                    alert('الرجاء إدخال رقم سورة صحيح بين 1 و 114.');
-                    return;
-                }
-                if (numbers.length === 0) {
-                    alert('الرجاء إدخال أرقام آيات صحيحة (مثال: 1,3,5-7).');
-                    return;
-                }
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { console.warn('⚠️ AudioContext غير مدعوم'); return null; }
 
-                stopPlayAll();
-                container.innerHTML = '';
-                playAllBtn.style.display = 'none';
-                downloadAllBtn.style.display = 'none';
-                globalStatus.innerHTML = '<span class="spinner"></span> جاري جلب الآيات والتحقق من الصوتيات...';
+  try {
+    audioCtx = new AC();
+    audioDest = audioCtx.createMediaStreamDestination();
 
-                try {
-                    const allAyahs = await fetchSurahText(surah);
-                    const selected = allAyahs.filter(a => numbers.includes(a.numberInSurah));
-                    if (selected.length === 0) {
-                        globalStatus.textContent = 'لم يتم العثور على الآيات المطلوبة في هذه السورة.';
-                        return;
-                    }
+    gainMain  = audioCtx.createGain();
+    gainOther = audioCtx.createGain();
+    gainMic   = audioCtx.createGain();
 
-                    const formatted = [];
-                    for (const a of selected) {
-                        const audioUrl = getAudioUrl(surah, a.numberInSurah, reciterPath);
-                        log(`التحقق من: ${audioUrl}`);
-                        const exists = await verifyAudio(audioUrl);
-                        log(`النتيجة: ${exists ? 'موجود' : 'غير موجود'}`);
-                        formatted.push({
-                            number: a.numberInSurah,
-                            text: a.text,
-                            audio: audioUrl,
-                            audioExists: exists
-                        });
-                    }
+    gainMain.gain.value  = 1;
+    gainOther.gain.value = 0;
+    gainMic.gain.value   = 1;
 
-                    renderAyahs(formatted);
-                    const availableCount = formatted.filter(a => a.audioExists).length;
-                    globalStatus.textContent = `✅ تم جلب ${formatted.length} آيات (${availableCount} متاحة صوتياً).`;
-                } catch (err) {
-                    log(`خطأ: ${err.message}`, 'error');
-                    globalStatus.textContent = '❌ خطأ: ' + err.message;
-                }
-            });
+    // كل المصادر → مسار التسجيل
+    gainMain.connect(audioDest);
+    gainOther.connect(audioDest);
+    gainMic.connect(audioDest);
 
-            playAllBtn.addEventListener('click', playAllSequentially);
-            downloadAllBtn.addEventListener('click', downloadAllAyahs);
+    // السماعات: الفيديو فقط (الميكروفون لا يُسمَّع لتجنّب الصدى)
+    gainMain.connect(audioCtx.destination);
+    gainOther.connect(audioCtx.destination);
 
-            // تشغيل افتراضي عند التحميل
-            window.addEventListener('load', () => {
-                log('تم تحميل الصفحة. مثال لرابط آية 49 من الذاريات: ' + getAudioUrl(51, 49, 'Alafasy_128kbps'));
-                fetchBtn.click();
-            });
-        })();
-    </script>
+    console.log('✅ AudioContext جاهز');
+    return audioCtx;
+  } catch (e) {
+    console.error('❌ فشل إنشاء AudioContext:', e);
+    audioCtx = null;
+    return null;
+  }
+}
+
+function resumeAudio() {
+  const c = ensureAudio();
+  if (c && c.state === 'suspended') {
+    c.resume().then(() => console.log('🔊 AudioContext resumed'))
+               .catch(err => console.warn('resume failed:', err));
+  }
+  return c;
+}
+
+function connectMainEl() {
+  if (!ensureAudio()) return;
+  if (srcMainEl) return;
+  try {
+    srcMainEl = audioCtx.createMediaElementSource(video);
+    srcMainEl.connect(gainMain);
+    console.log('🔗 ربط صوت الفيديو الرئيسي');
+  } catch (e) { console.warn('فشل ربط صوت الفيديو الرئيسي:', e); }
+}
+
+function connectOtherEl() {
+  if (!ensureAudio()) return;
+  if (srcOtherEl) return;
+  try {
+    srcOtherEl = audioCtx.createMediaElementSource(otherVideo);
+    srcOtherEl.connect(gainOther);
+    console.log('🔗 ربط صوت الفيديو الآخر');
+  } catch (e) { console.warn('فشل ربط صوت الفيديو الآخر:', e); }
+}
+
+function connectMic() {
+  if (!ensureAudio()) return false;
+  if (!cameraStream) return false;
+  const at = cameraStream.getAudioTracks();
+  if (!at.length) { console.warn('⚠️ لا يوجد مسار صوتي في الكاميرا'); return false; }
+
+  try {
+    if (micNode) { try { micNode.disconnect(); } catch (e) {} micNode = null; }
+    micNode = audioCtx.createMediaStreamSource(cameraStream);
+    micNode.connect(gainMic);
+    console.log('🎤 ربط الميكروفون');
+    return true;
+  } catch (e) { console.warn('فشل ربط الميكروفون:', e); return false; }
+}
+
+// توزيع الصوت حسب وضع البث الحالي
+function applyMix() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const mainOn  = (broadcast === 'main')  ? 1 : 0;
+  const otherOn = (broadcast === 'other') ? 1 : 0;
+
+  if (gainMain)  gainMain.gain.setTargetAtTime(mainOn, t, 0.05);
+  if (gainMic)   gainMic.gain.setTargetAtTime(mainOn, t, 0.05);
+  if (gainOther) gainOther.gain.setTargetAtTime(otherOn, t, 0.05);
+}
+
+// ============================================================
+//  اختيار مصدر الفيديو (ملف / كاميرا)
+// ============================================================
+sourceButtons.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn || isRecording) return;
+  sourceButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeSource = btn.dataset.src;
+
+  fileBox.style.display   = (activeSource === 'file')   ? 'block' : 'none';
+  cameraBox.style.display = (activeSource === 'camera') ? 'block' : 'none';
+
+  resizeCanvasForSource();
+  refreshStartBtn();
+  redraw();
+});
+
+function resizeCanvasForSource() {
+  let w = 640, h = 360;
+  if (activeSource === 'file' && videoLoaded && video.videoWidth) {
+    w = video.videoWidth; h = video.videoHeight;
+  } else if (activeSource === 'camera' && cameraReady && camVideo.videoWidth) {
+    w = camVideo.videoWidth; h = camVideo.videoHeight;
+  }
+  w -= w % 2; h -= h % 2;
+  if (w > 0 && h > 0) { canvas.width = w; canvas.height = h; }
+}
+
+function refreshStartBtn() {
+  const ready = (activeSource === 'file') ? videoLoaded : cameraReady;
+  btnStart.disabled = !ready || isRecording;
+}
+
+// ============================================================
+//  رفع الفيديو الرئيسي
+// ============================================================
+videoFileInp.addEventListener('change', e => {
+  videoFile = e.target.files[0];
+  if (!videoFile) return;
+  try {
+    video.src = URL.createObjectURL(videoFile);
+    video.load();
+  } catch (err) {
+    setStatus('err', '⚠️ خطأ في تحميل الفيديو');
+    return;
+  }
+  video.onloadedmetadata = () => {
+    videoLoaded = true;
+    video.currentTime = 0;
+    if (activeSource === 'file') resizeCanvasForSource();
+    refreshStartBtn();
+    redraw();
+    setStatus('ok', '✅ الفيديو جاهز! اضغط الزر الأخضر');
+  };
+  video.onerror = () => setStatus('err', '⚠️ خطأ في صيغة الفيديو');
+});
+
+// ============================================================
+//  الكاميرا المباشرة
+// ============================================================
+btnCamOn.addEventListener('click', async function () {
+  try {
+    setStatus('busy', '⏳ جاري تشغيل الكاميرا...');
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
+
+    camVideo.srcObject = cameraStream;
+    camVideo.muted = true;
+    await camVideo.play();
+
+    if (!camVideo.videoWidth) {
+      await new Promise(res => { camVideo.onloadedmetadata = res; });
+    }
+
+    cameraReady = true;
+    resizeCanvasForSource();
+
+    resumeAudio();
+    connectMic();
+    applyMix();
+
+    btnCamOn.style.display = 'none';
+    btnCamOff.style.display = 'flex';
+    refreshStartBtn();
+    redraw();
+
+    const hasMic = cameraStream.getAudioTracks().length > 0;
+    setStatus('ok', '✅ الكاميرا جاهزة' + (hasMic ? ' مع الميكروفون 🎤' : ' (بدون ميكروفون)') + ' — اضغط الزر الأخضر');
+  } catch (e) {
+    console.error('Camera error:', e);
+    setStatus('err', '⚠️ تعذر تشغيل الكاميرا: ' + (e.message || e) +
+      '<br><span style="font-size:0.8rem;">تأكد من السماح بالوصول للكاميرا والميكروفون</span>');
+  }
+});
+
+btnCamOff.addEventListener('click', function () {
+  if (isRecording) return;
+  stopCamera();
+  setStatus('', '👆 اضغط «تشغيل الكاميرا» من جديد');
+});
+
+function stopCamera() {
+  try {
+    if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+  } catch (e) {}
+  cameraStream = null;
+  cameraReady = false;
+  camVideo.srcObject = null;
+  btnCamOn.style.display = 'flex';
+  btnCamOff.style.display = 'none';
+  refreshStartBtn();
+  redraw();
+}
+
+// ============================================================
+//  الفيديو الآخر (المقطع الثاني)
+// ============================================================
+otherFileInp.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  otherLoaded = false;
+  otherVideo.src = URL.createObjectURL(f);
+  otherVideo.load();
+
+  otherVideo.onloadedmetadata = () => {
+    otherLoaded = true;
+    otherInfo.style.display = 'block';
+    otherInfo.innerHTML =
+      '✅ تم تحميل الفيديو الآخر — المدة: <b style="color:#00FF00;">' +
+      fmtTime(otherVideo.duration) + '</b><br>' +
+      'أثناء التسجيل سيظهر زر «🎬 بث الفيديو الآخر».';
+    if (audioCtx) { connectOtherEl(); applyMix(); }
+    console.log('✅ الفيديو الآخر جاهز');
+  };
+  otherVideo.onerror = () => {
+    otherLoaded = false;
+    otherInfo.style.display = 'block';
+    otherInfo.innerHTML = '⚠️ تعذر تحميل الفيديو الآخر';
+  };
+});
+
+otherVideo.addEventListener('ended', () => {
+  if (isRecording && broadcast === 'other') switchBackToMain();
+});
+
+// ============================================================
+//  الشعار
+// ============================================================
+logoFileInp.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    logoImg = img;
+    logoPreview.src = img.src;
+    logoPreview.classList.add('visible');
+    const info = logoPreview.parentElement.querySelector('.info');
+    if (info) info.innerHTML = '<b style="color:#00FF00;">تم اختيار الشعار ✅</b><br><span style="font-size:0.8rem;">اختر صورة أخرى للتبديل 👇</span>';
+    redraw();
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+// ============================================================
+//  حجم الخبر
+// ============================================================
+sizeButtons.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  sizeButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  newsSize = parseInt(btn.dataset.size);
+  redraw();
+});
+
+// ============================================================
+//  موضع الخبر
+// ============================================================
+const POS_MAP = {
+  top:         { x: 0.5, y: 0.15 },
+  middle:      { x: 0.5, y: 0.5 },
+  bottom:      { x: 0.5, y: 0.85 },
+  bottomleft:  { x: 0.2, y: 0.85 },
+  bottomright: { x: 0.8, y: 0.85 },
+  center:      { x: 0.5, y: 0.5 }
+};
+posButtons.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  posButtons.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  newsPos = btn.dataset.pos;
+  const p = POS_MAP[newsPos];
+  newsX = p.x; newsY = p.y;
+  redraw();
+});
+
+// ============================================================
+//  الرسم
+// ============================================================
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    this.closePath();
+    return this;
+  };
+}
+
+function drawCover(el, W, H) {
+  const vw = el.videoWidth, vh = el.videoHeight;
+  if (!vw || !vh) return false;
+  const va = vw / vh, ca = W / H;
+  let dw, dh, dx, dy;
+  if (va > ca) { dw = W; dh = W / va; dx = 0; dy = (H - dh) / 2; }
+  else         { dh = H; dw = H * va; dx = (W - dw) / 2; dy = 0; }
+  try { ctx.drawImage(el, dx, dy, dw, dh); return true; }
+  catch (e) { return false; }
+}
+
+function drawPip(el, W, H) {
+  if (!el.videoWidth) return;
+  const pw = W * 0.24;
+  const ph = pw * (el.videoHeight / el.videoWidth);
+  const px = W - pw - W * 0.025;
+  const py = H * 0.03;
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, 14);
+  ctx.clip();
+  ctx.drawImage(el, px, py, pw, ph);
+  ctx.restore();
+  ctx.save();
+  ctx.strokeStyle = '#00FF00';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, 14);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function redraw() {
+  const W = canvas.width, H = canvas.height;
+  if (!W || !H) return;
+
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  let drew = false;
+
+  if (broadcast === 'other' && otherLoaded && otherVideo.readyState >= 2) {
+    // ===== بث الفيديو الآخر =====
+    drew = drawCover(otherVideo, W, H);
+    if (activeSource === 'camera' && camVideo.readyState >= 2) {
+      drawPip(camVideo, W, H);   // صورة صغيرة للمتحدث
+    }
+  } else {
+    // ===== البث الرئيسي =====
+    if (activeSource === 'camera') {
+      if (camVideo.readyState >= 2) drew = drawCover(camVideo, W, H);
+    } else {
+      if (videoLoaded && video.readyState >= 2) drew = drawCover(video, W, H);
+    }
+  }
+
+  if (!drew) {
+    ctx.fillStyle = '#5a7a9a';
+    ctx.font = `${Math.min(20, W * 0.03)}px Cairo, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      activeSource === 'camera' ? '🎥 اضغط «تشغيل الكاميرا»' : '🎥 اختر فيديو من الخطوة 1',
+      W / 2, H / 2
+    );
+  }
+
+  // ===== الشعار =====
+  if (logoImg && logoImg.width) {
+    const lw = W * 0.18;
+    const lh = (logoImg.height / logoImg.width) * lw;
+    let lx = logoX * W - lw / 2;
+    let ly = logoY * H - lh / 2;
+    lx = Math.max(0, Math.min(W - lw, lx));
+    ly = Math.max(0, Math.min(H - lh, ly));
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00FF0080';
+    ctx.drawImage(logoImg, lx, ly, lw, lh);
+    ctx.restore();
+    canvas._logoBounds = { x: lx, y: ly, w: lw, h: lh };
+  } else {
+    canvas._logoBounds = null;
+  }
+
+  // ===== النص الإخباري =====
+  const news = newsText.value.trim();
+  if (news) {
+    const sizes = { 2: 0.035, 3: 0.05, 4: 0.07, 5: 0.095 };
+    const fs = W * (sizes[newsSize] || 0.05);
+    ctx.font = `900 ${fs}px Cairo, Tahoma, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const maxWidth = W * 0.9;
+    const words = news.split(' ');
+    const lines = [];
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = w;
+      } else line = test;
+    }
+    if (line) lines.push(line);
+
+    const lineH = fs * 1.3;
+    const totalH = lines.length * lineH;
+    const boxX = newsX * W;
+    const boxY = newsY * H;
+    const startY = boxY - totalH / 2 + lineH / 2;
+
+    let maxLineW = 0;
+    for (const l of lines) maxLineW = Math.max(maxLineW, ctx.measureText(l).width);
+
+    const padX = 20, padY = 12;
+    const bx = boxX - maxLineW / 2 - padX;
+    const by = boxY - totalH / 2 - padY;
+    const bw = maxLineW + padX * 2;
+    const bh = totalH + padY * 2;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#00FF00';
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#00FF00';
+    lines.forEach((l, i) => ctx.fillText(l, boxX, startY + i * lineH));
+    ctx.shadowBlur = 0;
+
+    canvas._newsBounds = { x: bx, y: by, w: bw, h: bh };
+  } else {
+    canvas._newsBounds = null;
+  }
+}
+
+newsText.addEventListener('input', redraw);
+
+// ============================================================
+//  السحب
+// ============================================================
+function getPt(e) {
+  const r = canvas.getBoundingClientRect();
+  const sx = canvas.width / r.width;
+  const sy = canvas.height / r.height;
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX);
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY);
+  return { x: (cx - r.left) * sx, y: (cy - r.top) * sy };
+}
+function inside(pt, b) {
+  return b && pt.x >= b.x && pt.x <= b.x + b.w && pt.y >= b.y && pt.y <= b.y + b.h;
+}
+function down(e) {
+  if (isRecording) return;
+  const pt = getPt(e);
+  if (inside(pt, canvas._newsBounds)) {
+    isDragging = 'news';
+    dragOff.x = pt.x - canvas._newsBounds.x;
+    dragOff.y = pt.y - canvas._newsBounds.y;
+    if (e.cancelable) e.preventDefault();
+  } else if (inside(pt, canvas._logoBounds)) {
+    isDragging = 'logo';
+    dragOff.x = pt.x - canvas._logoBounds.x;
+    dragOff.y = pt.y - canvas._logoBounds.y;
+    if (e.cancelable) e.preventDefault();
+  }
+}
+function move(e) {
+  if (!isDragging) return;
+  const pt = getPt(e);
+  const W = canvas.width, H = canvas.height;
+  if (isDragging === 'news') {
+    const b = canvas._newsBounds;
+    newsX = Math.max(0.1, Math.min(0.9, (pt.x - dragOff.x + b.w / 2) / W));
+    newsY = Math.max(0.1, Math.min(0.9, (pt.y - dragOff.y + b.h / 2) / H));
+  } else if (isDragging === 'logo') {
+    const b = canvas._logoBounds;
+    logoX = Math.max(0.1, Math.min(0.9, (pt.x - dragOff.x + b.w / 2) / W));
+    logoY = Math.max(0.1, Math.min(0.9, (pt.y - dragOff.y + b.h / 2) / H));
+  }
+  if (e.cancelable) e.preventDefault();
+  redraw();
+}
+function up() { isDragging = null; }
+
+canvas.addEventListener('mousedown', down);
+canvas.addEventListener('mousemove', move);
+canvas.addEventListener('mouseup', up);
+canvas.addEventListener('mouseleave', up);
+canvas.addEventListener('touchstart', down, { passive: false });
+canvas.addEventListener('touchmove', move, { passive: false });
+canvas.addEventListener('touchend', up);
+canvas.addEventListener('touchcancel', up);
+
+// ============================================================
+//  المؤقّت
+// ============================================================
+function startTimer() {
+  recordStartTime = Date.now();
+  timerEl.classList.add('show');
+  timerEl.textContent = '00:00';
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+  }, 250);
+}
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  timerEl.classList.remove('show');
+}
+
+// ============================================================
+//  زر التبديل بين المصدرين أثناء التسجيل
+// ============================================================
+btnSwitch.addEventListener('click', function () {
+  if (!isRecording || !otherLoaded) return;
+
+  if (broadcast === 'main') {
+    // → اذهب للفيديو الآخر
+    broadcast = 'other';
+    try { if (activeSource === 'file') video.pause(); } catch (e) {}
+    try { otherVideo.currentTime = 0; } catch (e) {}
+    const p = otherVideo.play();
+    if (p && p.catch) p.catch(err => console.warn('other play failed:', err));
+    applyMix();
+    updateSwitchUI();
+    setStatus('busy', '🎬 البث الآن للفيديو الآخر — اضغط الزر للعودة إليك');
+  } else {
+    switchBackToMain();
+  }
+});
+
+function switchBackToMain() {
+  broadcast = 'main';
+  try { otherVideo.pause(); } catch (e) {}
+  if (activeSource === 'file' && isRecording) {
+    const p = video.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+  applyMix();
+  updateSwitchUI();
+  if (isRecording) setStatus('busy', '🔴 جاري التسجيل — أنت على البث الآن');
+}
+
+function updateSwitchUI() {
+  if (broadcast === 'other') {
+    btnSwitch.textContent = '🎤 العودة للبث المباشر';
+    btnSwitch.classList.remove('btn-orange');
+    btnSwitch.classList.add('btn-green');
+  } else {
+    btnSwitch.textContent = '🎬 بث الفيديو الآخر';
+    btnSwitch.classList.remove('btn-green');
+    btnSwitch.classList.add('btn-orange');
+  }
+}
+
+// ============================================================
+//  بدء التسجيل
+// ============================================================
+btnStart.addEventListener('click', function () {
+  const ready = (activeSource === 'file') ? videoLoaded : cameraReady;
+  if (!ready || isRecording) return;
+
+  console.log('▶️ بدء التسجيل | المصدر:', activeSource);
+
+  try {
+    // 1) تشغيل / استئناف الصوت
+    resumeAudio();
+
+    // 2) ربط مصادر الصوت
+    if (activeSource === 'file') {
+      video.muted = false;
+      video.volume = 1;
+      connectMainEl();
+    } else {
+      connectMic();
+    }
+    if (otherLoaded) connectOtherEl();
+
+    // 3) الوضع الافتراضي: البث الرئيسي
+    broadcast = 'main';
+    applyMix();
+    updateSwitchUI();
+
+    // 4) مسار الفيديو من الكانفاس
+    canvasStream = canvas.captureStream(30);
+    if (!canvasStream || canvasStream.getVideoTracks().length === 0) {
+      throw new Error('تعذر التقاط صورة الفيديو');
+    }
+    const tracks = [];
+    canvasStream.getVideoTracks().forEach(t => tracks.push(t));
+
+    // 5) مسار الصوت المختلط
+    let audioAdded = false;
+    if (audioDest) {
+      const aTracks = audioDest.stream.getAudioTracks();
+      if (aTracks && aTracks.length > 0) {
+        aTracks.forEach(t => tracks.push(t));
+        audioAdded = true;
+        console.log('🎵 مسار صوتي مختلط — عدد القنوات:', aTracks.length);
+      }
+    }
+
+    // 6) خطة بديلة (رفع فيديو فقط)
+    if (!audioAdded && activeSource === 'file') {
+      try {
+        const fn = video.captureStream || video.mozCaptureStream;
+        if (fn) {
+          const vs = fn.call(video);
+          const at = vs.getAudioTracks();
+          if (at && at.length > 0) {
+            at.forEach(t => tracks.push(t));
+            audioAdded = true;
+            console.log('🎵 مسار صوتي احتياطي');
+          }
+        }
+      } catch (e) { console.warn(e); }
+    }
+
+    if (!audioAdded) console.warn('⚠️ لا يوجد صوت — سيُسجَّل الفيديو صامتاً');
+
+    // 7) الصيغة
+    const fmt = pickBestMime(audioAdded);
+    pickMime = fmt.mime;
+    outputExt = fmt.ext;
+
+    // 8) MediaRecorder
+    const combined = new MediaStream(tracks);
+    console.log('📼 المسارات:', combined.getTracks().map(t => t.kind));
+
+    const options = { videoBitsPerSecond: 5000000 };
+    if (pickMime) options.mimeType = pickMime;
+    if (audioAdded) options.audioBitsPerSecond = 128000;
+
+    mediaRecorder = new MediaRecorder(combined, options);
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = ev => {
+      if (ev.data && ev.data.size > 0) recordedChunks.push(ev.data);
+    };
+    mediaRecorder.onerror = ev => console.error('MediaRecorder error:', ev);
+    mediaRecorder.onstop = () => finishRecording();
+
+    // 9) التحضير للتشغيل
+    if (activeSource === 'file') {
+      video.currentTime = 0;
+    } else {
+      try { otherVideo.pause(); otherVideo.currentTime = 0; } catch (e) {}
+    }
+
+    // 10) ابدأ
+    mediaRecorder.start(500);
+    isRecording = true;
+    startTimer();
+
+    btnStart.style.display = 'none';
+    btnStop.style.display = 'flex';
+    btnStop.disabled = false;
+    btnDownload.style.display = 'none';
+
+    // زر التبديل يظهر فقط إذا وُجد فيديو آخر
+    if (otherLoaded) {
+      btnSwitch.style.display = 'flex';
+      updateSwitchUI();
+    } else {
+      btnSwitch.style.display = 'none';
+    }
+
+    setStatus(
+      'busy',
+      '<span class="live-dot"></span> جاري التسجيل' +
+      (audioAdded ? ' مع الصوت ✅' : ' (بدون صوت)') +
+      (otherLoaded ? '<br><span style="font-size:0.85rem;">يمكنك التبديل للفيديو الآخر في أي لحظة</span>' : '') +
+      '<br>اضغط الزر الأحمر عند الانتهاء'
+    );
+
+    // 11) شغّل المصدر
+    if (activeSource === 'file') {
+      const p = video.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => loop()).catch(err => {
+          console.error('Play failed:', err);
+          setStatus('err', '⚠️ تعذر تشغيل الفيديو — اضغط الزر الأخضر مجدداً');
+          cancelRecording();
+        });
+      } else loop();
+    } else {
+      loop();
+    }
+
+  } catch (e) {
+    console.error('Start error:', e);
+    setStatus('err', '⚠️ خطأ في بدء التسجيل: ' + (e.message || e));
+    isRecording = false;
+    btnStart.style.display = 'flex';
+    btnStop.style.display = 'none';
+    btnSwitch.style.display = 'none';
+    stopTimer();
+  }
+});
+
+function loop() {
+  redraw();
+  if (isRecording) animFrame = requestAnimationFrame(loop);
+}
+
+// ============================================================
+//  إيقاف التسجيل
+// ============================================================
+btnStop.addEventListener('click', () => stopRecording());
+
+function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  stopTimer();
+
+  try {
+    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  } catch (e) {
+    console.warn('stop failed:', e);
+    finishRecording();
+  }
+
+  try { video.pause(); } catch (e) {}
+  try { otherVideo.pause(); } catch (e) {}
+  broadcast = 'main';
+  applyMix();
+
+  btnStop.style.display = 'none';
+  btnStop.disabled = true;
+  btnSwitch.style.display = 'none';
+  btnStart.style.display = 'flex';
+  btnStart.disabled = false;
+  setStatus('busy', '⏳ جاري تجهيز الملف...');
+}
+
+function cancelRecording() {
+  isRecording = false;
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  stopTimer();
+  try {
+    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  } catch (e) {}
+  btnStop.style.display = 'none';
+  btnSwitch.style.display = 'none';
+  btnStart.style.display = 'flex';
+}
+
+video.addEventListener('ended', () => {
+  if (isRecording && activeSource === 'file' && broadcast === 'main') stopRecording();
+});
+
+// ============================================================
+//  تجهيز الملف
+// ============================================================
+function finishRecording() {
+  if (!recordedChunks || recordedChunks.length === 0) {
+    setStatus('err', '⚠️ لم يتم تسجيل أي بيانات — حاول مرة أخرى');
+    return;
+  }
+
+  const mime = (mediaRecorder && mediaRecorder.mimeType) || pickMime || 'video/webm';
+  outputBlob = new Blob(recordedChunks, { type: mime });
+
+  const isMp4 = mime.indexOf('mp4') !== -1;
+  outputExt = isMp4 ? 'mp4' : 'webm';
+
+  console.log('📦 حجم الملف:', outputBlob.size, 'bytes | النوع:', mime);
+
+  if (outputBlob.size < 1000) {
+    setStatus('err', '⚠️ التسجيل قصير جداً');
+    return;
+  }
+
+  setStatus('ok', '✅ الفيديو جاهز بصيغة ' + outputExt.toUpperCase() +
+    ' — اضغط زر التحميل ⬇️');
+  btnDownload.style.display = 'flex';
+}
+
+// ============================================================
+//  التحميل
+// ============================================================
+btnDownload.addEventListener('click', function () {
+  if (!outputBlob) { setStatus('err', '⚠️ لا يوجد ملف جاهز'); return; }
+  try {
+    let namePart = 'فيديو';
+    const newsTxt = newsText.value.trim();
+    if (newsTxt) {
+      namePart = newsTxt.slice(0, 20).replace(/[\\/:*?"<>|\n\r]/g, ' ').trim();
+      if (!namePart) namePart = 'فيديو';
+    }
+    const filename = 'فيديو_' + namePart + '.' + outputExt;
+
+    const url = URL.createObjectURL(outputBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+
+    setStatus('ok', '✅ تم التحميل: ' + filename);
+  } catch (e) {
+    console.error('Download error:', e);
+    setStatus('err', '⚠️ تعذر التحميل: ' + e.message);
+  }
+});
+
+// ============================================================
+//  التهيئة
+// ============================================================
+canvas.width = 640;
+canvas.height = 360;
+redraw();
+</script>
 </body>
 </html>
